@@ -16,9 +16,9 @@ namespace Bank_Project_3_4
             this.currentClient = pCurrentClient;
         }
 
-        public Boolean validatePassord(String pPassword)
+        public Boolean validatePassword(String pPassword)
         {
-            if (currentClient.Password == pPassword)
+            if (currentClient.Password.Equals(pPassword))
             {
                 return true;
             }

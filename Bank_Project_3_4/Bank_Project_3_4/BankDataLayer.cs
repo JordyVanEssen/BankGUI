@@ -17,10 +17,23 @@ namespace BankDataLayer
         public string PassId { get; set; }
         public double Saldo { get; set; }
         public Boolean PassBlocked { get; set; }
+
+        public virtual List<Transaction> Transactions { get; set; }
+    }
+
+    public class Transaction
+    {
+        public int TransactionId { get; set; }
+        public string Iban { get; set; }
+        public double OldSaldo { get; set; }
+        public double NewSaldo { get; set; }
+
+        public virtual Client Client { get; set; }
     }
 
     public partial class ClientContext : DbContext
     {
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }

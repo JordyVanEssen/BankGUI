@@ -30,6 +30,11 @@ namespace Bank_Project_3_4
                 {
                     result.Saldo = result.Saldo += amount;
                     db.SaveChanges();//update new saldo
+                    MessageBox.Show("Transactie succesvol");
+                }
+                else
+                {
+                    MessageBox.Show("Transactie mislukt");
                 }
             }
         }
