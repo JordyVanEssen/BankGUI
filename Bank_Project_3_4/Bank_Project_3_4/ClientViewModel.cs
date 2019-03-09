@@ -7,15 +7,23 @@ using BankDataLayer;
 
 namespace Bank_Project_3_4
 {
-    public static class ClientViewModel
+    public class ClientViewModel
     {
-        public static List<Client> GetClients()
-        {
+        private ClientContext _db;
 
-            using (var db = new ClientContext())
-            {
-                return db.Clients.ToList();
-            }
+        public ClientViewModel(ClientContext pDb)
+        {
+            _db = pDb;
+        }
+
+        public List<Client> GetClients()
+        {
+               return _db.Clients.ToList();
+        }
+
+        public List<Transaction> GetTransactions()
+        {
+            return _db.Transactions.ToList();
         }
     }
 }

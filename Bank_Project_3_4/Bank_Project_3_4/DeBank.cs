@@ -21,6 +21,9 @@ namespace Bank_Project_3_4
     {
         SerialPort myPort = new SerialPort();//create a serial port
         Client _currentClient;//the currentclient
+        Transaction _transaction;
+        ClientContext _db;
+        Boolean _receipt = false;
 
         private string rxString;//incoming data is stored in String rxString
 
@@ -38,6 +41,7 @@ namespace Bank_Project_3_4
         int invalidPassCount = 0;
 
 
+
         public DeBank()
         {
             InitializeComponent();
@@ -47,10 +51,12 @@ namespace Bank_Project_3_4
         private void DeBank_Load(object sender, EventArgs e)
         {
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM22";
+            myPort.PortName = "COM3";
             myPort.DataReceived += MyPort_DataReceived;
             myPort.Open();
             myPort.WriteLine("R");
+
+            _db = new ClientContext();
         }
 
         private void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -64,62 +70,60 @@ namespace Bank_Project_3_4
             //filters the rubish out of the strings
             if (!rxString.Contains("VM") && waitForPass == false)
             {
-                using (var db = new ClientContext())//creates an instance of the database
+                var result = _db.Clients.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
+                if (result == null)//if pass does not exist
                 {
-                    var result = db.Clients.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
-                    if (result == null)//if pass does not exist
-                    {
-                        //the new client
-                        result = new Client { PassId = rxString };
+                    //the new client
+                    result = new Client { PassId = rxString };
 
-                        using (SetClientDialogBox clientForm = new SetClientDialogBox(result))
+                    using (SetClientDialogBox clientForm = new SetClientDialogBox(result, _db))
+                    {
+                        //opens a new form to add the new client to the database
+                        if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         {
-                            //opens a new form to add the new client to the database
-                            if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                            myPort.WriteLine("R");
+                        }
+                    }
+                    //the current client
+                    _currentClient = result;
+                    addedClient = true;
+                }
+                else
+                {
+                    _currentClient = result;
+                    addedClient = false;
+
+                    if (_currentClient.PassBlocked == false)
+                    {
+                        myPort.WriteLine("P");
+                        //MessageBox.Show($"Graag uw wachtwoord invullen op het keypad: " + _currentClient.Name, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        updateText(_currentClient);
+
+                        while (true)
+                        {
+                            System.Threading.Thread.Sleep(1000);
+                            enteredPassword = myPort.ReadExisting();
+                            if (enteredPassword.Contains("pass"))
                             {
-                                myPort.WriteLine("R");
+                                break;
                             }
                         }
-                        //the current client
-                        _currentClient = result;
-                        addedClient = true;
+
+                        //readPass = myPort.ReadLine();
+                        readPass = enteredPassword.Substring(enteredPassword.IndexOf('p'));
+
+                        waitForPass = true;
                     }
                     else
                     {
-                        _currentClient = result;
-                        addedClient = false;
-
-                        if (_currentClient.PassBlocked == false)
-                        {
-                            myPort.WriteLine("P");
-                            //MessageBox.Show($"Graag uw wachtwoord invullen op het keypad: " + _currentClient.Name, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            updateText(_currentClient);
-
-                            while (true)
-                            {
-                                enteredPassword = myPort.ReadExisting();
-                                if (enteredPassword.Contains("pass"))
-                                {
-                                    break;
-                                }
-                            }
-                            
-                            //readPass = myPort.ReadLine();
-                            readPass = enteredPassword.Substring(enteredPassword.IndexOf('p'));
-
-                            waitForPass = true;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Uw pas is geblokkeerd", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-
+                        MessageBox.Show("Uw pas is geblokkeerd", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
 
-                    UpdateForm(result);
-
-                    //result is a Client
                 }
+
+                UpdateForm(result);
+
+                //result is a Client
             }
 
             if (readPass.Contains("pass") && waitForPass)
@@ -141,35 +145,29 @@ namespace Bank_Project_3_4
                 validPass = false;
                 invalidPassCount = 0;
 
-                using (var db = new ClientContext())
-                {
-                    _currentClient.PassBlocked = false;
-                    db.SaveChanges();//update new saldo
-                }
+                _currentClient.PassBlocked = false;
+                _db.SaveChanges();//update new saldo
             }
             else
             {
-                if (!addedClient)
+                if (!addedClient && !_currentClient.PassBlocked)
                 {
                     invalidPassCount += 1;
                     if (invalidPassCount > 3)
                     {
                         MessageBox.Show("Uw pas is geblokkeerd");
-                        myPort.WriteLine("R");
 
-                        using (var db = new ClientContext())
-                        {
-                            _currentClient.PassBlocked = true;
-                            db.SaveChanges();
-                        }
+                        _currentClient.PassBlocked = true;
+                        _db.SaveChanges();
                     }
                     else
                     {
                         waitForPass = false;
                         MessageBox.Show("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n 1) lees uw pas in \n 2) voer uw wachtwoord in");
-                        myPort.WriteLine("R");
                     }
                 }
+
+                myPort.WriteLine("R");
             }
         }
 
@@ -182,7 +180,6 @@ namespace Bank_Project_3_4
             }
 
             lblWelcome.Text = "Graag uw wachtwoord invoeren op het keypad " + pClient.Name;
-
         }
 
         public void UpdateForm(Client pClient)//show client data
@@ -195,23 +192,54 @@ namespace Bank_Project_3_4
 
             if (validPass)
             {
-                //lblWelcome.Visible = false;
+                lblWelcome.Visible = false;
                 grpbUserInterface.Visible = true;
             }
             else
             {
                 grpbUserInterface.Visible = false;
+                lblWelcome.Visible = true;
+            }
+
+            if (_receipt)
+            {
+                loadReceipt();
+                lblWelcome.Visible = false;
+                _receipt = false;
+            }
+            else
+            {
+                loadClients();
             }
 
             tbLoggedInUser.Text = pClient.Name;
-            dataGridView1.DataSource = ClientViewModel.GetClients();
-            dataGridView1.AutoGenerateColumns = true;
+        }
+
+        private void createReceipt(double pOldSaldo, double pNewSaldo)
+        {
+            _transaction = new Transaction { Name = _currentClient.Name };
+            DateTime now = DateTime.Now;
+
+            _transaction.OldSaldo = pOldSaldo;
+            _transaction.NewSaldo = pNewSaldo;
+            _transaction.Time = now;
+
+            _db.Transactions.Add(_transaction);
+            _db.SaveChanges();
+        }
+
+        private void loadReceipt()//shows the transaction on screen
+        {
+            ClientViewModel cv = new ClientViewModel(_db);
+            dgvReceipt.DataSource = cv.GetTransactions();
+            dgvReceipt.AutoGenerateColumns = true;
         }
 
         private void loadClients()//show the client database on screen
         {
-            dataGridView1.DataSource = ClientViewModel.GetClients();
-            dataGridView1.AutoGenerateColumns = true;
+            ClientViewModel cv = new ClientViewModel(_db);
+            dgvClient.DataSource = cv.GetClients();
+            dgvClient.AutoGenerateColumns = true;
         }
 
         private void DeBank_Shown(object sender, EventArgs e)//show all clients a bit after the form loaded
@@ -221,7 +249,7 @@ namespace Bank_Project_3_4
 
         private void btnGetSaldo_Click(object sender, EventArgs e)//if button is pressed
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient.PassId);
+            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient.PassId, _db);
             tbUserSaldo.Text = Convert.ToString(checkSaldo.getSaldo());//get the saldo of the current client
         }
 
@@ -229,36 +257,40 @@ namespace Bank_Project_3_4
         {
             if (!string.IsNullOrEmpty(tbWithdrawMoney.Text))
             {
-                Withdraw withDrawel = new Withdraw(_currentClient, Convert.ToDouble(tbWithdrawMoney.Text));
+                double amount = Convert.ToDouble(tbWithdrawMoney.Text);
+                Withdraw withDrawel = new Withdraw(_currentClient, amount, _db);
                 withDrawel.withdrawMoney();//withdraw money
+
+                createReceipt(amount, _currentClient.Saldo);
+
+                _receipt = true;
             }
             else
             {
                 MessageBox.Show("Graag het veld invullen", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
-            
+
+            UpdateForm(_currentClient);
         }
 
-        private void btnDeposit_Click(object sender, EventArgs e)//if button is pressend
+        private void btnDeposit_Click(object sender, EventArgs e)//if button is pressed
         {
             if (!string.IsNullOrEmpty(tbDepositMoney.Text))
             {
-                Deposit depositMoney = new Deposit(_currentClient, Convert.ToDouble(tbDepositMoney.Text));
+                double amount = Convert.ToDouble(tbDepositMoney.Text);
+                Deposit depositMoney = new Deposit(_currentClient, amount, _db);
                 depositMoney.deposit();//deposit money
+
+                createReceipt(amount, _currentClient.Saldo);
+
+                _receipt = true;
             }
             else
             {
                 MessageBox.Show("Graag het veld invullen", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
-        }
 
-        public String scanPort()
-        {
-            String enteredPass = myPort.ReadExisting();
-
-            return enteredPass;
+            UpdateForm(_currentClient);
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -291,22 +323,5 @@ namespace Bank_Project_3_4
                 //            select b;
             }
         }
-
-        //private void button1_Click(object sender, EventArgs e)
-        //{
-        //    using (var db = new ClientContext())
-        //    {
-        //        // Create and save a new Blog
-
-        //        var client = new Client { Name = textBox1.Text };
-        //        db.Clients.Add(client);
-        //        db.SaveChanges();
-
-        //        // Display all Blogs from the database
-        //        var query = from b in db.Clients
-        //                    orderby b.Name
-        //                    select b;
-        //    }
-        //}
     }
 }

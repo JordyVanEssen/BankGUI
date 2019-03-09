@@ -10,13 +10,15 @@ namespace Bank_Project_3_4
 {
     public class Withdraw
     {
+        ClientContext _db;
         Client currentClient;
         String passId = "";
         double amount;
         double saldo;
 
-        public Withdraw(Client pCurrentClient, double amount)
+        public Withdraw(Client pCurrentClient, double amount, ClientContext pDb)
         {
+            _db = pDb;
             currentClient = pCurrentClient;
             this.passId = pCurrentClient.PassId;
             this.amount = amount;
@@ -24,24 +26,21 @@ namespace Bank_Project_3_4
 
         public void withdrawMoney()
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(currentClient.PassId);
+            CheckUserSaldo checkSaldo = new CheckUserSaldo(currentClient.PassId, _db);
             saldo = checkSaldo.getSaldo();
 
             if (saldo > amount && amount > 0)
             {
-                using (var db = new ClientContext())
+                var result = _db.Clients.FirstOrDefault(x => x.PassId == passId);
+                if (result != null)//no match found
                 {
-                    var result = db.Clients.FirstOrDefault(x => x.PassId == passId);
-                    if (result != null)//no match found
-                    {
-                        result.Saldo = result.Saldo -= amount;
-                        db.SaveChanges();//update new saldo
-                        MessageBox.Show("Transactie succesvol");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Transactie mislukt");
-                    }
+                    result.Saldo = result.Saldo -= amount;
+                    _db.SaveChanges();//update new saldo
+                    MessageBox.Show("Transactie succesvol");
+                }
+                else
+                {
+                    MessageBox.Show("Transactie mislukt");
                 }
             }
             else

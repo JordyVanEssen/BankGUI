@@ -31,7 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.label1 = new System.Windows.Forms.Label();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dgvClient = new System.Windows.Forms.DataGridView();
             this.tbLoggedInUser = new System.Windows.Forms.TextBox();
             this.grpbUserInterface = new System.Windows.Forms.GroupBox();
             this.btnLogOut = new System.Windows.Forms.Button();
@@ -46,11 +46,13 @@
             this.btnGetSaldo = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.lblWelcome = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.dgvReceipt = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvClient)).BeginInit();
             this.grpbUserInterface.SuspendLayout();
             this.grpbDeposit.SuspendLayout();
             this.grpbWithdraw.SuspendLayout();
             this.grpbGetSaldo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvReceipt)).BeginInit();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -67,13 +69,13 @@
             this.label1.TabIndex = 4;
             this.label1.Text = "Gebruiker: ";
             // 
-            // dataGridView1
+            // dgvClient
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(312, 106);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(742, 308);
-            this.dataGridView1.TabIndex = 6;
+            this.dgvClient.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvClient.Location = new System.Drawing.Point(326, 75);
+            this.dgvClient.Name = "dgvClient";
+            this.dgvClient.Size = new System.Drawing.Size(892, 150);
+            this.dgvClient.TabIndex = 6;
             // 
             // tbLoggedInUser
             // 
@@ -214,21 +216,30 @@
             this.lblWelcome.TabIndex = 10;
             this.lblWelcome.Text = "Welkom, hou uw pas voor de reader.";
             // 
+            // dgvReceipt
+            // 
+            this.dgvReceipt.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvReceipt.Location = new System.Drawing.Point(326, 231);
+            this.dgvReceipt.Name = "dgvReceipt";
+            this.dgvReceipt.Size = new System.Drawing.Size(892, 150);
+            this.dgvReceipt.TabIndex = 11;
+            // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1066, 462);
+            this.ClientSize = new System.Drawing.Size(1308, 462);
+            this.Controls.Add(this.dgvReceipt);
             this.Controls.Add(this.lblWelcome);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.grpbUserInterface);
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.dgvClient);
             this.Name = "DeBank";
             this.Text = "Pinautomaat";
             this.TransparencyKey = System.Drawing.Color.Silver;
             this.Load += new System.EventHandler(this.DeBank_Load);
             this.Shown += new System.EventHandler(this.DeBank_Shown);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvClient)).EndInit();
             this.grpbUserInterface.ResumeLayout(false);
             this.grpbUserInterface.PerformLayout();
             this.grpbDeposit.ResumeLayout(false);
@@ -237,6 +248,7 @@
             this.grpbWithdraw.PerformLayout();
             this.grpbGetSaldo.ResumeLayout(false);
             this.grpbGetSaldo.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvReceipt)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -245,7 +257,7 @@
         #endregion
         private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dgvClient;
         private System.Windows.Forms.TextBox tbLoggedInUser;
         private System.Windows.Forms.GroupBox grpbUserInterface;
         private System.Windows.Forms.GroupBox grpbGetSaldo;
@@ -260,6 +272,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button btnLogOut;
         private System.Windows.Forms.Label lblWelcome;
+        private System.Windows.Forms.DataGridView dgvReceipt;
     }
 }
 

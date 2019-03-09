@@ -9,23 +9,23 @@ namespace Bank_Project_3_4
 {
     public class CheckUserSaldo
     {
+        ClientContext _db;
         double usersaldo = 0;
         String UserID;
 
-        public CheckUserSaldo(String pUserID)
+        public CheckUserSaldo(String pUserID, ClientContext pDb)
         {
+            _db = pDb;
             this.UserID = pUserID;
         }
 
         public double getSaldo()
         {
-            using (var db = new ClientContext())
+            
+            var result = _db.Clients.FirstOrDefault(x => x.PassId == UserID);//checks if saldo > then the amount the user wants to withdraw
+            if (result != null)
             {
-                var result = db.Clients.FirstOrDefault(x => x.PassId == UserID);//checks if saldo > then the amount the user wants to withdraw
-                if (result != null)
-                {
-                    usersaldo = result.Saldo;
-                }
+                usersaldo = result.Saldo;
             }
             return usersaldo;
         }

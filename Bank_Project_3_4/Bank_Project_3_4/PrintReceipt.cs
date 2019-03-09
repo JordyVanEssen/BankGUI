@@ -8,5 +8,6 @@ namespace Bank_Project_3_4
 {
     class PrintReceipt
     {
+
     }
 }

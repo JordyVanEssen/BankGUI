@@ -10,12 +10,14 @@ namespace Bank_Project_3_4
 {
     class Deposit
     {
+        ClientContext _db;
         Client currentClient;
         String passId = "";
         double amount;
 
-        public Deposit(Client pCurrentClient, double amount)
+        public Deposit(Client pCurrentClient, double amount, ClientContext pDb)
         {
+            _db = pDb;
             currentClient = pCurrentClient;
             this.passId = pCurrentClient.PassId;
             this.amount = amount;
@@ -23,20 +25,18 @@ namespace Bank_Project_3_4
 
         public void deposit()
         {
-            using (var db = new ClientContext())
+            var result = _db.Clients.FirstOrDefault(x => x.PassId == passId);
+            if (result != null)//match found
             {
-                var result = db.Clients.FirstOrDefault(x => x.PassId == passId);
-                if (result != null)//match found
-                {
-                    result.Saldo = result.Saldo += amount;
-                    db.SaveChanges();//update new saldo
-                    MessageBox.Show("Transactie succesvol");
-                }
-                else
-                {
-                    MessageBox.Show("Transactie mislukt");
-                }
+                result.Saldo = result.Saldo += amount;
+                _db.SaveChanges();//update new saldo
+                MessageBox.Show("Transactie succesvol");
             }
+            else
+            {
+                MessageBox.Show("Transactie mislukt");
+            }
+
         }
     }
 }
