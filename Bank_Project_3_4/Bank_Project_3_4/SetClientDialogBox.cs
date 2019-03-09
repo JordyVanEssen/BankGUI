@@ -18,6 +18,7 @@ namespace Bank_Project_3_4
         public String username = "";
         public String password = "";
         Client _currentClient;
+        CheckValidUserInput checkInput;
 
         public char[] passwordChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
@@ -35,89 +36,55 @@ namespace Bank_Project_3_4
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            bool validPassword = false;
-            bool fieldName = false;
-            bool fieldPass = false;
+            Boolean validInput = false;
+            checkInput = new CheckValidUserInput(_db, _currentClient);
 
-            bool validChars = false;
-            char[] checkPassword = tbUserPassword.Text.ToCharArray();
-            int passLength = checkPassword.Length;
-
-            if (passLength == 4)
+            if (!string.IsNullOrWhiteSpace(tbUserName.Text) && !string.IsNullOrWhiteSpace(tbUserPassword.Text))
             {
-                if (!string.IsNullOrWhiteSpace(tbUserName.Text))
-                {
-                    fieldName = true;
-                }
-                else
-                {
-                    fieldName = false;
-                }
-
-                if (!string.IsNullOrWhiteSpace(tbUserPassword.Text))
-                {
-                    fieldPass = true;
-                }
-                else
-                {
-                    fieldPass = false;
-                }
-
-                if (fieldPass && fieldName)
-                {
-                    for (int i = 0; i < passLength; i++)
-                    {
-                        validChars = passwordChars.Any(x => x == checkPassword[i]);
-
-                        if (!validChars)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (validChars)
-                    {
-                        validPassword = true;
-                    }
-                    else
-                    {
-                        checkPassword = null;
-                        validPassword = false;
-                    }
-                }
-
-                if (fieldName && validPassword)
-                {
-                    username = tbUserName.Text;
-                    password = new string(checkPassword);
-                    checkPassword = null;
-
-                    _currentClient.Name = username;
-                    _currentClient.Password = password;
-
-                    _db.Clients.Add(_currentClient);
-                    _db.SaveChanges();
-
-                    MessageBox.Show("U bent succesvol toegevoegd!", "Toegevoegd", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.DialogResult = System.Windows.Forms.DialogResult.OK;
-                    this.Close();
-                }
-                else
-                {
-                    if (!validPassword && fieldName && fieldPass)
-                    {
-                        MessageBox.Show("Uw wachtwoord mag alleen bestaan uit: '0, 1, 2, 3, 4, 5, 6, 7, 8, 9' ", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Gelieve AL de velden invullen", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
+                validInput = true;
             }
             else
             {
-                MessageBox.Show("Uw wachtwoord moet 4 karakters bevatten en nu heeft u er: " + passLength, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                validInput = false;
+            }
+
+            validInput = checkInput.validInput(tbUserPassword.Text, validInput);
+
+            if (validInput && checkInput.validPassword)
+            {
+                username = tbUserName.Text;
+                password = new string(checkInput.checkPassword);
+
+                _currentClient.Name = username;
+                _currentClient.Password = password;
+
+                _db.Clients.Add(_currentClient);
+                _db.SaveChanges();
+
+                Helper.showMessage("U bent succesvol toegevoegd.");
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
+            {
+                if (!checkInput.validPassword && validInput)
+                {
+                    Helper.showMessage("Uw wachtwoord mag alleen bestaan uit: '0, 1, 2, 3, 4, 5, 6, 7, 8, 9' ", MessageBoxIcon.Error);
+                }
+                else
+                {
+                    if (checkInput.passLength < 4)
+                    {
+                        Helper.showMessage("Uw wachtwoord moet bestaan uit 4 karakters. U hebt er nu: " + checkInput.passLength, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        Helper.showMessage("Gelieve AL de velden invullen.", MessageBoxIcon.Error);
+                    }
+                }
             }
         }
+
     }
 }

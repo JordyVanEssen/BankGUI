@@ -59,8 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BankDataLayer.cs" />
-    <Compile Include="CheckIncomingData.cs" />
     <Compile Include="CheckUserSaldo.cs" />
+    <Compile Include="CheckValidUserInput.cs" />
     <Compile Include="ClientContext.cs" />
     <Compile Include="ClientPasswordCheck.cs" />
     <Compile Include="ClientViewModel.cs" />
@@ -71,6 +71,7 @@
       <DependentUpon>DeBank.cs</DependentUpon>
     </Compile>
     <Compile Include="Deposit.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="PrintReceipt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

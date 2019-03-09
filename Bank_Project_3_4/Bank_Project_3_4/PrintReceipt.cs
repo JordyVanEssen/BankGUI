@@ -1,13 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO.Ports;
+using System.Data.Entity;
+using BankDataLayer;
 
 namespace Bank_Project_3_4
 {
     class PrintReceipt
     {
+        Transaction _transaction;
 
+        public PrintReceipt( Transaction pTransaction)
+        {
+            _transaction = pTransaction;
+        }
+
+        public String print()
+        {
+
+            String receipt = "";
+
+            for (int i = 0; i < 39; i++)
+            {
+                receipt += "=";
+            }
+
+            receipt += '\n';
+            receipt += "Transaction ID\t " + _transaction.TransactionId + '\n';
+            receipt += "Client name\t " + _transaction.Name + '\n';
+            receipt += "IBAN     \t " + _transaction.Iban + '\n';
+
+            for (int i = 0; i < 39; i++)
+            {
+                receipt += "-";
+            }
+
+            receipt += '\n';
+            receipt += "Old Saldo\t " + _transaction.OldSaldo + '\n';
+            receipt += "New Saldo\t " + _transaction.NewSaldo + '\n';
+
+            for (int i = 0; i < 39; i++)
+            {
+                receipt += "-";
+            }
+
+            receipt += '\n';
+            receipt += "Time     \t " + _transaction.Time + '\n';
+
+            for (int i = 0; i < 39; i++)
+            {
+                receipt += "=";
+            }
+
+            return receipt;
+        }
     }
 }

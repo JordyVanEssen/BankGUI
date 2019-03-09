@@ -21,9 +21,9 @@ namespace Bank_Project_3_4
                return _db.Clients.ToList();
         }
 
-        public List<Transaction> GetTransactions()
+        public List<Transaction> GetTransactions(int pClientId)
         {
-            return _db.Transactions.ToList();
+            return _db.Transactions.Where(x => x.ClientId == pClientId).ToList();
         }
     }
 }

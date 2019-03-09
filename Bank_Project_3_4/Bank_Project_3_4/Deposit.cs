@@ -23,18 +23,18 @@ namespace Bank_Project_3_4
             this.amount = amount;
         }
 
-        public void deposit()
+        public Boolean deposit()
         {
             var result = _db.Clients.FirstOrDefault(x => x.PassId == passId);
             if (result != null)//match found
             {
                 result.Saldo = result.Saldo += amount;
                 _db.SaveChanges();//update new saldo
-                MessageBox.Show("Transactie succesvol");
+                return true;
             }
             else
             {
-                MessageBox.Show("Transactie mislukt");
+                return false;
             }
 
         }

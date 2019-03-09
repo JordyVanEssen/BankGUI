@@ -24,13 +24,15 @@ namespace BankDataLayer
     public class Transaction
     {
         public int TransactionId { get; set; }
+        public int ClientId { get; set; }
         public string Name { get; set; }
         public string Iban { get; set; }
+        public string Mode { get; set; }
         public double OldSaldo { get; set; }
         public double NewSaldo { get; set; }
         public DateTime Time { get; set; }
 
-        public virtual Client Client { get; set; }
+        //public virtual Client Client { get; set; }
     }
 
     public partial class ClientContext : DbContext

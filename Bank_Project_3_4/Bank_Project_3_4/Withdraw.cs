@@ -24,7 +24,7 @@ namespace Bank_Project_3_4
             this.amount = amount;
         }
 
-        public void withdrawMoney()
+        public Boolean withdrawMoney()
         {
             CheckUserSaldo checkSaldo = new CheckUserSaldo(currentClient.PassId, _db);
             saldo = checkSaldo.getSaldo();
@@ -36,24 +36,16 @@ namespace Bank_Project_3_4
                 {
                     result.Saldo = result.Saldo -= amount;
                     _db.SaveChanges();//update new saldo
-                    MessageBox.Show("Transactie succesvol");
+                    return true;
                 }
                 else
                 {
-                    MessageBox.Show("Transactie mislukt");
+                    return false;
                 }
             }
             else
             {
-                if (amount < 0)
-                {
-                    MessageBox.Show("Gelieve alleen positieve getallen invoeren");
-
-                }
-                else
-                {
-                    MessageBox.Show($"Er staat niet genoeg saldo op uw account");
-                }
+                return false;
             }
 
         }
