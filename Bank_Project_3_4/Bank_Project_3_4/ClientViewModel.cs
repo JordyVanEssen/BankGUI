@@ -18,7 +18,7 @@ namespace Bank_Project_3_4
 
         public List<Client> GetClients()
         {
-               return _db.Clients.ToList();
+            return _db.Clients.ToList();
         }
 
         public List<Transaction> GetTransactions(int pClientId)

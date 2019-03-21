@@ -9,9 +9,9 @@ namespace Bank_Project_3_4
 {
     class ClientPasswordCheck
     {
-        Client currentClient;
+        UserTag currentClient;
 
-        public ClientPasswordCheck(Client pCurrentClient)
+        public ClientPasswordCheck(UserTag pCurrentClient)
         {
             this.currentClient = pCurrentClient;
         }

@@ -16,9 +16,11 @@ namespace Bank_Project_3_4
     class PrintReceipt
     {
         Transaction _transaction;
+        Client _currentClient;
 
-        public PrintReceipt( Transaction pTransaction)
+        public PrintReceipt( Transaction pTransaction, Client pCClient)
         {
+            _currentClient = pCClient;
             _transaction = pTransaction;
         }
 
@@ -35,7 +37,7 @@ namespace Bank_Project_3_4
             receipt += '\n';
             receipt += "Transaction ID\t " + _transaction.TransactionId + '\n';
             receipt += "Client name\t " + _transaction.Name + '\n';
-            receipt += "IBAN     \t " + _transaction.Iban + '\n';
+            receipt += "IBAN     \t " + _currentClient.Iban + '\n';
 
             for (int i = 0; i < 39; i++)
             {

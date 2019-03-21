@@ -14,36 +14,40 @@ namespace Bank_Project_3_4
         public String username = "";
         public String password = "";
         Client _currentClient;
+        UserTag _userCredentials;
 
         public bool filledInField = false;
-        public bool validPassword = false;
+        public bool validUserInput = false;
         public bool validChars = false;
-        public char[] checkPassword;
-        public int passLength;
+        public bool input = false;
+        public char[] checkInput;
+        public int inputLength;
 
         public char[] passwordChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
-        public CheckValidUserInput(ClientContext pDb, Client pCurrentClient)
+        public CheckValidUserInput(ClientContext pDb, Client pCurrentClient, UserTag pUserCredential)
         {
             _db = pDb;
             _currentClient = pCurrentClient;
+            _userCredentials = pUserCredential;
         }
 
         public Boolean validInput(String pInput, Boolean pFilledInField)
         {
-            checkPassword = null;
-            validPassword = false;
+            input = pFilledInField;
+            checkInput = null;
+            validUserInput = false;
             validChars = false;
-            checkPassword = pInput.ToCharArray();
-            passLength = checkPassword.Length;
+            checkInput = pInput.ToCharArray();
+            inputLength = checkInput.Length;
 
-            if (passLength == 4)
+            if (inputLength == 4)
             {
-                if (pFilledInField)
+                if (input)
                 {
-                    for (int i = 0; i < passLength; i++)
+                    for (int i = 0; i < inputLength; i++)
                     {
-                        validChars = passwordChars.Any(x => x == checkPassword[i]);
+                        validChars = passwordChars.Any(x => x == checkInput[i]);
 
                         if (!validChars)
                         {
@@ -53,13 +57,13 @@ namespace Bank_Project_3_4
 
                     if (validChars)
                     {
-                        validPassword = true;
+                        validUserInput = true;
                         return true;
                     }
                     else
                     {
-                        validPassword = false;
-                        checkPassword = null;
+                        validUserInput = false;
+                        checkInput = null;
                         return false;
                     }
                 }

@@ -20,10 +20,13 @@ namespace Bank_Project_3_4
     public partial class DeBank : Form
     {
         SerialPort myPort = new SerialPort();//create a serial port
+        Client _newClient;
         Client _currentClient;//the currentclient
+        UserTag _newUserId;
         Transaction _transaction;
         ClientContext _db;
-        PrintReceipt print;
+        PrintReceipt _print;
+        CheckValidUserInput _checkInput;
 
         Boolean _receipt = false;
 
@@ -72,13 +75,14 @@ namespace Bank_Project_3_4
             //filters the rubish out of the strings
             if (!rxString.Contains("VM") && waitForPass == false)
             {
-                var result = _db.Clients.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
+                var result = _db.userTags.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
                 if (result == null)//if pass does not exist
                 {
                     //the new client
-                    result = new Client { PassId = rxString };
+                    var newClient = new UserTag { PassId = rxString };
+                    _currentClient = createNewClient(newClient);
 
-                    using (SetClientDialogBox clientForm = new SetClientDialogBox(result, _db))
+                    using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, _db, newClient))
                     {
                         //opens a new form to add the new client to the database
                         if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -87,15 +91,16 @@ namespace Bank_Project_3_4
                         }
                     }
                     //the current client
-                    _currentClient = result;
                     addedClient = true;
                 }
                 else
                 {
-                    _currentClient = result;
+                    _currentClient = _db.Clients.FirstOrDefault(x => x.ClientId == result.UsertagId);//searches for matching id's
+
+                    _newUserId = result;
                     addedClient = false;
 
-                    if (_currentClient.PassBlocked == false)
+                    if (_newUserId.PassBlocked == false)
                     {
                         myPort.WriteLine("P");
                         //MessageBox.Show($"Graag uw wachtwoord invullen op het keypad: " + _currentClient.Name, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -124,14 +129,14 @@ namespace Bank_Project_3_4
 
                 }
 
-                UpdateForm(result);
+                UpdateForm(_currentClient);
 
                 //result is a Client
             }
 
             if (readPass.Contains("pass") && waitForPass)
             {
-                ClientPasswordCheck checkPass = new ClientPasswordCheck(_currentClient);
+                ClientPasswordCheck checkPass = new ClientPasswordCheck(_newUserId);
                 readPass.Replace("pass", null);
                 readPass = readPass.Substring(readPass.IndexOf('s') + 2);
                 readPass = readPass.Trim();
@@ -148,19 +153,19 @@ namespace Bank_Project_3_4
                 //validPass = false;
                 invalidPassCount = 0;
 
-                _currentClient.PassBlocked = false;
+                _newUserId.PassBlocked = false;
                 _db.SaveChanges();//update new saldo
             }
             else
             {
-                if (!addedClient && !_currentClient.PassBlocked)
+                if (!addedClient && !_newUserId.PassBlocked)
                 {
                     invalidPassCount += 1;
                     if (invalidPassCount > 3)
                     {
                         MessageBox.Show("Uw pas is geblokkeerd");
 
-                        _currentClient.PassBlocked = true;
+                        _newUserId.PassBlocked = true;
                         _db.SaveChanges();
                     }
                     else
@@ -172,6 +177,15 @@ namespace Bank_Project_3_4
 
                 myPort.WriteLine("R");
             }
+        }
+
+        private Client createNewClient(UserTag pNewClient)
+        {
+            Client newClient = new Client();
+
+            newClient.UserTagId = pNewClient.UsertagId;
+
+            return newClient;
         }
 
         public void updateText(Client pClient)
@@ -190,6 +204,25 @@ namespace Bank_Project_3_4
                 lblWelcome.Text = "Graag uw wachtwoord invoeren op het keypad " + pClient.Name;
             }
 
+        }
+
+        private void inputErrorMsg(bool pInput)
+        {
+            if (!pInput)
+            {
+                if (!_checkInput.validUserInput && _checkInput.inputLength == 4)
+                {
+                    Helper.showMessage("U mag alleen getallen invoeren ", MessageBoxIcon.Error);
+                }
+                else if (_checkInput.inputLength < 4 || _checkInput.inputLength > 4)
+                {
+                    Helper.showMessage("U mag alleen een getal invoeren wat maximaal bestaat uit 4 karakters. Nu heeft u er: " + _checkInput.inputLength, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    Helper.showMessage("Gelieve AL de velden invullen.", MessageBoxIcon.Error);
+                }
+            }
         }
 
         public void UpdateForm(Client pClient)//show client data
@@ -228,13 +261,14 @@ namespace Bank_Project_3_4
 
         private void createReceipt(double pOldSaldo, double pNewSaldo, string pMode)
         {
-            _transaction = new Transaction { Name = _currentClient.Name };
+            _transaction = new Transaction { Mode = pMode };
             DateTime now = DateTime.Now;
 
+            _transaction.ClientId = _currentClient.ClientId;
+            _transaction.Name = _currentClient.Name;
             _transaction.OldSaldo = pOldSaldo;
             _transaction.NewSaldo = pNewSaldo;
             _transaction.Time = now;
-            _transaction.ClientId = _currentClient.ClientId;
             _transaction.Mode = pMode;
 
             _db.Transactions.Add(_transaction);
@@ -262,58 +296,76 @@ namespace Bank_Project_3_4
 
         private void btnGetSaldo_Click(object sender, EventArgs e)//if button is pressed
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient.PassId, _db);
+            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _db);
             tbUserSaldo.Text = Convert.ToString(checkSaldo.getSaldo());//get the saldo of the current client
         }
 
         private void btnWithdraw_Click(object sender, EventArgs e)//if button is pressed
         {
-            if (!string.IsNullOrEmpty(tbWithdrawMoney.Text))
+            bool input = false;
+            bool validInput = false;
+            double amount = Convert.ToDouble(tbWithdrawMoney.Text);
+            double oldSaldo = _currentClient.Saldo;
+            bool tSuccesfull = false;//transaction succesfull
+
+            if (!string.IsNullOrWhiteSpace(tbWithdrawMoney.Text))
             {
-                bool tSuccesfull = false;//transaction succesfull
-                double amount = Convert.ToDouble(tbWithdrawMoney.Text);
-                Withdraw withDrawel = new Withdraw(_currentClient, amount, _db);
+                input = true;
+                Withdraw withDrawel = new Withdraw(_currentClient, _newUserId, amount, _db);
                 tSuccesfull = withDrawel.withdrawMoney();//withdraw money
-                double oldSaldo = _currentClient.Saldo + amount;
-
-                if (tSuccesfull)
-                {
-                    createReceipt(oldSaldo, _currentClient.Saldo, "Withdrawel");
-
-                    _receipt = true;
-                    UpdateForm(_currentClient);
-                    btnPrintReceipt.Visible = true;
-
-                    print = new PrintReceipt(_transaction);
-                    rtbReceipt.Text = print.print();
-                    Helper.showMessage("Transactie geslaagd");
-                }
-                else
-                {
-                    if (amount > _currentClient.Saldo)
-                    {
-                        Helper.showMessage("Transactie mislukt. U hebt niet genoeg saldo.", MessageBoxIcon.Error);
-                    }
-                    else
-                    {
-                        Helper.showMessage("Transactie mislukt. Controleer of u alleen getallen hebt ingevoerd.", MessageBoxIcon.Error);
-                    }
-                }
-
             }
             else
             {
-                MessageBox.Show("Graag het veld invullen", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Helper.showMessage("Graag al de velden invullen.", MessageBoxIcon.Error);
             }
+
+            if (tSuccesfull)
+            {
+                createReceipt(oldSaldo, _currentClient.Saldo, "Withdrawel");
+
+                _receipt = true;
+                UpdateForm(_currentClient);
+                btnPrintReceipt.Visible = true;
+
+                _print = new PrintReceipt(_transaction, _currentClient);
+                rtbReceipt.Text = _print.print();
+                Helper.showMessage("Transactie geslaagd");
+            }
+            else
+            {
+                if (amount > _currentClient.Saldo)
+                {
+                    Helper.showMessage("Transactie mislukt. U hebt niet genoeg saldo.", MessageBoxIcon.Error);
+                }
+                else
+                {
+                    Helper.showMessage("Transactie mislukt. Controleer of u alleen getallen hebt ingevoerd.", MessageBoxIcon.Error);
+                }
+            }
+
+            //validInput = _checkInput.validInput(tbWithdrawMoney.Text, input);
+
+            //if (validInput)
+            //{
+                
+            //}
+            //else
+            //{
+            //    inputErrorMsg(validInput);
+            //}
         }
 
         private void btnDeposit_Click(object sender, EventArgs e)//if button is pressed
         {
-            if (!string.IsNullOrEmpty(tbDepositMoney.Text))
+            bool input = false;
+            bool validInput = false;
+            double amount = Convert.ToDouble(tbDepositMoney.Text);
+            double oldSaldo = 0;
+            bool tSuccesfull = false;//transaction succesfull
+
+            if (!string.IsNullOrWhiteSpace(tbDepositMoney.Text))
             {
-                bool tSuccesfull = false;//transaction succesfull
-                double amount = Convert.ToDouble(tbDepositMoney.Text);
-                double oldSaldo = 0;
+                input = true;
                 Deposit depositMoney = new Deposit(_currentClient, amount, _db);
                 tSuccesfull = depositMoney.deposit();//deposit money
 
@@ -334,8 +386,8 @@ namespace Bank_Project_3_4
                     UpdateForm(_currentClient);
                     btnPrintReceipt.Visible = true;
 
-                    print = new PrintReceipt(_transaction);
-                    rtbReceipt.Text = print.print();
+                    _print = new PrintReceipt(_transaction, _currentClient);
+                    rtbReceipt.Text = _print.print();
 
                     Helper.showMessage("Transactie geslaagd");
                 }
@@ -346,9 +398,24 @@ namespace Bank_Project_3_4
             }
             else
             {
-                MessageBox.Show("Graag het veld invullen", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Helper.showMessage("Graag al de velden invullen", MessageBoxIcon.Error);
             }
+            
+            
+            //validInput = _checkInput.validInput(tbDepositMoney.Text, input);
 
+            //if (validInput)
+            //{
+               
+                
+               
+            //}
+            //else
+            //{
+            //    inputErrorMsg(validInput);
+            //}
+
+           
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -391,8 +458,8 @@ namespace Bank_Project_3_4
 
         private void btnPrintReceipt_Click(object sender, EventArgs e)
         {
-            print = new PrintReceipt(_transaction);
-            rtbReceipt.Text = print.print();
+            _print = new PrintReceipt(_transaction, _currentClient);
+            rtbReceipt.Text = _print.print();
         }
     }
 }

@@ -19,16 +19,15 @@ namespace Bank_Project_3_4
         {
             _db = pDb;
             currentClient = pCurrentClient;
-            this.passId = pCurrentClient.PassId;
             this.amount = amount;
         }
 
         public Boolean deposit()
         {
-            var result = _db.Clients.FirstOrDefault(x => x.PassId == passId);
-            if (result != null)//match found
+            //var result = _db.userTags.FirstOrDefault(x => x.PassId == passId);
+            if (currentClient != null)//match found
             {
-                result.Saldo = result.Saldo += amount;
+                currentClient.Saldo = currentClient.Saldo += amount;
                 _db.SaveChanges();//update new saldo
                 return true;
             }

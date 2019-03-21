@@ -11,37 +11,31 @@ namespace Bank_Project_3_4
     public class Withdraw
     {
         ClientContext _db;
-        Client currentClient;
+        Client _currentClient;
+        UserTag _userCredentials;
         String passId = "";
         double amount;
         double saldo;
 
-        public Withdraw(Client pCurrentClient, double amount, ClientContext pDb)
+        public Withdraw(Client pCurrentClient, UserTag pUserCredential, double amount, ClientContext pDb)
         {
             _db = pDb;
-            currentClient = pCurrentClient;
-            this.passId = pCurrentClient.PassId;
+            _currentClient = pCurrentClient;
+            _userCredentials = pUserCredential;
+            this.passId = _userCredentials.PassId;
             this.amount = amount;
         }
 
         public Boolean withdrawMoney()
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(currentClient.PassId, _db);
+            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _db);
             saldo = checkSaldo.getSaldo();
 
             if (saldo > amount && amount > 0)
             {
-                var result = _db.Clients.FirstOrDefault(x => x.PassId == passId);
-                if (result != null)//no match found
-                {
-                    result.Saldo = result.Saldo -= amount;
-                    _db.SaveChanges();//update new saldo
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                _currentClient.Saldo = _currentClient.Saldo -= amount;
+                _db.SaveChanges();//update new saldo
+                return true;
             }
             else
             {

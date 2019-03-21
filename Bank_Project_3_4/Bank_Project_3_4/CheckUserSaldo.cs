@@ -10,23 +10,18 @@ namespace Bank_Project_3_4
     public class CheckUserSaldo
     {
         ClientContext _db;
+        Client _currentClient;
         double usersaldo = 0;
-        String UserID;
 
-        public CheckUserSaldo(String pUserID, ClientContext pDb)
+        public CheckUserSaldo(Client pCurrenClient, ClientContext pDb)
         {
             _db = pDb;
-            this.UserID = pUserID;
+            _currentClient = pCurrenClient;
         }
 
         public double getSaldo()
         {
-            
-            var result = _db.Clients.FirstOrDefault(x => x.PassId == UserID);//checks if saldo > then the amount the user wants to withdraw
-            if (result != null)
-            {
-                usersaldo = result.Saldo;
-            }
+            usersaldo = _currentClient.Saldo;
             return usersaldo;
         }
     }
