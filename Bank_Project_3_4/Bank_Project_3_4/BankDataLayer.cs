@@ -18,8 +18,7 @@ namespace BankDataLayer
         public double Saldo { get; set; }
         public string Iban { get; set; }
 
-        public virtual List<Transaction> Transactions { get; set; }
-        public virtual List<UserTag> UserTag { get; set; }
+        public Transaction Transaction { get; set; }
     }
 
     public class Transaction
@@ -31,10 +30,6 @@ namespace BankDataLayer
         public double OldSaldo { get; set; }
         public double NewSaldo { get; set; }
         public DateTime Time { get; set; }
-
-        public virtual List<Client> Client { get; set; }
-        public virtual List<UserTag> UserTag { get; set; }
-
     }
 
     public class UserTag
@@ -44,8 +39,7 @@ namespace BankDataLayer
         public string PassId { get; set; }
         public Boolean PassBlocked { get; set; }
 
-        public virtual List<Transaction> Transactions { get; set; }
-        public virtual List<Client> Client { get; set; }
+        public Client Client { get; set; }
     }
 
 
@@ -54,6 +48,6 @@ namespace BankDataLayer
     {
         public DbSet<Client> Clients { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<UserTag> userTags { get; set; }
+        public DbSet<UserTag> UserTags { get; set; }
     }
 }

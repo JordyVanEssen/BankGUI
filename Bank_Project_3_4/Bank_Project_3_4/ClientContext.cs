@@ -10,6 +10,7 @@
         public ClientContext()
             : base("name=ClientContext")
         {
+            Database.SetInitializer<ClientContext>(new CreateDatabaseIfNotExists<ClientContext>());
         }
 
 

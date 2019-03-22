@@ -24,9 +24,10 @@ namespace Bank_Project_3_4
             _transaction = pTransaction;
         }
 
+        //creates the receipt and returns it
         public String print()
         {
-
+            //new receipt
             String receipt = "";
 
             for (int i = 0; i < 39; i++)
@@ -35,22 +36,21 @@ namespace Bank_Project_3_4
             }
 
             receipt += '\n';
-            receipt += "Transaction ID\t " + _transaction.TransactionId + '\n';
             receipt += "Client name\t " + _transaction.Name + '\n';
             receipt += "IBAN     \t " + _currentClient.Iban + '\n';
 
             for (int i = 0; i < 39; i++)
             {
-                receipt += "-";
+                receipt += "--";
             }
 
             receipt += '\n';
-            receipt += "Old Saldo\t " + _transaction.OldSaldo + '\n';
+            receipt += "Old Saldo\t\t " + _transaction.OldSaldo + '\n';
             receipt += "New Saldo\t " + _transaction.NewSaldo + '\n';
 
             for (int i = 0; i < 39; i++)
             {
-                receipt += "-";
+                receipt += "--";
             }
 
             receipt += '\n';

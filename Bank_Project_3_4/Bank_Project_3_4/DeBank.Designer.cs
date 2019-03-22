@@ -34,6 +34,7 @@
             this.dgvClient = new System.Windows.Forms.DataGridView();
             this.tbLoggedInUser = new System.Windows.Forms.TextBox();
             this.grpbUserInterface = new System.Windows.Forms.GroupBox();
+            this.btnPrintReceipt = new System.Windows.Forms.Button();
             this.btnLogOut = new System.Windows.Forms.Button();
             this.grpbDeposit = new System.Windows.Forms.GroupBox();
             this.tbDepositMoney = new System.Windows.Forms.TextBox();
@@ -48,13 +49,14 @@
             this.lblWelcome = new System.Windows.Forms.Label();
             this.dgvReceipt = new System.Windows.Forms.DataGridView();
             this.rtbReceipt = new System.Windows.Forms.RichTextBox();
-            this.btnPrintReceipt = new System.Windows.Forms.Button();
+            this.dgvUserTag = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.dgvClient)).BeginInit();
             this.grpbUserInterface.SuspendLayout();
             this.grpbDeposit.SuspendLayout();
             this.grpbWithdraw.SuspendLayout();
             this.grpbGetSaldo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceipt)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvUserTag)).BeginInit();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -74,14 +76,14 @@
             // dgvClient
             // 
             this.dgvClient.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvClient.Location = new System.Drawing.Point(563, 75);
+            this.dgvClient.Location = new System.Drawing.Point(593, 20);
             this.dgvClient.Name = "dgvClient";
-            this.dgvClient.Size = new System.Drawing.Size(655, 150);
+            this.dgvClient.Size = new System.Drawing.Size(615, 150);
             this.dgvClient.TabIndex = 6;
             // 
             // tbLoggedInUser
             // 
-            this.tbLoggedInUser.Location = new System.Drawing.Point(69, 19);
+            this.tbLoggedInUser.Location = new System.Drawing.Point(90, 19);
             this.tbLoggedInUser.Name = "tbLoggedInUser";
             this.tbLoggedInUser.ReadOnly = true;
             this.tbLoggedInUser.Size = new System.Drawing.Size(100, 20);
@@ -96,12 +98,23 @@
             this.grpbUserInterface.Controls.Add(this.grpbGetSaldo);
             this.grpbUserInterface.Controls.Add(this.tbLoggedInUser);
             this.grpbUserInterface.Controls.Add(this.label1);
-            this.grpbUserInterface.Location = new System.Drawing.Point(12, 12);
+            this.grpbUserInterface.Location = new System.Drawing.Point(43, 61);
             this.grpbUserInterface.Name = "grpbUserInterface";
-            this.grpbUserInterface.Size = new System.Drawing.Size(294, 402);
+            this.grpbUserInterface.Size = new System.Drawing.Size(294, 420);
             this.grpbUserInterface.TabIndex = 8;
             this.grpbUserInterface.TabStop = false;
             this.grpbUserInterface.Visible = false;
+            // 
+            // btnPrintReceipt
+            // 
+            this.btnPrintReceipt.Location = new System.Drawing.Point(7, 316);
+            this.btnPrintReceipt.Name = "btnPrintReceipt";
+            this.btnPrintReceipt.Size = new System.Drawing.Size(96, 23);
+            this.btnPrintReceipt.TabIndex = 12;
+            this.btnPrintReceipt.Text = "Bon printen";
+            this.btnPrintReceipt.UseVisualStyleBackColor = true;
+            this.btnPrintReceipt.Visible = false;
+            this.btnPrintReceipt.Click += new System.EventHandler(this.btnPrintReceipt_Click);
             // 
             // btnLogOut
             // 
@@ -200,7 +213,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 420);
+            this.button1.Location = new System.Drawing.Point(12, 546);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 9;
@@ -213,7 +226,7 @@
             // 
             this.lblWelcome.AutoSize = true;
             this.lblWelcome.Font = new System.Drawing.Font("Arial Narrow", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblWelcome.Location = new System.Drawing.Point(322, 27);
+            this.lblWelcome.Location = new System.Drawing.Point(39, 23);
             this.lblWelcome.Name = "lblWelcome";
             this.lblWelcome.Size = new System.Drawing.Size(235, 20);
             this.lblWelcome.TabIndex = 10;
@@ -222,35 +235,33 @@
             // dgvReceipt
             // 
             this.dgvReceipt.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvReceipt.Location = new System.Drawing.Point(563, 231);
+            this.dgvReceipt.Location = new System.Drawing.Point(593, 176);
             this.dgvReceipt.Name = "dgvReceipt";
-            this.dgvReceipt.Size = new System.Drawing.Size(655, 150);
+            this.dgvReceipt.Size = new System.Drawing.Size(615, 150);
             this.dgvReceipt.TabIndex = 11;
             // 
             // rtbReceipt
             // 
-            this.rtbReceipt.Location = new System.Drawing.Point(313, 75);
+            this.rtbReceipt.Location = new System.Drawing.Point(343, 61);
             this.rtbReceipt.Name = "rtbReceipt";
-            this.rtbReceipt.Size = new System.Drawing.Size(244, 339);
+            this.rtbReceipt.Size = new System.Drawing.Size(244, 420);
             this.rtbReceipt.TabIndex = 12;
             this.rtbReceipt.Text = "";
             // 
-            // btnPrintReceipt
+            // dgvUserTag
             // 
-            this.btnPrintReceipt.Location = new System.Drawing.Point(7, 328);
-            this.btnPrintReceipt.Name = "btnPrintReceipt";
-            this.btnPrintReceipt.Size = new System.Drawing.Size(96, 23);
-            this.btnPrintReceipt.TabIndex = 12;
-            this.btnPrintReceipt.Text = "Bon printen";
-            this.btnPrintReceipt.UseVisualStyleBackColor = true;
-            this.btnPrintReceipt.Visible = false;
-            this.btnPrintReceipt.Click += new System.EventHandler(this.btnPrintReceipt_Click);
+            this.dgvUserTag.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvUserTag.Location = new System.Drawing.Point(593, 331);
+            this.dgvUserTag.Name = "dgvUserTag";
+            this.dgvUserTag.Size = new System.Drawing.Size(615, 150);
+            this.dgvUserTag.TabIndex = 13;
             // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1308, 462);
+            this.ClientSize = new System.Drawing.Size(1308, 581);
+            this.Controls.Add(this.dgvUserTag);
             this.Controls.Add(this.rtbReceipt);
             this.Controls.Add(this.dgvReceipt);
             this.Controls.Add(this.lblWelcome);
@@ -272,6 +283,7 @@
             this.grpbGetSaldo.ResumeLayout(false);
             this.grpbGetSaldo.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceipt)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvUserTag)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -298,6 +310,7 @@
         private System.Windows.Forms.DataGridView dgvReceipt;
         private System.Windows.Forms.Button btnPrintReceipt;
         private System.Windows.Forms.RichTextBox rtbReceipt;
+        private System.Windows.Forms.DataGridView dgvUserTag;
     }
 }
 

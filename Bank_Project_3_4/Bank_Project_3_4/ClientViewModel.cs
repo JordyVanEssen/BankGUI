@@ -7,6 +7,7 @@ using BankDataLayer;
 
 namespace Bank_Project_3_4
 {
+    //returns the database values, for debug purposes
     public class ClientViewModel
     {
         private ClientContext _db;
@@ -24,6 +25,11 @@ namespace Bank_Project_3_4
         public List<Transaction> GetTransactions(int pClientId)
         {
             return _db.Transactions.Where(x => x.ClientId == pClientId).ToList();
+        }
+
+        public List<UserTag> GetUsertag()
+        {
+            return _db.UserTags.ToList();
         }
     }
 }

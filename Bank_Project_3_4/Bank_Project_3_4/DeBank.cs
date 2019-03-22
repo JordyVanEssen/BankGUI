@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.Data.Entity;
+using System.Net.Http;
 using BankDataLayer;
 
 /*
@@ -19,8 +20,8 @@ namespace Bank_Project_3_4
 {
     public partial class DeBank : Form
     {
+        //instances 
         SerialPort myPort = new SerialPort();//create a serial port
-        Client _newClient;
         Client _currentClient;//the currentclient
         UserTag _newUserId;
         Transaction _transaction;
@@ -28,23 +29,26 @@ namespace Bank_Project_3_4
         PrintReceipt _print;
         CheckValidUserInput _checkInput;
 
-        Boolean _receipt = false;
+        bool _receipt = false;
 
         private string rxString;//incoming data is stored in String rxString
 
         //the password strings
-        String enteredPassword = string.Empty;
-        String readPass = string.Empty;
+        String _enteredPassword = string.Empty;
+        String _readPass = string.Empty;
 
         //booleans for validation of the password
-        bool waitForPass = false;
-        bool validPass = false;
-
-        bool addedClient = false;
-        bool loggedOut = false;
+        bool _waitForPass = false;
+        bool _validPass = false;
+        bool _addedClient = false;
+        bool _loggedOut = false;
+        bool _clearInput = false;
         //keeps track of the tries
-        int invalidPassCount = 0;
+        int _invalidPassCount = 0;
 
+        //+the controller + parameters, https://localhost:44396/api/UsertagItems/1
+        String apiUrl = "https://localhost:44396/api/";
+        private static readonly HttpClient httpClient = new HttpClient();
 
 
         public DeBank()
@@ -55,33 +59,38 @@ namespace Bank_Project_3_4
         //when the form is loaded the following will be executed:
         private void DeBank_Load(object sender, EventArgs e)
         {
+            //setup the serial port
             myPort.BaudRate = 9600;
             myPort.PortName = "COM3";
             myPort.DataReceived += MyPort_DataReceived;
             myPort.Open();
             myPort.WriteLine("R");
 
+            //the database
             _db = new ClientContext();
         }
 
-        private void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private async void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             //the password is by default false
-            validPass = false;
+            _validPass = false;
 
             //reads the incoming serial data
             rxString = myPort.ReadLine();
 
             //filters the rubish out of the strings
-            if (!rxString.Contains("VM") && waitForPass == false)
+            if (!rxString.Contains("VM") && _waitForPass == false)
             {
-                var result = _db.userTags.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
+                //var result = _db.UserTags.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
+                var result = await GetClientAsync(apiUrl + "UserTagItems/" + rxString);
                 if (result == null)//if pass does not exist
                 {
                     //the new client
                     var newClient = new UserTag { PassId = rxString };
+                    _db.SaveChanges();
                     _currentClient = createNewClient(newClient);
 
+                    //opens a new form to add the new user
                     using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, _db, newClient))
                     {
                         //opens a new form to add the new client to the database
@@ -90,79 +99,100 @@ namespace Bank_Project_3_4
                             myPort.WriteLine("R");
                         }
                     }
-                    //the current client
-                    addedClient = true;
+                    //the client is added
+                    _addedClient = true;
                 }
                 else
                 {
-                    _currentClient = _db.Clients.FirstOrDefault(x => x.ClientId == result.UsertagId);//searches for matching id's
+                    //searches for matching id's
+                    _currentClient = _db.Clients.FirstOrDefault(x => x.ClientId == result.UsertagId);
 
+                    //the logged in user
                     _newUserId = result;
-                    addedClient = false;
+                    _addedClient = false;
 
-                    if (_newUserId.PassBlocked == false)
+                    checkPassIdBlocked();
+                }
+                //update the form
+                UpdateForm(_currentClient);
+            }
+            //password validation
+            checkPasswordValidation();
+        }
+
+        //===============\\
+        // The functions \\
+        //===============\\
+
+        //checks if the pass of the user is blocked
+        private void checkPassIdBlocked()
+        {
+            if (_newUserId.PassBlocked == false)
+            {
+                //sends command to arduino to read the keypad
+                myPort.WriteLine("P");
+                _loggedOut = false;
+                //update the shown text on screen
+                updateText(_currentClient);
+
+                while (true)
+                {
+                    //keeps waiting for the arduino to send the password
+                    System.Threading.Thread.Sleep(1000);
+                    _enteredPassword = myPort.ReadExisting();
+                    if (_enteredPassword.Contains("pass"))
                     {
-                        myPort.WriteLine("P");
-                        //MessageBox.Show($"Graag uw wachtwoord invullen op het keypad: " + _currentClient.Name, "", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        loggedOut = false;
-                        updateText(_currentClient);
-
-                        while (true)
-                        {
-                            System.Threading.Thread.Sleep(1000);
-                            enteredPassword = myPort.ReadExisting();
-                            if (enteredPassword.Contains("pass"))
-                            {
-                                break;
-                            }
-                        }
-
-                        //readPass = myPort.ReadLine();
-                        readPass = enteredPassword.Substring(enteredPassword.IndexOf('p'));
-
-                        waitForPass = true;
+                        break;
                     }
-                    else
-                    {
-                        MessageBox.Show("Uw pas is geblokkeerd", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-
                 }
 
-                UpdateForm(_currentClient);
-
-                //result is a Client
-            }
-
-            if (readPass.Contains("pass") && waitForPass)
-            {
-                ClientPasswordCheck checkPass = new ClientPasswordCheck(_newUserId);
-                readPass.Replace("pass", null);
-                readPass = readPass.Substring(readPass.IndexOf('s') + 2);
-                readPass = readPass.Trim();
-
-                validPass = checkPass.validatePassword(readPass);
-            }
-                
-
-            if (validPass && waitForPass)
-            {
-                UpdateForm(_currentClient);
-
-                //myPort.WriteLine("R");//reset the 'sentPassID' value on the arduino
-                //validPass = false;
-                invalidPassCount = 0;
-
-                _newUserId.PassBlocked = false;
-                _db.SaveChanges();//update new saldo
+                //strips all the rubish out of the input, so the input is: 'pass[password]'
+                _readPass = _enteredPassword.Substring(_enteredPassword.IndexOf('p'));
+                _waitForPass = true;
             }
             else
             {
-                if (!addedClient && !_newUserId.PassBlocked)
+                //error, pass is blocked
+                MessageBox.Show("Uw pas is geblokkeerd", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        //checks if the user entered a valid password
+        private void checkPasswordValidation()
+        {
+            //the password
+            if (_readPass.Contains("pass") && _waitForPass)
+            {
+                ClientPasswordCheck checkPass = new ClientPasswordCheck(_newUserId);
+                _readPass.Replace("pass", null);
+                _readPass = _readPass.Substring(_readPass.IndexOf('s') + 2);
+                _readPass = _readPass.Trim();
+
+                //validates the password
+                _validPass = checkPass.validatePassword(_readPass);
+            }
+
+            //if the password is correct
+            if (_validPass && _waitForPass)
+            {
+                //updates the form
+                UpdateForm(_currentClient);
+
+                //reset the invalid password counter
+                _invalidPassCount = 0;
+                _newUserId.PassBlocked = false;
+                //saves the changes made in the database
+                _db.SaveChanges();
+            }
+            else
+            {
+                //if the password is incorrect
+                if (!_addedClient && !_newUserId.PassBlocked)
                 {
-                    invalidPassCount += 1;
-                    if (invalidPassCount > 3)
+                    _invalidPassCount += 1;
+                    if (_invalidPassCount > 3)
                     {
+                        //the pass is blocked
                         MessageBox.Show("Uw pas is geblokkeerd");
 
                         _newUserId.PassBlocked = true;
@@ -170,32 +200,36 @@ namespace Bank_Project_3_4
                     }
                     else
                     {
-                        waitForPass = false;
+                        _waitForPass = false;
                         MessageBox.Show("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n 1) lees uw pas in \n 2) voer uw wachtwoord in");
                     }
                 }
-
+                //reset arduino
                 myPort.WriteLine("R");
             }
+            
         }
 
+        //creates a new client after the passId is read
         private Client createNewClient(UserTag pNewClient)
         {
+            //create a new empty client
             Client newClient = new Client();
-
             newClient.UserTagId = pNewClient.UsertagId;
-
+            _db.SaveChanges();
             return newClient;
         }
 
+        //updates the label text
         public void updateText(Client pClient)
         {
+            //update the label text
             if (InvokeRequired)
             {
                 this.Invoke(new Action<Client>(updateText), new object[] { pClient });
                 return;
             }
-            if (loggedOut)
+            if (_loggedOut)
             {
                 lblWelcome.Text = "Welkom, hou uw pas voor de reader.";
             }
@@ -206,6 +240,7 @@ namespace Bank_Project_3_4
 
         }
 
+        //error message if the input is invalid
         private void inputErrorMsg(bool pInput)
         {
             if (!pInput)
@@ -225,6 +260,7 @@ namespace Bank_Project_3_4
             }
         }
 
+        //updates the text and visibility of the form
         public void UpdateForm(Client pClient)//show client data
         {
             if (InvokeRequired)
@@ -233,7 +269,15 @@ namespace Bank_Project_3_4
                 return;
             }
 
-            if (validPass)
+            if(_clearInput)
+            {
+                tbDepositMoney.Text = "";
+                tbUserSaldo.Text = "";
+                tbWithdrawMoney.Text = "";
+                _clearInput = false;
+            }
+
+            if (_validPass)
             {
                 lblWelcome.Visible = false;
                 grpbUserInterface.Visible = true;
@@ -259,6 +303,7 @@ namespace Bank_Project_3_4
             tbLoggedInUser.Text = pClient.Name;
         }
 
+        //creates the receipt
         private void createReceipt(double pOldSaldo, double pNewSaldo, string pMode)
         {
             _transaction = new Transaction { Mode = pMode };
@@ -275,32 +320,63 @@ namespace Bank_Project_3_4
             _db.SaveChanges();
         }
 
-        private void loadReceipt()//shows the transaction on screen
+        //shows the receipt table on screen
+        private void loadReceipt()
         {
             ClientViewModel cv = new ClientViewModel(_db);
             dgvReceipt.DataSource = cv.GetTransactions(_currentClient.ClientId);
             dgvReceipt.AutoGenerateColumns = true;
         }
 
-        private void loadClients()//show the client database on screen
+        //shows all the clients on screen
+        private void loadClients()
         {
             ClientViewModel cv = new ClientViewModel(_db);
             dgvClient.DataSource = cv.GetClients();
             dgvClient.AutoGenerateColumns = true;
+            loadUsertag();
         }
 
-        private void DeBank_Shown(object sender, EventArgs e)//show all clients a bit after the form loaded
+        //shows all the usertags on screen
+        private void loadUsertag()
+        {
+            ClientViewModel cv = new ClientViewModel(_db);
+            dgvUserTag.DataSource = cv.GetUsertag();
+            dgvUserTag.AutoGenerateColumns = true;
+        }
+
+        //show all clients a bit after the form loaded
+        private void DeBank_Shown(object sender, EventArgs e)
         {
             loadClients();
         }
 
-        private void btnGetSaldo_Click(object sender, EventArgs e)//if button is pressed
+        //call the api to get the client
+        static async Task<UserTag> GetClientAsync(string path)
+        {
+            UserTag user = null;
+            HttpResponseMessage response = await httpClient.GetAsync(path);
+
+            if (response.IsSuccessStatusCode)
+            {
+                user = await response.Content.ReadAsAsync<UserTag>();
+            }
+            return user;
+        }
+
+        //=============\\
+        // The buttons \\
+        //=============\\
+
+        //returns the saldo in a textbox
+        private void btnGetSaldo_Click(object sender, EventArgs e)
         {
             CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _db);
             tbUserSaldo.Text = Convert.ToString(checkSaldo.getSaldo());//get the saldo of the current client
         }
 
-        private void btnWithdraw_Click(object sender, EventArgs e)//if button is pressed
+        //withdraws the money entered in the textbox by the user
+        private void btnWithdraw_Click(object sender, EventArgs e)
         {
             bool input = false;
             bool validInput = false;
@@ -308,6 +384,7 @@ namespace Bank_Project_3_4
             double oldSaldo = _currentClient.Saldo;
             bool tSuccesfull = false;//transaction succesfull
 
+            //checks if the user entered the input fields
             if (!string.IsNullOrWhiteSpace(tbWithdrawMoney.Text))
             {
                 input = true;
@@ -347,7 +424,7 @@ namespace Bank_Project_3_4
 
             //if (validInput)
             //{
-                
+
             //}
             //else
             //{
@@ -355,7 +432,8 @@ namespace Bank_Project_3_4
             //}
         }
 
-        private void btnDeposit_Click(object sender, EventArgs e)//if button is pressed
+        //deposit the amount filled in by the user
+        private void btnDeposit_Click(object sender, EventArgs e)
         {
             bool input = false;
             bool validInput = false;
@@ -400,52 +478,56 @@ namespace Bank_Project_3_4
             {
                 Helper.showMessage("Graag al de velden invullen", MessageBoxIcon.Error);
             }
-            
-            
+
+
             //validInput = _checkInput.validInput(tbDepositMoney.Text, input);
 
             //if (validInput)
             //{
-               
-                
-               
+
+
+
             //}
             //else
             //{
             //    inputErrorMsg(validInput);
             //}
 
-           
+
         }
 
+        //debug button
         private void btnReset_Click(object sender, EventArgs e)
         {
             myPort.WriteLine("R");
         }
 
+        //the user logs out, another user can log in
         private void btnLogOut_Click(object sender, EventArgs e)
         {
-            validPass = false;
-            waitForPass = false;
-            loggedOut = true;
+            _validPass = false;
+            _waitForPass = false;
+            _loggedOut = true;
 
-            enteredPassword = string.Empty;
-            lblWelcome.Text = "";
+            _enteredPassword = string.Empty;
+            lblWelcome.Text = "Welkom hou u pas voor de cardreader";
             rtbReceipt.Text = "";
             dgvReceipt.DataSource = null;
 
+            _clearInput = true;
             UpdateForm(_currentClient);
 
             myPort.WriteLine("R");
         }
 
+        //debug button
         private void button2_Click(object sender, EventArgs e)
         {
             using (var db = new ClientContext())
             {
                 // Create and save a new Blog
 
-                var trans = new Transaction {  };
+                var trans = new Transaction { };
                 db.Transactions.Add(trans);
                 db.SaveChanges();
 
@@ -456,6 +538,7 @@ namespace Bank_Project_3_4
             }
         }
 
+        //prints the receipt
         private void btnPrintReceipt_Click(object sender, EventArgs e)
         {
             _print = new PrintReceipt(_transaction, _currentClient);

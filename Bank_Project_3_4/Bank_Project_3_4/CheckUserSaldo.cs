@@ -19,6 +19,7 @@ namespace Bank_Project_3_4
             _currentClient = pCurrenClient;
         }
 
+        //returns the saldo of the current user
         public double getSaldo()
         {
             usersaldo = _currentClient.Saldo;

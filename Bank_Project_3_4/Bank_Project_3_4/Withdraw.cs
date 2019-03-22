@@ -31,6 +31,7 @@ namespace Bank_Project_3_4
             CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _db);
             saldo = checkSaldo.getSaldo();
 
+            //if the user has enough saldo
             if (saldo > amount && amount > 0)
             {
                 _currentClient.Saldo = _currentClient.Saldo -= amount;

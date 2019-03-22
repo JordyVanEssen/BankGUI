@@ -14,3 +14,7 @@ C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.pdb
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.DeBank.resources
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.SetClientDialogBox.resources
+C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\bin\Debug\Newtonsoft.Json.dll
+C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\bin\Debug\System.Net.Http.Formatting.dll
+C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\bin\Debug\Newtonsoft.Json.xml
+C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_Project_3_4\Bank_Project_3_4\bin\Debug\System.Net.Http.Formatting.xml

@@ -61,7 +61,7 @@ namespace Bank_Project_3_4
                 _newUserId.Password = password;
 
                 _db.Clients.Add(_currentClient);
-                _db.userTags.Add(_newUserId);
+                _db.UserTags.Add(_newUserId);
                 _db.SaveChanges();
 
                 Helper.showMessage("U bent succesvol toegevoegd.");

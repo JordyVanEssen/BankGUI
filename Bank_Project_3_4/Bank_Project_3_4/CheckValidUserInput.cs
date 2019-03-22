@@ -16,6 +16,7 @@ namespace Bank_Project_3_4
         Client _currentClient;
         UserTag _userCredentials;
 
+        //check if the input is valid
         public bool filledInField = false;
         public bool validUserInput = false;
         public bool validChars = false;
@@ -23,6 +24,7 @@ namespace Bank_Project_3_4
         public char[] checkInput;
         public int inputLength;
 
+        //the password chars
         public char[] passwordChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
         public CheckValidUserInput(ClientContext pDb, Client pCurrentClient, UserTag pUserCredential)
@@ -32,6 +34,7 @@ namespace Bank_Project_3_4
             _userCredentials = pUserCredential;
         }
 
+        //check if the input is correct, retuns true or false
         public Boolean validInput(String pInput, Boolean pFilledInField)
         {
             input = pFilledInField;
@@ -77,6 +80,5 @@ namespace Bank_Project_3_4
                 return false;
             }
         }
-       
     }
 }
