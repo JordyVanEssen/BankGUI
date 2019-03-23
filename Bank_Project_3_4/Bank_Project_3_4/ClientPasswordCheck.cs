@@ -19,14 +19,7 @@ namespace Bank_Project_3_4
         public Boolean validatePassword(String pPassword)
         {
             //returns true or false, depends if the password is valid
-            if (currentClient.Password.Equals(pPassword))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return currentClient.Password.Equals(pPassword);
         }
     }
 }

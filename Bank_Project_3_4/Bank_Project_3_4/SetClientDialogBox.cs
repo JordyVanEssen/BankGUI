@@ -36,7 +36,7 @@ namespace Bank_Project_3_4
 
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
+        private async void btnOk_Click(object sender, EventArgs e)
         {
             Boolean validInput = false;
             checkInput = new CheckValidUserInput(_db, _currentClient, _newUserId);
@@ -54,15 +54,26 @@ namespace Bank_Project_3_4
 
             if (validInput && checkInput.validUserInput)
             {
+                HttpRequest httpRequest;
                 username = tbUserName.Text;
                 password = new string(checkInput.checkInput);
+                password = password.Replace("\n", "");
+                password = password.Replace("\r", "");
 
-                _currentClient.Name = username;
+                //create a new usertag
                 _newUserId.Password = password;
+                httpRequest = new HttpRequest("UserTagItems");
+                Object response = await HttpRequest.CreateAsync(_newUserId, httpRequest.createUrl());
 
-                _db.Clients.Add(_currentClient);
-                _db.UserTags.Add(_newUserId);
-                _db.SaveChanges();
+                //get the new usertag
+                httpRequest = new HttpRequest("UserTagItems", _newUserId.PassId);
+                UserTag createdUser = await HttpRequest.GetClientAsync(httpRequest.createUrl());
+
+                //create a new user, and link the user and the usertag with the usertagId
+                _currentClient.Name = username;
+                _currentClient.UserTagId = createdUser.UsertagId;
+                httpRequest = new HttpRequest("ClientItems");
+                response = await HttpRequest.CreateAsync(_currentClient, httpRequest.createUrl());
 
                 Helper.showMessage("U bent succesvol toegevoegd.");
 

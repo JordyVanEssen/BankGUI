@@ -10,6 +10,7 @@ namespace Bank_Project_3_4
 {
     public class Withdraw
     {
+        HttpRequest httpRequest;
         ClientContext _db;
         Client _currentClient;
         UserTag _userCredentials;
@@ -34,15 +35,20 @@ namespace Bank_Project_3_4
             //if the user has enough saldo
             if (saldo > amount && amount > 0)
             {
-                _currentClient.Saldo = _currentClient.Saldo -= amount;
-                _db.SaveChanges();//update new saldo
+                updateSaldo();
                 return true;
             }
             else
             {
                 return false;
             }
+        }
 
+        private async void updateSaldo()
+        {
+            _currentClient.Saldo = _currentClient.Saldo -= amount;
+            httpRequest = new HttpRequest("ClientItems");
+            Object response = await HttpRequest.UpdateClientAsync(_currentClient, httpRequest.createUrl());
         }
     }
 }

@@ -28,10 +28,11 @@ namespace Bank_Project_3_4
         ClientContext _db;
         PrintReceipt _print;
         CheckValidUserInput _checkInput;
+        HttpRequest _httpRequest;
 
         bool _receipt = false;
 
-        private string rxString;//incoming data is stored in String rxString
+        private string serialInput;//incoming data is stored in String rxString
 
         //the password strings
         String _enteredPassword = string.Empty;
@@ -70,59 +71,75 @@ namespace Bank_Project_3_4
             _db = new ClientContext();
         }
 
-        private async void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            //the password is by default false
-            _validPass = false;
-
             //reads the incoming serial data
-            rxString = myPort.ReadLine();
+            serialInput = myPort.ReadLine();
 
-            //filters the rubish out of the strings
-            if (!rxString.Contains("VM") && _waitForPass == false)
+            if (serialInput.Contains("nuid{"))
             {
-                //var result = _db.UserTags.FirstOrDefault(x => x.PassId == rxString);//checks if the pass ID exists
-                var result = await GetClientAsync(apiUrl + "UserTagItems/" + rxString);
-                if (result == null)//if pass does not exist
-                {
-                    //the new client
-                    var newClient = new UserTag { PassId = rxString };
-                    _db.SaveChanges();
-                    _currentClient = createNewClient(newClient);
+                int pFrom = serialInput.IndexOf("nuid{") + "nuid{".Length;
+                int pTo = serialInput.LastIndexOf("}");
+                String nuidResult = serialInput.Substring(pFrom, pTo - pFrom);
+                nuidResult = nuidResult.Replace("nuid{ ", "");
+                nuidResult = nuidResult.Replace("}", "");
+                nuidResult = nuidResult.Replace(" ", "");
 
-                    //opens a new form to add the new user
-                    using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, _db, newClient))
-                    {
-                        //opens a new form to add the new client to the database
-                        if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                        {
-                            myPort.WriteLine("R");
-                        }
-                    }
-                    //the client is added
-                    _addedClient = true;
-                }
-                else
-                {
-                    //searches for matching id's
-                    _currentClient = _db.Clients.FirstOrDefault(x => x.ClientId == result.UsertagId);
-
-                    //the logged in user
-                    _newUserId = result;
-                    _addedClient = false;
-
-                    checkPassIdBlocked();
-                }
-                //update the form
-                UpdateForm(_currentClient);
+                nuidValidation(nuidResult);
             }
-            //password validation
-            checkPasswordValidation();
+            else if (serialInput.Contains("pw{"))
+            {
+                int pFrom = serialInput.IndexOf("pw{") + "pw{".Length;
+                int pTo = serialInput.LastIndexOf("}");
+                String pwResult = serialInput.Substring(pFrom, pTo - pFrom);
+
+                checkPasswordValidation(pwResult);
+            }
         }
 
         //===============\\
         // The functions \\
         //===============\\
+        #region Functions
+
+        //checks if the entered nuid exists
+        private async void nuidValidation(String pNuid)
+        {
+            _httpRequest = new HttpRequest("UserTagItems/", pNuid);
+            var result = await HttpRequest.GetClientAsync(_httpRequest.createUrl());
+            if (result == null)//if pass does not exist
+            {
+                //the new client
+                UserTag newUserTag = new UserTag { PassId = pNuid };
+                Client newClient = new Client();
+                _currentClient = newClient;
+
+                //opens a new form to add the new user
+                using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, _db, newUserTag))
+                {
+                    //opens a new form to add the new client to the database
+                    if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        myPort.WriteLine("R");
+                    }
+                }
+                //the client is added
+                _addedClient = true;
+            }
+            else
+            {
+                //searches for matching id's
+                _currentClient = _db.Clients.FirstOrDefault(x => x.UserTagId == result.UsertagId);
+
+                //the logged in user
+                _newUserId = result;
+                _addedClient = false;
+
+                checkPassIdBlocked();
+            }
+            //update the form
+            UpdateForm(_currentClient);
+        }
 
         //checks if the pass of the user is blocked
         private void checkPassIdBlocked()
@@ -135,19 +152,8 @@ namespace Bank_Project_3_4
                 //update the shown text on screen
                 updateText(_currentClient);
 
-                while (true)
-                {
-                    //keeps waiting for the arduino to send the password
-                    System.Threading.Thread.Sleep(1000);
-                    _enteredPassword = myPort.ReadExisting();
-                    if (_enteredPassword.Contains("pass"))
-                    {
-                        break;
-                    }
-                }
-
                 //strips all the rubish out of the input, so the input is: 'pass[password]'
-                _readPass = _enteredPassword.Substring(_enteredPassword.IndexOf('p'));
+                //_readPass = _enteredPassword.Substring(_enteredPassword.IndexOf('p'));
                 _waitForPass = true;
             }
             else
@@ -158,22 +164,15 @@ namespace Bank_Project_3_4
         }
 
         //checks if the user entered a valid password
-        private void checkPasswordValidation()
+        private void checkPasswordValidation(String pPassword)
         {
-            //the password
-            if (_readPass.Contains("pass") && _waitForPass)
-            {
-                ClientPasswordCheck checkPass = new ClientPasswordCheck(_newUserId);
-                _readPass.Replace("pass", null);
-                _readPass = _readPass.Substring(_readPass.IndexOf('s') + 2);
-                _readPass = _readPass.Trim();
+            ClientPasswordCheck checkPass = new ClientPasswordCheck(_newUserId);
 
-                //validates the password
-                _validPass = checkPass.validatePassword(_readPass);
-            }
+            //validates the password
+            _validPass = checkPass.validatePassword(pPassword);
 
             //if the password is correct
-            if (_validPass && _waitForPass)
+            if (_validPass)
             {
                 //updates the form
                 UpdateForm(_currentClient);
@@ -210,16 +209,6 @@ namespace Bank_Project_3_4
             
         }
 
-        //creates a new client after the passId is read
-        private Client createNewClient(UserTag pNewClient)
-        {
-            //create a new empty client
-            Client newClient = new Client();
-            newClient.UserTagId = pNewClient.UsertagId;
-            _db.SaveChanges();
-            return newClient;
-        }
-
         //updates the label text
         public void updateText(Client pClient)
         {
@@ -235,7 +224,7 @@ namespace Bank_Project_3_4
             }
             else
             {
-                lblWelcome.Text = "Graag uw wachtwoord invoeren op het keypad " + pClient.Name;
+                lblWelcome.Text = "Graag uw wachtwoord invoeren op het keypad " + pClient?.Name;
             }
 
         }
@@ -304,7 +293,7 @@ namespace Bank_Project_3_4
         }
 
         //creates the receipt
-        private void createReceipt(double pOldSaldo, double pNewSaldo, string pMode)
+        private async void createReceipt(double pOldSaldo, double pNewSaldo, string pMode)
         {
             _transaction = new Transaction { Mode = pMode };
             DateTime now = DateTime.Now;
@@ -316,8 +305,8 @@ namespace Bank_Project_3_4
             _transaction.Time = now;
             _transaction.Mode = pMode;
 
-            _db.Transactions.Add(_transaction);
-            _db.SaveChanges();
+            _httpRequest = new HttpRequest("TransactionItems");
+            Object response = await HttpRequest.CreateAsync(_transaction, _httpRequest.createUrl());
         }
 
         //shows the receipt table on screen
@@ -351,22 +340,13 @@ namespace Bank_Project_3_4
             loadClients();
         }
 
-        //call the api to get the client
-        static async Task<UserTag> GetClientAsync(string path)
-        {
-            UserTag user = null;
-            HttpResponseMessage response = await httpClient.GetAsync(path);
+        #endregion
 
-            if (response.IsSuccessStatusCode)
-            {
-                user = await response.Content.ReadAsAsync<UserTag>();
-            }
-            return user;
-        }
 
-        //=============\\
-        // The buttons \\
-        //=============\\
+        //=================\\
+        // The Formbuttons \\
+        //=================\\
+        #region Formbuttons
 
         //returns the saldo in a textbox
         private void btnGetSaldo_Click(object sender, EventArgs e)
@@ -544,5 +524,6 @@ namespace Bank_Project_3_4
             _print = new PrintReceipt(_transaction, _currentClient);
             rtbReceipt.Text = _print.print();
         }
+#endregion
     }
 }

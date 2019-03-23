@@ -10,6 +10,7 @@ namespace Bank_Project_3_4
 {
     class Deposit
     {
+        HttpRequest httpRequest;
         ClientContext _db;
         Client currentClient;
         String passId = "";
@@ -27,9 +28,7 @@ namespace Bank_Project_3_4
             //var result = _db.userTags.FirstOrDefault(x => x.PassId == passId);
             if (currentClient != null)//match found
             {
-                currentClient.Saldo = currentClient.Saldo += amount;
-                _db.SaveChanges();//update new saldo
-                
+                updateSaldo(); 
                 return true;
             }
             else
@@ -37,6 +36,13 @@ namespace Bank_Project_3_4
                 return false;
             }
 
+        }
+
+        private async void updateSaldo()
+        {
+            currentClient.Saldo = currentClient.Saldo += amount;
+            httpRequest = new HttpRequest("ClientItems");
+            Object response = await HttpRequest.UpdateClientAsync(currentClient, httpRequest.createUrl());
         }
     }
 }
