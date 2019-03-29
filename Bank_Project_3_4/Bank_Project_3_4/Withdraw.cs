@@ -11,25 +11,21 @@ namespace Bank_Project_3_4
     public class Withdraw
     {
         HttpRequest httpRequest;
-        ClientContext _db;
         Client _currentClient;
-        UserTag _userCredentials;
         String passId = "";
         double amount;
         double saldo;
 
-        public Withdraw(Client pCurrentClient, UserTag pUserCredential, double amount, ClientContext pDb)
+        public Withdraw(Client pCurrentClient, int pUserTagId, double amount)
         {
-            _db = pDb;
             _currentClient = pCurrentClient;
-            _userCredentials = pUserCredential;
-            this.passId = _userCredentials.PassId;
+            passId = pUserTagId.ToString();
             this.amount = amount;
         }
 
         public Boolean withdrawMoney()
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _db);
+            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, passId);
             saldo = checkSaldo.getSaldo();
 
             //if the user has enough saldo

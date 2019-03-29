@@ -34,23 +34,51 @@ namespace Bank_Project_3_4
         {
             _urlController = pController + "/";
         }
+
         public String createUrl()
         {
             _url = _url += _urlController += _urlPrameter;
             return _url;
         }
 
-        //http get request
-        public static async Task<UserTag> GetClientAsync(String path)
+        //http get Usertag request
+        public static async Task<ReturnObject> GetUserTagAsync(String path)
         {
-            UserTag user = null;
+            ReturnObject user = null;
+            //String nuidAuthenticationString = "";
             HttpResponseMessage response = await httpClient.GetAsync(path);
 
             if (response.IsSuccessStatusCode)
             {
-                user = await response.Content.ReadAsAsync<UserTag>();
+                user = await response.Content.ReadAsAsync<ReturnObject>();
             }
             return user;
+        }
+
+        //http get Client request
+        public static async Task<Client> GetClientAsync(String path)
+        {
+            Client user = null;
+            HttpResponseMessage response = await httpClient.GetAsync(path);
+
+            if (response.IsSuccessStatusCode)
+            {
+                user = await response.Content.ReadAsAsync<Client>();
+            }
+            return user;
+        }
+
+        //http authentication
+        public static async Task<int> AuthenticationAsync(String path, String pPassword)
+        {
+            int valid = 0;//1'true' or 0'false'
+            HttpResponseMessage response = await httpClient.GetAsync(path + pPassword);
+
+            if (response.IsSuccessStatusCode)
+            {
+                valid = await response.Content.ReadAsAsync<int>();
+            }
+            return valid;
         }
 
         //http create
@@ -64,9 +92,20 @@ namespace Bank_Project_3_4
         }
 
         //http update
-        public static async Task<HttpStatusCode> UpdateClientAsync(Object pClient, String pPath)
+        public static async Task<HttpStatusCode> UpdateClientAsync(Client pClientItem, String pPath)
         {
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath, pClient);
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath + $"{pClientItem.ClientId}", pClientItem);
+            response.EnsureSuccessStatusCode();
+
+            // Deserialize the updated product from the response body.
+            //pClient = await response.Content.ReadAsAsync<Client>();
+            return response.StatusCode;
+        }
+
+        //http update
+        public static async Task<HttpStatusCode> UpdateUserTagAsync(UserTag pUserItem, String pPath)
+        {
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath + $"{pUserItem.UsertagId}", pUserItem);
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.

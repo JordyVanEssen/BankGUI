@@ -9,12 +9,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BankDataLayer;
+using Bank_Project_3_4.ViewModels;
+using Syncfusion.WinForms.Controls;
 
 namespace Bank_Project_3_4
 {
-    public partial class SetClientDialogBox : Form
+    public partial class SetClientDialogBox : SfForm
     {
-        ClientContext _db;
         public String username = "";
         public String password = "";
         UserTag _newUserId;
@@ -23,9 +24,8 @@ namespace Bank_Project_3_4
 
         public char[] passwordChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
-        public SetClientDialogBox(Client pCurrentClient, ClientContext pDb, UserTag pNewClient)
+        public SetClientDialogBox(Client pCurrentClient, UserTag pNewClient)
         {
-            _db = pDb;
             _currentClient = pCurrentClient;
             _newUserId = pNewClient;
             InitializeComponent();
@@ -39,11 +39,14 @@ namespace Bank_Project_3_4
         private async void btnOk_Click(object sender, EventArgs e)
         {
             Boolean validInput = false;
-            checkInput = new CheckValidUserInput(_db, _currentClient, _newUserId);
+            checkInput = new CheckValidUserInput(_currentClient);
 
             if (!string.IsNullOrWhiteSpace(tbUserName.Text) && !string.IsNullOrWhiteSpace(tbUserPassword.Text))
             {
-                validInput = true;
+                if (tbUserPassword.Text.Length == 4)
+                {
+                    validInput = true;
+                }
             }
             else
             {
@@ -67,11 +70,12 @@ namespace Bank_Project_3_4
 
                 //get the new usertag
                 httpRequest = new HttpRequest("UserTagItems", _newUserId.PassId);
-                UserTag createdUser = await HttpRequest.GetClientAsync(httpRequest.createUrl());
+                ReturnObject returnedObject = await HttpRequest.GetUserTagAsync(httpRequest.createUrl());
+                UserTagViewModel createdUser = returnedObject.ReturnUserTag;
 
                 //create a new user, and link the user and the usertag with the usertagId
                 _currentClient.Name = username;
-                _currentClient.UserTagId = createdUser.UsertagId;
+                _currentClient.UserTagId = createdUser.UserTagId;
                 httpRequest = new HttpRequest("ClientItems");
                 response = await HttpRequest.CreateAsync(_currentClient, httpRequest.createUrl());
 
@@ -100,5 +104,10 @@ namespace Bank_Project_3_4
             }
         }
 
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
     }
 }

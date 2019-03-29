@@ -11,6 +11,8 @@ using System.IO.Ports;
 using System.Data.Entity;
 using System.Net.Http;
 using BankDataLayer;
+using Bank_Project_3_4.ViewModels;
+using Syncfusion.WinForms.Controls;
 
 /*
     - Author: Jordy van Essen | 0968981
@@ -18,19 +20,14 @@ using BankDataLayer;
 */
 namespace Bank_Project_3_4
 {
-    public partial class DeBank : Form
+    public partial class DeBank : SfForm
     {
         //instances 
         SerialPort myPort = new SerialPort();//create a serial port
         Client _currentClient;//the currentclient
-        UserTag _newUserId;
-        Transaction _transaction;
-        ClientContext _db;
-        PrintReceipt _print;
-        CheckValidUserInput _checkInput;
         HttpRequest _httpRequest;
-
-        bool _receipt = false;
+        UserTagViewModel _userTagView;
+        Transaction _transaction;
 
         private string serialInput;//incoming data is stored in String rxString
 
@@ -38,19 +35,18 @@ namespace Bank_Project_3_4
         String _enteredPassword = string.Empty;
         String _readPass = string.Empty;
 
+        //the userTagId
+        String _userTagId = String.Empty;
+
+        //user NUID
+        private String _currentClientNuid = String.Empty;
+
         //booleans for validation of the password
-        bool _waitForPass = false;
         bool _validPass = false;
-        bool _addedClient = false;
         bool _loggedOut = false;
-        bool _clearInput = false;
-        //keeps track of the tries
-        int _invalidPassCount = 0;
+        bool _executeTransaction = false;
 
-        //+the controller + parameters, https://localhost:44396/api/UsertagItems/1
-        String apiUrl = "https://localhost:44396/api/";
         private static readonly HttpClient httpClient = new HttpClient();
-
 
         public DeBank()
         {
@@ -60,54 +56,30 @@ namespace Bank_Project_3_4
         //when the form is loaded the following will be executed:
         private void DeBank_Load(object sender, EventArgs e)
         {
+            this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
             myPort.PortName = "COM3";
             myPort.DataReceived += MyPort_DataReceived;
             myPort.Open();
             myPort.WriteLine("R");
-
-            //the database
-            _db = new ClientContext();
         }
 
-        private void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            //reads the incoming serial data
-            serialInput = myPort.ReadLine();
+        
 
-            if (serialInput.Contains("nuid{"))
-            {
-                int pFrom = serialInput.IndexOf("nuid{") + "nuid{".Length;
-                int pTo = serialInput.LastIndexOf("}");
-                String nuidResult = serialInput.Substring(pFrom, pTo - pFrom);
-                nuidResult = nuidResult.Replace("nuid{ ", "");
-                nuidResult = nuidResult.Replace("}", "");
-                nuidResult = nuidResult.Replace(" ", "");
-
-                nuidValidation(nuidResult);
-            }
-            else if (serialInput.Contains("pw{"))
-            {
-                int pFrom = serialInput.IndexOf("pw{") + "pw{".Length;
-                int pTo = serialInput.LastIndexOf("}");
-                String pwResult = serialInput.Substring(pFrom, pTo - pFrom);
-
-                checkPasswordValidation(pwResult);
-            }
-        }
-
-        //===============\\
-        // The functions \\
-        //===============\\
+        //===================\\
+        //   The functions   \\
+        //===================\\
         #region Functions
 
         //checks if the entered nuid exists
         private async void nuidValidation(String pNuid)
         {
-            _httpRequest = new HttpRequest("UserTagItems/", pNuid);
-            var result = await HttpRequest.GetClientAsync(_httpRequest.createUrl());
-            if (result == null)//if pass does not exist
+            _httpRequest = new HttpRequest("UserTagItems", pNuid);
+            ReturnObject returnedObject = await HttpRequest.GetUserTagAsync(_httpRequest.createUrl());
+            _userTagView = returnedObject.ReturnUserTag;
+
+            if (returnedObject.StatusCode == 3)//if pass does not exist
             {
                 //the new client
                 UserTag newUserTag = new UserTag { PassId = pNuid };
@@ -115,7 +87,7 @@ namespace Bank_Project_3_4
                 _currentClient = newClient;
 
                 //opens a new form to add the new user
-                using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, _db, newUserTag))
+                using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, newUserTag))
                 {
                     //opens a new form to add the new client to the database
                     if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -123,90 +95,53 @@ namespace Bank_Project_3_4
                         myPort.WriteLine("R");
                     }
                 }
-                //the client is added
-                _addedClient = true;
             }
-            else
+            else if (returnedObject.StatusCode == 0)//if the pass exists and is not blocked
             {
-                //searches for matching id's
-                _currentClient = _db.Clients.FirstOrDefault(x => x.UserTagId == result.UsertagId);
+                _httpRequest = new HttpRequest("ClientItems", _userTagView.UserTagId.ToString());
+                _currentClient = await HttpRequest.GetClientAsync(_httpRequest.createUrl());
 
-                //the logged in user
-                _newUserId = result;
-                _addedClient = false;
-
-                checkPassIdBlocked();
-            }
-            //update the form
-            UpdateForm(_currentClient);
-        }
-
-        //checks if the pass of the user is blocked
-        private void checkPassIdBlocked()
-        {
-            if (_newUserId.PassBlocked == false)
-            {
                 //sends command to arduino to read the keypad
                 myPort.WriteLine("P");
                 _loggedOut = false;
                 //update the shown text on screen
                 updateText(_currentClient);
-
-                //strips all the rubish out of the input, so the input is: 'pass[password]'
-                //_readPass = _enteredPassword.Substring(_enteredPassword.IndexOf('p'));
-                _waitForPass = true;
             }
-            else
+            else if (returnedObject.StatusCode == 2)//the user pass is blocked
             {
                 //error, pass is blocked
-                MessageBox.Show("Uw pas is geblokkeerd", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Helper.showMessage("Helaas, Uw pas is geblokkeerd", MessageBoxIcon.Error);
+                myPort.WriteLine("R");
+            }
+            //update the form
+            if (_currentClient != null)
+            {
+                UpdateForm(_currentClient);
             }
         }
 
         //checks if the user entered a valid password
-        private void checkPasswordValidation(String pPassword)
+        private async void checkPasswordValidation(String pPassword)
         {
-            ClientPasswordCheck checkPass = new ClientPasswordCheck(_newUserId);
+            ClientPasswordCheck checkPass = new ClientPasswordCheck();
 
             //validates the password
-            _validPass = checkPass.validatePassword(pPassword);
+            _validPass = await checkPass.validatePassword(pPassword, _currentClientNuid);
 
             //if the password is correct
             if (_validPass)
             {
                 //updates the form
                 UpdateForm(_currentClient);
-
                 //reset the invalid password counter
-                _invalidPassCount = 0;
-                _newUserId.PassBlocked = false;
-                //saves the changes made in the database
-                _db.SaveChanges();
             }
             else
             {
-                //if the password is incorrect
-                if (!_addedClient && !_newUserId.PassBlocked)
-                {
-                    _invalidPassCount += 1;
-                    if (_invalidPassCount > 3)
-                    {
-                        //the pass is blocked
-                        MessageBox.Show("Uw pas is geblokkeerd");
-
-                        _newUserId.PassBlocked = true;
-                        _db.SaveChanges();
-                    }
-                    else
-                    {
-                        _waitForPass = false;
-                        MessageBox.Show("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n 1) lees uw pas in \n 2) voer uw wachtwoord in");
-                    }
-                }
-                //reset arduino
-                myPort.WriteLine("R");
+                Helper.showMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n\n 1) lees uw pas in \n 2) voer uw wachtwoord in", MessageBoxIcon.Information);
+                myPort.Write("R");
+                _loggedOut = true;
+                updateText(_currentClient);
             }
-            
         }
 
         //updates the label text
@@ -218,9 +153,10 @@ namespace Bank_Project_3_4
                 this.Invoke(new Action<Client>(updateText), new object[] { pClient });
                 return;
             }
+
             if (_loggedOut)
             {
-                lblWelcome.Text = "Welkom, hou uw pas voor de reader.";
+                lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
             }
             else
             {
@@ -229,24 +165,20 @@ namespace Bank_Project_3_4
 
         }
 
-        //error message if the input is invalid
-        private void inputErrorMsg(bool pInput)
+        //shows the transaction form
+        private void transaction()
         {
-            if (!pInput)
+            _executeTransaction = true;
+            UpdateForm(_currentClient);
+            using (FormTransaction formTransaction = new FormTransaction(_currentClient, _transaction, _userTagView))
             {
-                if (!_checkInput.validUserInput && _checkInput.inputLength == 4)
+                if (formTransaction.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    Helper.showMessage("U mag alleen getallen invoeren ", MessageBoxIcon.Error);
-                }
-                else if (_checkInput.inputLength < 4 || _checkInput.inputLength > 4)
-                {
-                    Helper.showMessage("U mag alleen een getal invoeren wat maximaal bestaat uit 4 karakters. Nu heeft u er: " + _checkInput.inputLength, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    Helper.showMessage("Gelieve AL de velden invullen.", MessageBoxIcon.Error);
+
                 }
             }
+            _executeTransaction = false;
+            UpdateForm(_currentClient);
         }
 
         //updates the text and visibility of the form
@@ -258,222 +190,86 @@ namespace Bank_Project_3_4
                 return;
             }
 
-            if(_clearInput)
-            {
-                tbDepositMoney.Text = "";
-                tbUserSaldo.Text = "";
-                tbWithdrawMoney.Text = "";
-                _clearInput = false;
-            }
-
             if (_validPass)
             {
                 lblWelcome.Visible = false;
-                grpbUserInterface.Visible = true;
+                btnCancel.Visible = false;
+                grpbLoggedIn.Visible = true;
             }
             else
             {
-                grpbUserInterface.Visible = false;
+                btnCancel.Visible = true;
+                grpbLoggedIn.Visible = false;
                 lblWelcome.Visible = true;
             }
 
-            if (_receipt)
+            if (_executeTransaction)
             {
-                loadReceipt();
-                lblWelcome.Visible = false;
-                grpbUserInterface.Visible = true;
-                _receipt = false;
+                this.Enabled = false;
             }
             else
             {
-                loadClients();
+                this.Enabled = true;
             }
 
             tbLoggedInUser.Text = pClient.Name;
         }
 
-        //creates the receipt
-        private async void createReceipt(double pOldSaldo, double pNewSaldo, string pMode)
+        //logs out
+        private void logOut()
         {
-            _transaction = new Transaction { Mode = pMode };
-            DateTime now = DateTime.Now;
+            _validPass = false;
+            _loggedOut = true;
 
-            _transaction.ClientId = _currentClient.ClientId;
-            _transaction.Name = _currentClient.Name;
-            _transaction.OldSaldo = pOldSaldo;
-            _transaction.NewSaldo = pNewSaldo;
-            _transaction.Time = now;
-            _transaction.Mode = pMode;
+            _enteredPassword = string.Empty;
+            lblWelcome.Text = "Welkom hou u pas voor de cardreader";
 
-            _httpRequest = new HttpRequest("TransactionItems");
-            Object response = await HttpRequest.CreateAsync(_transaction, _httpRequest.createUrl());
+            UpdateForm(_currentClient);
+            btnCancel.Visible = false;
+
+            myPort.WriteLine("R");
         }
 
-        //shows the receipt table on screen
-        private void loadReceipt()
+        //gets the usefull data out of the input string
+        private String stripString(String pBegin, String pEnd, String pMain)
         {
-            ClientViewModel cv = new ClientViewModel(_db);
-            dgvReceipt.DataSource = cv.GetTransactions(_currentClient.ClientId);
-            dgvReceipt.AutoGenerateColumns = true;
-        }
+            String inputResult = String.Empty;
 
-        //shows all the clients on screen
-        private void loadClients()
-        {
-            ClientViewModel cv = new ClientViewModel(_db);
-            dgvClient.DataSource = cv.GetClients();
-            dgvClient.AutoGenerateColumns = true;
-            loadUsertag();
-        }
+            int pFrom = pMain.IndexOf(pBegin) + pBegin.Length;
+            int pTo = pMain.LastIndexOf(pEnd);
+            inputResult = pMain.Substring(pFrom, pTo - pFrom);
 
-        //shows all the usertags on screen
-        private void loadUsertag()
-        {
-            ClientViewModel cv = new ClientViewModel(_db);
-            dgvUserTag.DataSource = cv.GetUsertag();
-            dgvUserTag.AutoGenerateColumns = true;
-        }
-
-        //show all clients a bit after the form loaded
-        private void DeBank_Shown(object sender, EventArgs e)
-        {
-            loadClients();
+            return inputResult;
         }
 
         #endregion
 
 
-        //=================\\
-        // The Formbuttons \\
-        //=================\\
-        #region Formbuttons
+        //=====================\\
+        //   The Formbuttons   \\
+        //=====================\\
+        #region FormFunctions
 
-        //returns the saldo in a textbox
-        private void btnGetSaldo_Click(object sender, EventArgs e)
+        //reads serial data when the arduino sends any
+        private void MyPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _db);
-            tbUserSaldo.Text = Convert.ToString(checkSaldo.getSaldo());//get the saldo of the current client
-        }
+            //reads the incoming serial data
+            serialInput = myPort.ReadLine();
 
-        //withdraws the money entered in the textbox by the user
-        private void btnWithdraw_Click(object sender, EventArgs e)
-        {
-            bool input = false;
-            bool validInput = false;
-            double amount = Convert.ToDouble(tbWithdrawMoney.Text);
-            double oldSaldo = _currentClient.Saldo;
-            bool tSuccesfull = false;//transaction succesfull
-
-            //checks if the user entered the input fields
-            if (!string.IsNullOrWhiteSpace(tbWithdrawMoney.Text))
+            if (serialInput.Contains("nuid{"))
             {
-                input = true;
-                Withdraw withDrawel = new Withdraw(_currentClient, _newUserId, amount, _db);
-                tSuccesfull = withDrawel.withdrawMoney();//withdraw money
+                String nuidResult = stripString("nuid{", "}", serialInput);
+                nuidResult = nuidResult.Replace(" ","");
+
+                _currentClientNuid = nuidResult;
+                nuidValidation(nuidResult);
             }
-            else
+            else if (serialInput.Contains("pw{"))
             {
-                Helper.showMessage("Graag al de velden invullen.", MessageBoxIcon.Error);
+                String pwResult = stripString("pw{", "}", serialInput);
+
+                checkPasswordValidation(pwResult);
             }
-
-            if (tSuccesfull)
-            {
-                createReceipt(oldSaldo, _currentClient.Saldo, "Withdrawel");
-
-                _receipt = true;
-                UpdateForm(_currentClient);
-                btnPrintReceipt.Visible = true;
-
-                _print = new PrintReceipt(_transaction, _currentClient);
-                rtbReceipt.Text = _print.print();
-                Helper.showMessage("Transactie geslaagd");
-            }
-            else
-            {
-                if (amount > _currentClient.Saldo)
-                {
-                    Helper.showMessage("Transactie mislukt. U hebt niet genoeg saldo.", MessageBoxIcon.Error);
-                }
-                else
-                {
-                    Helper.showMessage("Transactie mislukt. Controleer of u alleen getallen hebt ingevoerd.", MessageBoxIcon.Error);
-                }
-            }
-
-            //validInput = _checkInput.validInput(tbWithdrawMoney.Text, input);
-
-            //if (validInput)
-            //{
-
-            //}
-            //else
-            //{
-            //    inputErrorMsg(validInput);
-            //}
-        }
-
-        //deposit the amount filled in by the user
-        private void btnDeposit_Click(object sender, EventArgs e)
-        {
-            bool input = false;
-            bool validInput = false;
-            double amount = Convert.ToDouble(tbDepositMoney.Text);
-            double oldSaldo = 0;
-            bool tSuccesfull = false;//transaction succesfull
-
-            if (!string.IsNullOrWhiteSpace(tbDepositMoney.Text))
-            {
-                input = true;
-                Deposit depositMoney = new Deposit(_currentClient, amount, _db);
-                tSuccesfull = depositMoney.deposit();//deposit money
-
-                if (amount > _currentClient.Saldo)
-                {
-                    oldSaldo = amount - _currentClient.Saldo;
-                }
-                else
-                {
-                    oldSaldo = _currentClient.Saldo - amount;
-                }
-
-                if (tSuccesfull)
-                {
-                    createReceipt(oldSaldo, _currentClient.Saldo, "Deposit");
-
-                    _receipt = true;
-                    UpdateForm(_currentClient);
-                    btnPrintReceipt.Visible = true;
-
-                    _print = new PrintReceipt(_transaction, _currentClient);
-                    rtbReceipt.Text = _print.print();
-
-                    Helper.showMessage("Transactie geslaagd");
-                }
-                else
-                {
-                    Helper.showMessage("Transactie mislukt", MessageBoxIcon.Error);
-                }
-            }
-            else
-            {
-                Helper.showMessage("Graag al de velden invullen", MessageBoxIcon.Error);
-            }
-
-
-            //validInput = _checkInput.validInput(tbDepositMoney.Text, input);
-
-            //if (validInput)
-            //{
-
-
-
-            //}
-            //else
-            //{
-            //    inputErrorMsg(validInput);
-            //}
-
-
         }
 
         //debug button
@@ -485,45 +281,30 @@ namespace Bank_Project_3_4
         //the user logs out, another user can log in
         private void btnLogOut_Click(object sender, EventArgs e)
         {
-            _validPass = false;
-            _waitForPass = false;
-            _loggedOut = true;
-
-            _enteredPassword = string.Empty;
-            lblWelcome.Text = "Welkom hou u pas voor de cardreader";
-            rtbReceipt.Text = "";
-            dgvReceipt.DataSource = null;
-
-            _clearInput = true;
-            UpdateForm(_currentClient);
-
-            myPort.WriteLine("R");
+            logOut();
         }
 
-        //debug button
-        private void button2_Click(object sender, EventArgs e)
+        //cancels the user attempt to log in
+        private void btnCancel_Click(object sender, EventArgs e)
         {
-            using (var db = new ClientContext())
-            {
-                // Create and save a new Blog
-
-                var trans = new Transaction { };
-                db.Transactions.Add(trans);
-                db.SaveChanges();
-
-                // Display all Blogs from the database
-                //var query = from b in db.Clients
-                //            orderby b.Name
-                //            select b;
-            }
+            myPort.WriteLine("C");
+            logOut();
         }
 
-        //prints the receipt
-        private void btnPrintReceipt_Click(object sender, EventArgs e)
+        //execute a transaction
+        private void btnTransaction_Click(object sender, EventArgs e)
         {
-            _print = new PrintReceipt(_transaction, _currentClient);
-            rtbReceipt.Text = _print.print();
+            transaction();
         }
-#endregion
+
+        //returns the saldo of the currentuser
+        private void btnGetSaldo_Click(object sender, EventArgs e)
+        {
+            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _userTagId);
+            tbUserSaldo.Text = "€ " + Convert.ToString(checkSaldo.getSaldo());//get the saldo of the current client
+        }
+
+
+        #endregion
     }
 }

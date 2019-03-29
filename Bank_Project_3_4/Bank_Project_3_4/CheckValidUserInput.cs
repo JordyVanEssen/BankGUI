@@ -10,11 +10,9 @@ namespace Bank_Project_3_4
 {
     class CheckValidUserInput
     {
-        ClientContext _db;
-        public String username = "";
-        public String password = "";
+        public String _username = "";
+        public String _password = "";
         Client _currentClient;
-        UserTag _userCredentials;
 
         //check if the input is valid
         public bool filledInField = false;
@@ -27,11 +25,9 @@ namespace Bank_Project_3_4
         //the password chars
         public char[] passwordChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
-        public CheckValidUserInput(ClientContext pDb, Client pCurrentClient, UserTag pUserCredential)
+        public CheckValidUserInput(Client pCurrentClient)
         {
-            _db = pDb;
             _currentClient = pCurrentClient;
-            _userCredentials = pUserCredential;
         }
 
         //check if the input is correct, retuns true or false
@@ -44,34 +40,28 @@ namespace Bank_Project_3_4
             checkInput = pInput.ToCharArray();
             inputLength = checkInput.Length;
 
-            if (inputLength == 4)
+         
+            if (input)
             {
-                if (input)
+                for (int i = 0; i < inputLength; i++)
                 {
-                    for (int i = 0; i < inputLength; i++)
-                    {
-                        validChars = passwordChars.Any(x => x == checkInput[i]);
+                    validChars = passwordChars.Any(x => x == checkInput[i]);
 
-                        if (!validChars)
-                        {
-                            break;
-                        }
+                    if (!validChars)
+                    {
+                        break;
                     }
+                }
 
-                    if (validChars)
-                    {
-                        validUserInput = true;
-                        return true;
-                    }
-                    else
-                    {
-                        validUserInput = false;
-                        checkInput = null;
-                        return false;
-                    }
+                if (validChars)
+                {
+                    validUserInput = true;
+                    return true;
                 }
                 else
                 {
+                    validUserInput = false;
+                    checkInput = null;
                     return false;
                 }
             }

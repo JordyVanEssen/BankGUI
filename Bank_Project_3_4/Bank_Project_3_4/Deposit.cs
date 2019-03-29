@@ -10,23 +10,20 @@ namespace Bank_Project_3_4
 {
     class Deposit
     {
-        HttpRequest httpRequest;
-        ClientContext _db;
-        Client currentClient;
-        String passId = "";
-        double amount;
+        HttpRequest _httpRequest;
+        Client _currentClient;
+        double _amount;
 
-        public Deposit(Client pCurrentClient, double amount, ClientContext pDb)
+        public Deposit(Client pCurrentClient, double amount)
         {
-            _db = pDb;
-            currentClient = pCurrentClient;
-            this.amount = amount;
+            _currentClient = pCurrentClient;
+            this._amount = amount;
         }
 
         public Boolean deposit()
         {
             //var result = _db.userTags.FirstOrDefault(x => x.PassId == passId);
-            if (currentClient != null)//match found
+            if (_currentClient != null)//match found
             {
                 updateSaldo(); 
                 return true;
@@ -40,9 +37,9 @@ namespace Bank_Project_3_4
 
         private async void updateSaldo()
         {
-            currentClient.Saldo = currentClient.Saldo += amount;
-            httpRequest = new HttpRequest("ClientItems");
-            Object response = await HttpRequest.UpdateClientAsync(currentClient, httpRequest.createUrl());
+            _currentClient.Saldo = _currentClient.Saldo += _amount;
+            _httpRequest = new HttpRequest("ClientItems");
+            Object response = await HttpRequest.UpdateClientAsync(_currentClient, _httpRequest.createUrl());
         }
     }
 }

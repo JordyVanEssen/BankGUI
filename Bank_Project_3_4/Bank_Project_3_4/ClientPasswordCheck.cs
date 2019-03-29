@@ -9,17 +9,18 @@ namespace Bank_Project_3_4
 {
     class ClientPasswordCheck
     {
-        UserTag currentClient;
+        HttpRequest _httpRequest;
 
-        public ClientPasswordCheck(UserTag pCurrentClient)
+        public async Task<Boolean> validatePassword(String pPassword, String pNuid)
         {
-            this.currentClient = pCurrentClient;
-        }
+            _httpRequest = new HttpRequest("Authentication");
+            int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), pPassword + "/" + pNuid);
 
-        public Boolean validatePassword(String pPassword)
-        {
-            //returns true or false, depends if the password is valid
-            return currentClient.Password.Equals(pPassword);
+            if (response == 1)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
