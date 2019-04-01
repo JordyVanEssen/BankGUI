@@ -29,11 +29,14 @@ namespace Bank_Project_3_4
         UserTagViewModel _userTagView;
         Transaction _transaction;
 
+
         private string serialInput;//incoming data is stored in String rxString
 
         //the password strings
         String _enteredPassword = string.Empty;
         String _readPass = string.Empty;
+        String _lblPincodeText = string.Empty;
+
 
         //the userTagId
         String _userTagId = String.Empty;
@@ -44,6 +47,7 @@ namespace Bank_Project_3_4
         //booleans for validation of the password
         bool _validPass = false;
         bool _loggedOut = false;
+        bool _enterPassword = false;
 
         private int[] bill = { 5, 10, 20, 50, 100, 200, 500 };
 
@@ -63,6 +67,7 @@ namespace Bank_Project_3_4
             myPort.PortName = "COM3";
             myPort.DataReceived += MyPort_DataReceived;
             myPort.Open();
+            myPort.WriteLine("R");
             myPort.WriteLine("R");
 
             //the default bills
@@ -105,6 +110,8 @@ namespace Bank_Project_3_4
                         myPort.WriteLine("R");
                     }
                 }
+                _enterPassword = false;
+                UpdateForm(null);
             }
             else if (returnedObject.StatusCode == 0)//if the pass exists and is not blocked
             {
@@ -115,7 +122,7 @@ namespace Bank_Project_3_4
                 myPort.WriteLine("P");
                 _loggedOut = false;
                 //update the shown text on screen
-                updateText(_currentClient);
+                updateText(_currentClient, "");
             }
             else if (returnedObject.StatusCode == 2)//the user pass is blocked
             {
@@ -126,6 +133,7 @@ namespace Bank_Project_3_4
             //update the form
             if (_currentClient != null)
             {
+                _enterPassword = true;
                 UpdateForm(_currentClient);
             }
         }
@@ -133,46 +141,80 @@ namespace Bank_Project_3_4
         //checks if the user entered a valid password
         private async void checkPasswordValidation(String pPassword)
         {
+            String lastChar = "";
             ClientPasswordCheck checkPass = new ClientPasswordCheck();
-
-            //validates the password
-            _validPass = await checkPass.validatePassword(pPassword, _currentClientNuid);
-
-            //if the password is correct
-            if (_validPass)
+            if (pPassword != "#" && pPassword != "*" && !string.IsNullOrEmpty(pPassword))
             {
-                //updates the form
-                UpdateForm(_currentClient);
-                //reset the invalid password counter
+                _lblPincodeText += "X";
+                _enteredPassword += pPassword;
+                lastChar = pPassword;
+                updateText(null, _lblPincodeText);
+                _lblPincodeText = string.Empty;
             }
-            else
+            else if (pPassword == "*")
             {
-                Helper.showMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n\n 1) lees uw pas in \n 2) voer uw wachtwoord in", MessageBoxIcon.Information);
-                myPort.Write("R");
-                _loggedOut = true;
-                updateText(_currentClient);
+                
+                _enteredPassword = _enteredPassword.Remove(_enteredPassword.Length - 1);
+                updateText(null, "<>");
             }
+            else if(pPassword == "#")
+            {
+                //validates the password
+                _validPass = await checkPass.validatePassword(_enteredPassword, _currentClientNuid);
+
+                //if the password is correct
+                if (_validPass)
+                {
+                    //updates the form
+                    UpdateForm(_currentClient);
+                    //reset the invalid password counter
+                }
+                else
+                {
+                    Helper.showMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n\n 1) lees uw pas in \n 2) voer uw wachtwoord in", MessageBoxIcon.Information);
+                    myPort.Write("R");
+                    _loggedOut = true;
+                    _enterPassword = false;
+                    UpdateForm(null);
+                    updateText(_currentClient, "");
+                }
+                _enteredPassword = string.Empty;
+            }
+            
         }
 
         //updates the label text
-        public void updateText(Client pClient)
+        public void updateText(Client pClient, String pInput)
         {
             //update the label text
             if (InvokeRequired)
             {
-                this.Invoke(new Action<Client>(updateText), new object[] { pClient });
+                this.Invoke(new Action<Client, String>(updateText), new object[] { pClient, pInput });
                 return;
             }
 
             if (_loggedOut)
             {
                 lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
+                //_userControl.WelcomeLabel("Welkom, houd uw pas voor de reader");
             }
             else
             {
                 lblWelcome.Text = "Graag uw pincode invoeren op het keypad ";
-            }
 
+                if (pInput == "<>")
+                {
+                    _lblPincodeText = lblPinCode.Text.Substring(4);
+                    _lblPincodeText = _lblPincodeText.Remove(_lblPincodeText.Length - 1);
+                    lblPinCode.Text = $"PIN:{_lblPincodeText}";
+                    _lblPincodeText = string.Empty;
+                }
+                else
+                {
+                    lblPinCode.Text += pInput;
+                }
+                //_userControl.WelcomeLabel("Graag uw pincode invoeren op het keypad");
+            }
         }
 
         //shows the transaction form
@@ -188,15 +230,18 @@ namespace Bank_Project_3_4
             {
                 rtbReceipt.Text = exeTransaction.printReceipt();
 
-                this.Enabled = false;
-                using (FormLogOut logOutForm =  new FormLogOut())
+                if (exeTransaction._tSuccesfull)
                 {
-                    if (logOutForm.ShowDialog() == DialogResult.OK)
+                    this.Enabled = false;
+                    using (FormLogOut logOutForm = new FormLogOut())
                     {
-                        logOut();
+                        if (logOutForm.ShowDialog() == DialogResult.OK)
+                        {
+                            logOut();
+                        }
                     }
+                    this.Enabled = true;
                 }
-                this.Enabled = true;
             }            
         }
 
@@ -211,30 +256,42 @@ namespace Bank_Project_3_4
 
             if (_validPass)
             {
-                rtbReceipt.Visible = true;
+                _enterPassword = false;
                 lblWelcome.Visible = false;
-                btnCancel.Visible = false;
+                rtbReceipt.Visible = true;
                 grpbLoggedIn.Visible = true;
             }
             else
             {
-                rtbReceipt.Visible = false;
-                btnCancel.Visible = true;
-                grpbLoggedIn.Visible = false;
                 lblWelcome.Visible = true;
+                rtbReceipt.Visible = false;
+                grpbLoggedIn.Visible = false;
+            }
+
+            if (_enterPassword)
+            {
+                lblPinCode.Text = "PIN: ";
+                lblPinCode.Visible = true;
+                btnCancel.Visible = true;
+            }
+            else
+            {
+                lblPinCode.Visible = false;
+                btnCancel.Visible = false;
             }
         }
 
         //logs out
         private void logOut()
         {
+            _enterPassword = false;
             _validPass = false;
             UpdateForm(_currentClient);
             _loggedOut = true;
             _enteredPassword = string.Empty;
             rtbReceipt.Text = "";
 
-            updateText(null);
+            updateText(null, "");
             
             myPort.WriteLine("R");
         }
@@ -295,7 +352,10 @@ namespace Bank_Project_3_4
             {
                 String pwResult = stripString("pw{", "}", serialInput);
 
-                checkPasswordValidation(pwResult);
+                if (!string.IsNullOrEmpty(pwResult))
+                {
+                    checkPasswordValidation(pwResult);
+                }
             }
         }
 
@@ -343,8 +403,12 @@ namespace Bank_Project_3_4
             }
         }
 
+
         #endregion
 
+        private void pnlWelcome_Paint(object sender, PaintEventArgs e)
+        {
 
+        }
     }
 }

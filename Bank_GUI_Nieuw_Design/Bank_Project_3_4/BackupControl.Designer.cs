@@ -1,13 +1,13 @@
 ﻿namespace Bank_Project_3_4
 {
-    partial class DeBank
+    partial class BackupControl
     {
-        /// <summary>
+        /// <summary> 
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
+        /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
@@ -20,18 +20,15 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        #region Component Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeBank));
-            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.lblWelcome = new System.Windows.Forms.Label();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BackupControl));
             this.btnCancel = new Syncfusion.WinForms.Controls.SfButton();
             this.rtbReceipt = new System.Windows.Forms.RichTextBox();
             this.grpbLoggedIn = new System.Windows.Forms.GroupBox();
@@ -45,49 +42,33 @@
             this.lblAmount = new System.Windows.Forms.Label();
             this.btnTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.cmbChooseBill = new System.Windows.Forms.ComboBox();
-            this.lblPinCode = new Syncfusion.Windows.Forms.Tools.AutoLabel();
+            this.lblWelcome = new System.Windows.Forms.Label();
             this.grpbLoggedIn.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // serialPort1
-            // 
-            this.serialPort1.PortName = "COM6";
-            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.MyPort_DataReceived);
-            // 
-            // lblWelcome
-            // 
-            this.lblWelcome.AutoSize = true;
-            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
-            this.lblWelcome.Location = new System.Drawing.Point(289, 58);
-            this.lblWelcome.Name = "lblWelcome";
-            this.lblWelcome.Size = new System.Drawing.Size(570, 45);
-            this.lblWelcome.TabIndex = 23;
-            this.lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
             // 
             // btnCancel
             // 
             this.btnCancel.AccessibleName = "Button";
             this.btnCancel.BackColor = System.Drawing.Color.LightGray;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnCancel.Location = new System.Drawing.Point(505, 353);
+            this.btnCancel.Location = new System.Drawing.Point(104, 415);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(139, 33);
             this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnCancel.TabIndex = 21;
+            this.btnCancel.TabIndex = 20;
             this.btnCancel.Text = "Annuleren";
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Visible = false;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // rtbReceipt
             // 
             this.rtbReceipt.BackColor = System.Drawing.Color.White;
             this.rtbReceipt.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.rtbReceipt.Location = new System.Drawing.Point(640, 42);
+            this.rtbReceipt.Location = new System.Drawing.Point(658, 114);
             this.rtbReceipt.Name = "rtbReceipt";
             this.rtbReceipt.ReadOnly = true;
             this.rtbReceipt.Size = new System.Drawing.Size(389, 282);
-            this.rtbReceipt.TabIndex = 22;
+            this.rtbReceipt.TabIndex = 21;
             this.rtbReceipt.Text = "";
             this.rtbReceipt.Visible = false;
             // 
@@ -104,10 +85,10 @@
             this.grpbLoggedIn.Controls.Add(this.lblAmount);
             this.grpbLoggedIn.Controls.Add(this.btnTransaction);
             this.grpbLoggedIn.Controls.Add(this.cmbChooseBill);
-            this.grpbLoggedIn.Location = new System.Drawing.Point(53, 42);
+            this.grpbLoggedIn.Location = new System.Drawing.Point(92, 114);
             this.grpbLoggedIn.Name = "grpbLoggedIn";
             this.grpbLoggedIn.Size = new System.Drawing.Size(516, 282);
-            this.grpbLoggedIn.TabIndex = 20;
+            this.grpbLoggedIn.TabIndex = 19;
             this.grpbLoggedIn.TabStop = false;
             this.grpbLoggedIn.Visible = false;
             // 
@@ -154,7 +135,6 @@
             this.btnGetSaldo.TabIndex = 19;
             this.btnGetSaldo.Text = "Saldo opvragen";
             this.btnGetSaldo.UseVisualStyleBackColor = false;
-            this.btnGetSaldo.Click += new System.EventHandler(this.btnGetSaldo_Click);
             // 
             // lblBill
             // 
@@ -180,7 +160,6 @@
             this.btnLogOut.TabIndex = 18;
             this.btnLogOut.Text = "Uitloggen";
             this.btnLogOut.UseVisualStyleBackColor = false;
-            this.btnLogOut.Click += new System.EventHandler(this.btnLogOut_Click);
             // 
             // tbAmount
             // 
@@ -212,7 +191,6 @@
             this.btnTransaction.TabIndex = 16;
             this.btnTransaction.Text = "Bedrag opnemen";
             this.btnTransaction.UseVisualStyleBackColor = false;
-            this.btnTransaction.Click += new System.EventHandler(this.btnTransaction_Click);
             // 
             // cmbChooseBill
             // 
@@ -224,39 +202,27 @@
             this.cmbChooseBill.Size = new System.Drawing.Size(143, 25);
             this.cmbChooseBill.TabIndex = 0;
             // 
-            // lblPinCode
+            // lblWelcome
             // 
-            this.lblPinCode.AutoSize = false;
-            this.lblPinCode.BackColor = System.Drawing.Color.Azure;
-            this.lblPinCode.Font = new System.Drawing.Font("Segoe UI Semibold", 16F);
-            this.lblPinCode.Location = new System.Drawing.Point(297, 103);
-            this.lblPinCode.Name = "lblPinCode";
-            this.lblPinCode.Size = new System.Drawing.Size(570, 30);
-            this.lblPinCode.TabIndex = 24;
-            this.lblPinCode.Text = "PIN: ";
-            this.lblPinCode.Visible = false;
+            this.lblWelcome.AutoSize = true;
+            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
+            this.lblWelcome.Location = new System.Drawing.Point(99, 49);
+            this.lblWelcome.Name = "lblWelcome";
+            this.lblWelcome.Size = new System.Drawing.Size(570, 45);
+            this.lblWelcome.TabIndex = 22;
+            this.lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
             // 
-            // DeBank
+            // BackupControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1105, 553);
-            this.Controls.Add(this.lblPinCode);
             this.Controls.Add(this.lblWelcome);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.rtbReceipt);
             this.Controls.Add(this.grpbLoggedIn);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.IconSize = new System.Drawing.Size(25, 25);
-            this.MaximizeBox = false;
-            this.Name = "DeBank";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Style.BackColor = System.Drawing.Color.Azure;
-            this.Text = "Pinautomaat";
-            this.TransparencyKey = System.Drawing.Color.Silver;
-            this.Load += new System.EventHandler(this.DeBank_Load);
+            this.Name = "BackupControl";
+            this.Size = new System.Drawing.Size(1139, 563);
             this.grpbLoggedIn.ResumeLayout(false);
             this.grpbLoggedIn.PerformLayout();
             this.ResumeLayout(false);
@@ -265,8 +231,7 @@
         }
 
         #endregion
-        private System.IO.Ports.SerialPort serialPort1;
-        private System.Windows.Forms.Label lblWelcome;
+
         private Syncfusion.WinForms.Controls.SfButton btnCancel;
         private System.Windows.Forms.RichTextBox rtbReceipt;
         private System.Windows.Forms.GroupBox grpbLoggedIn;
@@ -280,7 +245,6 @@
         private System.Windows.Forms.Label lblAmount;
         private Syncfusion.WinForms.Controls.SfButton btnTransaction;
         private System.Windows.Forms.ComboBox cmbChooseBill;
-        private Syncfusion.Windows.Forms.Tools.AutoLabel lblPinCode;
+        private System.Windows.Forms.Label lblWelcome;
     }
 }
-

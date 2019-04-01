@@ -17,11 +17,11 @@ namespace Bank_Project_3_4
         private HttpRequest _httpRequest;
         private PrintReceipt _print;
 
-        private int _amount = 0;
         private int _userTagId;
         private String _chosenBill = "";
         private int _billValue = 0;
-        private Boolean _tSuccesfull = false;
+        public Boolean _tSuccesfull = false;
+        public Boolean _validInput = false;
         private String _billCombination = "";
 
         //the bills to choose from
@@ -38,7 +38,7 @@ namespace Bank_Project_3_4
         {
             _checkInput = new CheckValidUserInput(_currentClient);
             bool input = false;
-            bool validInput = false;
+            _validInput = false;
             double oldSaldo = _currentClient.Saldo;
 
             
@@ -55,9 +55,9 @@ namespace Bank_Project_3_4
                     }
 
                     input = true;
-                    validInput = _checkInput.validInput(pAmount, input);
+                    _validInput = _checkInput.validInput(pAmount, input);
 
-                    if (validInput)
+                    if (_validInput)
                     {
                         amount = Convert.ToDouble(pAmount);
                     }
@@ -68,7 +68,7 @@ namespace Bank_Project_3_4
                 }
 
 
-                if (validInput)
+                if (_validInput)
                 {
                     if (!string.IsNullOrEmpty(pBill))
                     {
@@ -101,12 +101,12 @@ namespace Bank_Project_3_4
                             Helper.showMessage("Transactie mislukt. U hebt niet genoeg saldo.", MessageBoxIcon.Error);
                         }
 
-                        inputErrorMsg(validInput);
+                        inputErrorMsg(_validInput);
                     }
                 }
                 else
                 {
-                    inputErrorMsg(validInput);
+                    inputErrorMsg(_validInput);
                 }
             }
             else

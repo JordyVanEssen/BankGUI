@@ -42,19 +42,20 @@ namespace Bank_Project_3_4
         //creates the receipt and returns it
         public String print()
         {
-            int max = 28;
-            //new receipt
+            String iban = _currentClient.Iban.Substring(0, 11);
+            int max = 42;
             String receipt = "";
 
+            //creates a new receipt
             for (int i = 0; i < max; i++)
             {
                 receipt += "=";
             }
 
             receipt += '\n';
-            receipt += $"IBAN:\t\t {_currentClient.Iban} \n";
+            receipt += $"IBAN:\t\t\t {iban}*** \n";
 
-            for (int i = 0; i < max - 3; i++)
+            for (int i = 0; i < max - 4; i++)
             {
                 receipt += "--";
             }
@@ -63,7 +64,7 @@ namespace Bank_Project_3_4
             receipt += $"Oud Saldo:\t\t €{_transaction.OldSaldo} \n";
             receipt += $"Nieuw Saldo:\t\t €{_transaction.NewSaldo} \n";
 
-            for (int i = 0; i < max - 3; i++)
+            for (int i = 0; i < max - 4; i++)
             {
                 receipt += "--";
             }
@@ -72,23 +73,23 @@ namespace Bank_Project_3_4
 
             if (withdraw)
             {
-                if (_amountOfBills > 1)
+                if (_amountOfBills > 1 || _amountOfBills == 0)
                 {
-                    receipt += $"{_amountOfBills} biljetten van:\t {_bill}\n{_billCombination} \n";
+                    receipt += $"{_amountOfBills} biljetten van:\t\t {_bill}\n{_billCombination} \n";
                 }
                 else
                 {
-                    receipt += $"{_amountOfBills} biljet van:\t {_bill}\n{_billCombination} \n";
+                    receipt += $"{_amountOfBills} biljet van:\t\t {_bill}\n{_billCombination} \n";
                 }
             }
            
-            for (int i = 0; i < max - 3; i++)
+            for (int i = 0; i < max - 4; i++)
             {
                 receipt += "--";
             }
 
             receipt += '\n';
-            receipt += $"Time\t {_transaction.Time.ToLocalTime()} \n";
+            receipt += $"Tijd:\t\t\t {_transaction.Time.ToLocalTime()} \n";
 
             for (int i = 0; i < max; i++)
             {

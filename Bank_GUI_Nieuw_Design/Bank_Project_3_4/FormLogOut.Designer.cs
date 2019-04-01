@@ -38,11 +38,11 @@
             // 
             this.btnLogOut.AccessibleName = "Button";
             this.btnLogOut.BackColor = System.Drawing.Color.LightGray;
-            this.btnLogOut.Font = new System.Drawing.Font("Segoe UI Semibold", 9F);
+            this.btnLogOut.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
             this.btnLogOut.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLogOut.Location = new System.Drawing.Point(5, 88);
             this.btnLogOut.Name = "btnLogOut";
-            this.btnLogOut.Size = new System.Drawing.Size(165, 28);
+            this.btnLogOut.Size = new System.Drawing.Size(179, 28);
             this.btnLogOut.Style.BackColor = System.Drawing.Color.LightGray;
             this.btnLogOut.Style.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnLogOut.TabIndex = 0;
@@ -54,11 +54,11 @@
             // 
             this.btnCancel.AccessibleName = "Button";
             this.btnCancel.BackColor = System.Drawing.Color.LightGray;
-            this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 9F);
+            this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCancel.Location = new System.Drawing.Point(5, 122);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(165, 28);
+            this.btnCancel.Size = new System.Drawing.Size(179, 28);
             this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
             this.btnCancel.Style.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.btnCancel.TabIndex = 1;
@@ -90,6 +90,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormLogOut";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Style.BackColor = System.Drawing.Color.Azure;
             this.Text = "Afmelden";
             this.Load += new System.EventHandler(this.FormLogOut_Load);

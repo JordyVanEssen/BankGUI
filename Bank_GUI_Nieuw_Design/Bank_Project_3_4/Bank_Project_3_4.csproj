@@ -89,6 +89,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackupControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BackupControl.Designer.cs">
+      <DependentUpon>BackupControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormLogOut.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -123,6 +129,9 @@
     <Compile Include="ExecuteTransaction.cs" />
     <Compile Include="ViewModels\UserTagViewModel.cs" />
     <Compile Include="Withdraw.cs" />
+    <EmbeddedResource Include="BackupControl.resx">
+      <DependentUpon>BackupControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DeBank.resx">
       <DependentUpon>DeBank.cs</DependentUpon>
     </EmbeddedResource>

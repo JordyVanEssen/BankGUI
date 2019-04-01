@@ -31,11 +31,6 @@ namespace Bank_Project_3_4
             InitializeComponent();
         }
 
-        private void SetClientDialogBox_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private async void btnOk_Click(object sender, EventArgs e)
         {
             Boolean validInput = false;
@@ -79,7 +74,10 @@ namespace Bank_Project_3_4
                 httpRequest = new HttpRequest("ClientItems");
                 response = await HttpRequest.CreateAsync(_currentClient, httpRequest.createUrl());
 
-                Helper.showMessage("U bent succesvol toegevoegd.");
+                if (response != null)
+                {
+                    Helper.showMessage("U bent succesvol toegevoegd.");
+                }
 
                 this.DialogResult = DialogResult.OK;
                 this.Close();

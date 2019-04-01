@@ -92,7 +92,6 @@
             this.tbUserPassword.Size = new System.Drawing.Size(190, 23);
             this.tbUserPassword.TabIndex = 1;
             this.tbUserPassword.UseSystemPasswordChar = true;
-            this.tbUserPassword.TextChanged += new System.EventHandler(this.SetClientDialogBox_Load);
             // 
             // tbUserName
             // 
@@ -143,9 +142,9 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SetClientDialogBox";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Style.BackColor = System.Drawing.Color.Azure;
             this.Text = "Gebruiker aanmaken";
-            this.Load += new System.EventHandler(this.SetClientDialogBox_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

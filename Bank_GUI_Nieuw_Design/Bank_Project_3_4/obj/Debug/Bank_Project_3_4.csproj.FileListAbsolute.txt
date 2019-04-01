@@ -76,7 +76,6 @@ C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\bin\Debug\System.Net.Http.Formatting.xml
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\bin\Debug\Syncfusion.Grid.Grouping.Windows.XmlSerializers.dll
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\bin\Debug\Syncfusion.Grid.Windows.XmlSerializers.dll
-C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.csprojAssemblyReference.cache
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.DeBank.resources
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.Properties.Resources.resources
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.SetClientDialogBox.resources
@@ -86,3 +85,5 @@ C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.exe
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.pdb
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.FormLogOut.resources
+C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.csprojAssemblyReference.cache
+C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.BackupControl.resources
