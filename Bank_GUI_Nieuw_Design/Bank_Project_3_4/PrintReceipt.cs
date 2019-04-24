@@ -61,8 +61,8 @@ namespace Bank_Project_3_4
             }
 
             receipt += '\n';
-            receipt += $"Oud Saldo:\t\t €{_transaction.OldSaldo} \n";
-            receipt += $"Nieuw Saldo:\t\t €{_transaction.NewSaldo} \n";
+            receipt += $"Oud Saldo:\t\t €{_currentClient.Saldo + _transaction.Amount} \n";
+            receipt += $"Nieuw Saldo:\t\t €{_currentClient.Saldo} \n";
 
             for (int i = 0; i < max - 4; i++)
             {

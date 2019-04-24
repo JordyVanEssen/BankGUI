@@ -26,8 +26,8 @@ namespace Bank_Project_3_4
         SerialPort myPort = new SerialPort();//create a serial port
         Client _currentClient;//the currentclient
         HttpRequest _httpRequest;
-        UserTagViewModel _userTagView;
-        Transaction _transaction;
+        UserTagViewModel _userTagView = new UserTagViewModel();
+        Transaction _transaction = new Transaction();
 
 
         private string serialInput;//incoming data is stored in String rxString
@@ -64,7 +64,7 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM3";
+            myPort.PortName = "COM23";
             myPort.DataReceived += MyPort_DataReceived;
             myPort.Open();
             myPort.WriteLine("R");
@@ -90,8 +90,9 @@ namespace Bank_Project_3_4
         //checks if the entered nuid exists
         private async void nuidValidation(String pNuid)
         {
+            ReturnObject returnedObject = new ReturnObject();
             _httpRequest = new HttpRequest("UserTagItems", pNuid);
-            ReturnObject returnedObject = await HttpRequest.GetUserTagAsync(_httpRequest.createUrl());
+            returnedObject = await HttpRequest.GetUserTagAsync(_httpRequest.createUrl());
             _userTagView = returnedObject.ReturnUserTag;
 
             if (returnedObject.StatusCode == 3)//if pass does not exist
@@ -153,8 +154,10 @@ namespace Bank_Project_3_4
             }
             else if (pPassword == "*")
             {
-                
-                _enteredPassword = _enteredPassword.Remove(_enteredPassword.Length - 1);
+                if (_enteredPassword.Length >= 1)
+                {
+                    _enteredPassword = _enteredPassword.Remove(_enteredPassword.Length - 1);
+                }
                 updateText(null, "<>");
             }
             else if(pPassword == "#")
@@ -167,7 +170,6 @@ namespace Bank_Project_3_4
                 {
                     //updates the form
                     UpdateForm(_currentClient);
-                    //reset the invalid password counter
                 }
                 else
                 {
@@ -195,17 +197,20 @@ namespace Bank_Project_3_4
 
             if (_loggedOut)
             {
-                lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
+                lblWelcome.Text = $"Welkom, houd uw pas voor de reader.";
                 //_userControl.WelcomeLabel("Welkom, houd uw pas voor de reader");
             }
             else
             {
-                lblWelcome.Text = "Graag uw pincode invoeren op het keypad ";
+                lblWelcome.Text = $"Graag uw pincode invoeren op het keypad ";
 
                 if (pInput == "<>")
                 {
                     _lblPincodeText = lblPinCode.Text.Substring(4);
-                    _lblPincodeText = _lblPincodeText.Remove(_lblPincodeText.Length - 1);
+                    if (_lblPincodeText.Length >= 1)
+                    {
+                        _lblPincodeText = _lblPincodeText.Remove(_lblPincodeText.Length - 1);
+                    }
                     lblPinCode.Text = $"PIN:{_lblPincodeText}";
                     _lblPincodeText = string.Empty;
                 }
@@ -228,6 +233,7 @@ namespace Bank_Project_3_4
 
             if (!string.IsNullOrEmpty(tbAmount.Text) || !string.IsNullOrEmpty(cmbChooseBill.Text))
             {
+                rtbReceipt.Visible = true;
                 rtbReceipt.Text = exeTransaction.printReceipt();
 
                 if (exeTransaction._tSuccesfull)
@@ -241,6 +247,8 @@ namespace Bank_Project_3_4
                         }
                     }
                     this.Enabled = true;
+
+                    //logOut();
                 }
             }            
         }
@@ -258,7 +266,6 @@ namespace Bank_Project_3_4
             {
                 _enterPassword = false;
                 lblWelcome.Visible = false;
-                rtbReceipt.Visible = true;
                 grpbLoggedIn.Visible = true;
             }
             else
@@ -313,7 +320,7 @@ namespace Bank_Project_3_4
         {
             for (int i = 0; i < bill.Length; i++)
             {
-                cmbChooseBill.Items.Remove("€" + Convert.ToString(bill[i]));
+                cmbChooseBill.Items.Remove("€" + $"{bill[i]}");
             }
 
 
@@ -321,7 +328,7 @@ namespace Bank_Project_3_4
             {
                 if (pAmount >= bill[i])
                 {
-                    cmbChooseBill.Items.Add("€" + Convert.ToString(bill[i]));
+                    cmbChooseBill.Items.Add("€" + $"{bill[i]}");
                 }
             }
         }

@@ -19,8 +19,8 @@ namespace Bank_Project_3_4
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // url + controller + parameters, 'https://localhost:44396/api/ClientItems/1'
-        private String _url = "https://localhost:44396/api/";
+        // url + controller + parameters, 'https://localhost:5001/api/ClientItems/1'
+        private String _url = "https://localhost:5001/api/";
         private String _urlController = "";
         private object _urlPrameter = "";
 
@@ -81,35 +81,33 @@ namespace Bank_Project_3_4
             return valid;
         }
 
-        //http create
-        public static async Task<Object> CreateAsync(Object pClient, String pPath)
+        //http create object
+        public static async Task<Object> CreateAsync(Object pObject, String pPath)
         {
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync(pPath, pClient);
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync(pPath, pObject);
             response.EnsureSuccessStatusCode();
 
             // return URI of the created resource.
             return response;
         }
 
-        //http update
+        //http update client
         public static async Task<HttpStatusCode> UpdateClientAsync(Client pClientItem, String pPath)
         {
             HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath + $"{pClientItem.ClientId}", pClientItem);
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.
-            //pClient = await response.Content.ReadAsAsync<Client>();
             return response.StatusCode;
         }
 
-        //http update
+        //http update usertag
         public static async Task<HttpStatusCode> UpdateUserTagAsync(UserTag pUserItem, String pPath)
         {
             HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath + $"{pUserItem.UsertagId}", pUserItem);
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.
-            //pClient = await response.Content.ReadAsAsync<Client>();
             return response.StatusCode;
         }
     }

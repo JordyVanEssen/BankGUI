@@ -40,13 +40,11 @@ namespace Bank_Project_3_4
             bool input = false;
             _validInput = false;
             double oldSaldo = _currentClient.Saldo;
-
+            int amount = 0;
             
             //checks if the user entered the input fields
-            if (!string.IsNullOrWhiteSpace(pAmount) || !string.IsNullOrEmpty(pBill))
+            if (!string.IsNullOrWhiteSpace(pAmount) && !string.IsNullOrEmpty(pBill))
             {
-                double amount = 0;
-
                 try
                 {
                     if (string.IsNullOrWhiteSpace(pAmount))
@@ -59,7 +57,7 @@ namespace Bank_Project_3_4
 
                     if (_validInput)
                     {
-                        amount = Convert.ToDouble(pAmount);
+                        amount = Convert.ToInt32(pAmount);
                     }
                 }
                 catch (OverflowException)
@@ -74,8 +72,9 @@ namespace Bank_Project_3_4
                     {
                         _chosenBill = pBill.Replace("€", "");
                         _billValue = Convert.ToInt16(_chosenBill);
+
                         //withdraw
-                        if ((amount / _billValue) % 1 == 0)
+                        if (((double)amount / (double)_billValue) % 1 == 0)
                         {
                             Withdraw withDrawel = new Withdraw(_currentClient, _userTagId, amount);
                             _tSuccesfull = withDrawel.withdrawMoney();
@@ -89,7 +88,7 @@ namespace Bank_Project_3_4
                     if (_tSuccesfull)
                     {
                         //creates and prints the receipt
-                        createReceipt(oldSaldo, _currentClient.Saldo);
+                        createReceipt(amount);
                         _print = new PrintReceipt(_transaction, _currentClient, pBill, Convert.ToInt16(amount / _billValue), _billCombination);
 
                         Helper.showMessage("Transactie geslaagd");
@@ -120,7 +119,7 @@ namespace Bank_Project_3_4
             _billCombination = "";
             int x = 0;
             int rest = 0;
-            int aantal = 0;
+            int billCount = 0;
             int a = 7;
             int previousBill = 0;
             int withdrawAmount = Convert.ToInt16(pAmount);
@@ -131,7 +130,7 @@ namespace Bank_Project_3_4
                 x++;
             }
 
-            aantal = x;
+            billCount = x;
             rest = Convert.ToInt16(pAmount);
             x = 0;
 
@@ -182,13 +181,13 @@ namespace Bank_Project_3_4
             if (rest == 0)
             {
                 DialogResult result;
-                if (aantal >= 2)
+                if (billCount >= 2)
                 {
-                   result = Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. Wat wel kan zijn {aantal} biljetten van: €{_billValue}, {_billCombination}", MessageBoxButtons.OKCancel);
+                   result = Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. Wat wel kan zijn {billCount} biljetten van: €{_billValue}, {_billCombination}", MessageBoxButtons.OKCancel);
                 }
                 else
                 {
-                   result = Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. Wat wel kan is een {aantal} biljet van: €{_billValue}, {_billCombination}", MessageBoxButtons.OKCancel);
+                   result = Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. Wat wel kan is een {billCount} biljet van: €{_billValue}, {_billCombination}", MessageBoxButtons.OKCancel);
                 }
 
                 if (result == DialogResult.OK)
@@ -199,17 +198,17 @@ namespace Bank_Project_3_4
             }
             else
             {
-                if (aantal >= 2)
+                if (billCount >= 2)
                 {
                     Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. \n" +
-                                        $"Wat wel kan is dat u {aantal} biljetten van: {_billValue}, {_billCombination}. \n\n" +
+                                        $"Wat wel kan is dat u {billCount} biljetten van: {_billValue},{_billCombination}. \n\n" +
                                             $"De resterende €{rest} is niet meegerekend omdat daar geen biljetopties voor zijn. \n" +
                                                 $"Daarom graag op tienden afronden. Bijvoorbeeld: €150 i.p.v. €153.");
                 }
                 else
                 {
                     Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. \n" +
-                                        $"Wat wel kan is dat u {aantal} biljet van: {_billValue}, {_billCombination}. \n\n" +
+                                        $"Wat wel kan is dat u {billCount} biljet van: {_billValue},{_billCombination}. \n\n" +
                                             $"De resterende €{rest} is niet meegerekend omdat daar geen biljetopties voor zijn. \n" +
                                                 $"Daarom graag op tienden afronden. Bijvoorbeeld: €150 i.p.v. €153.");
                 }
@@ -217,16 +216,15 @@ namespace Bank_Project_3_4
     }
 
         //create the receipt
-        private async void createReceipt(double pOldSaldo, double pNewSaldo)
+        private async void createReceipt(int pAmount)
         {
-            _transaction = new Transaction { Mode = "Withdrawel" };
             DateTime now = DateTime.Now;
-
-            _transaction.ClientId = _currentClient.ClientId;
-            _transaction.Name = _currentClient.Name;
-            _transaction.OldSaldo = pOldSaldo;
-            _transaction.NewSaldo = pNewSaldo;
-            _transaction.Time = now;
+            _transaction = new Transaction { Mode = "Withdrawel"
+                                            ,ClientId = _currentClient.ClientId
+                                            ,Name = _currentClient.Name
+                                            ,Iban = _currentClient.Iban
+                                            ,Amount = pAmount
+                                            ,Time = now };
 
             _httpRequest = new HttpRequest("TransactionItems");
             Object response = await HttpRequest.CreateAsync(_transaction, _httpRequest.createUrl());

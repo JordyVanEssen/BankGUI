@@ -4,6 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+/*
+    - Author: Jordy van Essen | 0968981
+    - Date: 01-03-2019
+*/
+
 namespace Bank_Project_3_4
 {
     static class Program

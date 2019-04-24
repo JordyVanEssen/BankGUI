@@ -60,6 +60,7 @@ namespace Bank_Project_3_4
 
                 //create a new usertag
                 _newUserId.Password = password;
+                _newUserId.invalidPasswordCount = 0;
                 httpRequest = new HttpRequest("UserTagItems");
                 Object response = await HttpRequest.CreateAsync(_newUserId, httpRequest.createUrl());
 
@@ -106,6 +107,11 @@ namespace Bank_Project_3_4
         {
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        private void SetClientDialogBox_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

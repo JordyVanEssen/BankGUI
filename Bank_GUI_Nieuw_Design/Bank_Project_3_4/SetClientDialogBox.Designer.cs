@@ -145,6 +145,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Style.BackColor = System.Drawing.Color.Azure;
             this.Text = "Gebruiker aanmaken";
+            this.Load += new System.EventHandler(this.SetClientDialogBox_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

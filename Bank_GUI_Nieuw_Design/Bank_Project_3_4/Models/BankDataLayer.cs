@@ -25,10 +25,11 @@ namespace BankDataLayer
     {
         public int TransactionId { get; set; }
         public int ClientId { get; set; }
-        public string Name { get; set; }
+        public String Name { get; set; }
+        public String Iban { get; set; }
+        public String IbanDestination { get; set; }
         public String Mode { get; set; }
-        public double OldSaldo { get; set; }
-        public double NewSaldo { get; set; }
+        public int Amount { get; set; }
         public DateTime Time { get; set; }
     }
 
@@ -38,6 +39,7 @@ namespace BankDataLayer
         public String Password { get; set; }
         public string PassId { get; set; }
         public Boolean PassBlocked { get; set; }
+        public int invalidPasswordCount { get; set; }
 
         public Client Client { get; set; }
     }
