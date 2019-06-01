@@ -31,21 +31,21 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeBank));
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.btnCancel = new Syncfusion.WinForms.Controls.SfButton();
-            this.lblPinCode = new Syncfusion.Windows.Forms.Tools.AutoLabel();
-            this.lblWelcome = new System.Windows.Forms.Label();
             this.grpbLoggedIn = new System.Windows.Forms.GroupBox();
-            this.rtbReceipt = new System.Windows.Forms.RichTextBox();
+            this.btnLogout = new Syncfusion.WinForms.Controls.SfButton();
+            this.btnGetsaldo = new Syncfusion.WinForms.Controls.SfButton();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tbUserSaldo = new System.Windows.Forms.TextBox();
             this.autoLabel2 = new Syncfusion.Windows.Forms.Tools.AutoLabel();
             this.lblBill = new System.Windows.Forms.Label();
             this.tbAmount = new System.Windows.Forms.TextBox();
             this.lblAmount = new System.Windows.Forms.Label();
             this.btnTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.cmbChooseBill = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.tbUserSaldo = new System.Windows.Forms.TextBox();
-            this.btnGetsaldo = new Syncfusion.WinForms.Controls.SfButton();
-            this.btnLogout = new Syncfusion.WinForms.Controls.SfButton();
+            this.btnCancel = new Syncfusion.WinForms.Controls.SfButton();
+            this.lblPinCode = new Syncfusion.Windows.Forms.Tools.AutoLabel();
+            this.lblWelcome = new System.Windows.Forms.Label();
+            this.rtbReceipt = new System.Windows.Forms.RichTextBox();
             this.grpbLoggedIn.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,43 +53,6 @@
             // 
             this.serialPort1.PortName = "COM6";
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.MyPort_DataReceived);
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.AccessibleName = "Button";
-            this.btnCancel.BackColor = System.Drawing.Color.LightGray;
-            this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnCancel.Location = new System.Drawing.Point(725, 503);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(139, 33);
-            this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnCancel.TabIndex = 30;
-            this.btnCancel.Text = "Annuleren";
-            this.btnCancel.UseVisualStyleBackColor = false;
-            this.btnCancel.Visible = false;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // lblPinCode
-            // 
-            this.lblPinCode.AutoSize = false;
-            this.lblPinCode.BackColor = System.Drawing.Color.Azure;
-            this.lblPinCode.Font = new System.Drawing.Font("Segoe UI Semibold", 16F);
-            this.lblPinCode.Location = new System.Drawing.Point(287, 61);
-            this.lblPinCode.Name = "lblPinCode";
-            this.lblPinCode.Size = new System.Drawing.Size(570, 30);
-            this.lblPinCode.TabIndex = 29;
-            this.lblPinCode.Text = "PIN: ";
-            this.lblPinCode.Visible = false;
-            // 
-            // lblWelcome
-            // 
-            this.lblWelcome.AutoSize = true;
-            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
-            this.lblWelcome.Location = new System.Drawing.Point(279, 16);
-            this.lblWelcome.Name = "lblWelcome";
-            this.lblWelcome.Size = new System.Drawing.Size(570, 45);
-            this.lblWelcome.TabIndex = 28;
-            this.lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
             // 
             // grpbLoggedIn
             // 
@@ -104,24 +67,59 @@
             this.grpbLoggedIn.Controls.Add(this.lblAmount);
             this.grpbLoggedIn.Controls.Add(this.btnTransaction);
             this.grpbLoggedIn.Controls.Add(this.cmbChooseBill);
-            this.grpbLoggedIn.Location = new System.Drawing.Point(178, 94);
+            this.grpbLoggedIn.Location = new System.Drawing.Point(100, 110);
             this.grpbLoggedIn.Name = "grpbLoggedIn";
             this.grpbLoggedIn.Size = new System.Drawing.Size(516, 277);
-            this.grpbLoggedIn.TabIndex = 31;
+            this.grpbLoggedIn.TabIndex = 41;
             this.grpbLoggedIn.TabStop = false;
             this.grpbLoggedIn.Visible = false;
             // 
-            // rtbReceipt
+            // btnLogout
             // 
-            this.rtbReceipt.BackColor = System.Drawing.Color.White;
-            this.rtbReceipt.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.rtbReceipt.Location = new System.Drawing.Point(725, 94);
-            this.rtbReceipt.Name = "rtbReceipt";
-            this.rtbReceipt.ReadOnly = true;
-            this.rtbReceipt.Size = new System.Drawing.Size(389, 277);
-            this.rtbReceipt.TabIndex = 23;
-            this.rtbReceipt.Text = "";
-            this.rtbReceipt.Visible = false;
+            this.btnLogout.AccessibleName = "Button";
+            this.btnLogout.BackColor = System.Drawing.Color.LightGray;
+            this.btnLogout.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnLogout.Location = new System.Drawing.Point(360, 224);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(139, 33);
+            this.btnLogout.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnLogout.TabIndex = 20;
+            this.btnLogout.Text = "Uitloggen";
+            this.btnLogout.UseVisualStyleBackColor = false;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogOut_Click);
+            // 
+            // btnGetsaldo
+            // 
+            this.btnGetsaldo.AccessibleName = "Button";
+            this.btnGetsaldo.BackColor = System.Drawing.Color.LightGray;
+            this.btnGetsaldo.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnGetsaldo.Location = new System.Drawing.Point(360, 94);
+            this.btnGetsaldo.Name = "btnGetsaldo";
+            this.btnGetsaldo.Size = new System.Drawing.Size(139, 33);
+            this.btnGetsaldo.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnGetsaldo.TabIndex = 19;
+            this.btnGetsaldo.Text = "Saldo opvragen";
+            this.btnGetsaldo.UseVisualStyleBackColor = false;
+            this.btnGetsaldo.Click += new System.EventHandler(this.btnGetSaldo_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.label2.Location = new System.Drawing.Point(8, 120);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(68, 19);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "Uw saldo:";
+            // 
+            // tbUserSaldo
+            // 
+            this.tbUserSaldo.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.tbUserSaldo.Location = new System.Drawing.Point(120, 117);
+            this.tbUserSaldo.Name = "tbUserSaldo";
+            this.tbUserSaldo.ReadOnly = true;
+            this.tbUserSaldo.Size = new System.Drawing.Size(143, 25);
+            this.tbUserSaldo.TabIndex = 17;
             // 
             // autoLabel2
             // 
@@ -186,64 +184,66 @@
             this.cmbChooseBill.Size = new System.Drawing.Size(143, 25);
             this.cmbChooseBill.TabIndex = 0;
             // 
-            // label2
+            // btnCancel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.label2.Location = new System.Drawing.Point(8, 120);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(68, 19);
-            this.label2.TabIndex = 18;
-            this.label2.Text = "Uw saldo:";
+            this.btnCancel.AccessibleName = "Button";
+            this.btnCancel.BackColor = System.Drawing.Color.LightGray;
+            this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnCancel.Location = new System.Drawing.Point(647, 519);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(139, 33);
+            this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnCancel.TabIndex = 40;
+            this.btnCancel.Text = "Annuleren";
+            this.btnCancel.UseVisualStyleBackColor = false;
+            this.btnCancel.Visible = false;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // tbUserSaldo
+            // lblPinCode
             // 
-            this.tbUserSaldo.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.tbUserSaldo.Location = new System.Drawing.Point(120, 117);
-            this.tbUserSaldo.Name = "tbUserSaldo";
-            this.tbUserSaldo.ReadOnly = true;
-            this.tbUserSaldo.Size = new System.Drawing.Size(143, 25);
-            this.tbUserSaldo.TabIndex = 17;
+            this.lblPinCode.AutoSize = false;
+            this.lblPinCode.BackColor = System.Drawing.Color.Azure;
+            this.lblPinCode.Font = new System.Drawing.Font("Segoe UI Semibold", 16F);
+            this.lblPinCode.Location = new System.Drawing.Point(209, 77);
+            this.lblPinCode.Name = "lblPinCode";
+            this.lblPinCode.Size = new System.Drawing.Size(570, 30);
+            this.lblPinCode.TabIndex = 39;
+            this.lblPinCode.Text = "PIN: ";
+            this.lblPinCode.Visible = false;
             // 
-            // btnGetsaldo
+            // lblWelcome
             // 
-            this.btnGetsaldo.AccessibleName = "Button";
-            this.btnGetsaldo.BackColor = System.Drawing.Color.LightGray;
-            this.btnGetsaldo.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnGetsaldo.Location = new System.Drawing.Point(360, 94);
-            this.btnGetsaldo.Name = "btnGetsaldo";
-            this.btnGetsaldo.Size = new System.Drawing.Size(139, 33);
-            this.btnGetsaldo.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnGetsaldo.TabIndex = 19;
-            this.btnGetsaldo.Text = "Saldo opvragen";
-            this.btnGetsaldo.UseVisualStyleBackColor = false;
-            this.btnGetsaldo.Click += new System.EventHandler(this.btnGetSaldo_Click);
+            this.lblWelcome.AutoSize = true;
+            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
+            this.lblWelcome.Location = new System.Drawing.Point(201, 32);
+            this.lblWelcome.Name = "lblWelcome";
+            this.lblWelcome.Size = new System.Drawing.Size(570, 45);
+            this.lblWelcome.TabIndex = 38;
+            this.lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
             // 
-            // btnLogout
+            // rtbReceipt
             // 
-            this.btnLogout.AccessibleName = "Button";
-            this.btnLogout.BackColor = System.Drawing.Color.LightGray;
-            this.btnLogout.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnLogout.Location = new System.Drawing.Point(360, 224);
-            this.btnLogout.Name = "btnLogout";
-            this.btnLogout.Size = new System.Drawing.Size(139, 33);
-            this.btnLogout.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnLogout.TabIndex = 20;
-            this.btnLogout.Text = "Uitloggen";
-            this.btnLogout.UseVisualStyleBackColor = false;
-            this.btnLogout.Click += new System.EventHandler(this.btnLogOut_Click);
+            this.rtbReceipt.BackColor = System.Drawing.Color.White;
+            this.rtbReceipt.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.rtbReceipt.Location = new System.Drawing.Point(647, 110);
+            this.rtbReceipt.Name = "rtbReceipt";
+            this.rtbReceipt.ReadOnly = true;
+            this.rtbReceipt.Size = new System.Drawing.Size(389, 277);
+            this.rtbReceipt.TabIndex = 37;
+            this.rtbReceipt.Text = "";
+            this.rtbReceipt.Visible = false;
             // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1133, 581);
-            this.Controls.Add(this.rtbReceipt);
+            this.ClientSize = new System.Drawing.Size(1141, 589);
             this.Controls.Add(this.grpbLoggedIn);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblPinCode);
             this.Controls.Add(this.lblWelcome);
+            this.Controls.Add(this.rtbReceipt);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IconSize = new System.Drawing.Size(25, 25);
@@ -263,21 +263,21 @@
 
         #endregion
         private System.IO.Ports.SerialPort serialPort1;
-        private Syncfusion.WinForms.Controls.SfButton btnCancel;
-        private Syncfusion.Windows.Forms.Tools.AutoLabel lblPinCode;
-        private System.Windows.Forms.Label lblWelcome;
         private System.Windows.Forms.GroupBox grpbLoggedIn;
+        private Syncfusion.WinForms.Controls.SfButton btnLogout;
+        private Syncfusion.WinForms.Controls.SfButton btnGetsaldo;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox tbUserSaldo;
         private Syncfusion.Windows.Forms.Tools.AutoLabel autoLabel2;
         private System.Windows.Forms.Label lblBill;
         private System.Windows.Forms.TextBox tbAmount;
         private System.Windows.Forms.Label lblAmount;
         private Syncfusion.WinForms.Controls.SfButton btnTransaction;
         private System.Windows.Forms.ComboBox cmbChooseBill;
+        private Syncfusion.WinForms.Controls.SfButton btnCancel;
+        private Syncfusion.Windows.Forms.Tools.AutoLabel lblPinCode;
+        private System.Windows.Forms.Label lblWelcome;
         private System.Windows.Forms.RichTextBox rtbReceipt;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox tbUserSaldo;
-        private Syncfusion.WinForms.Controls.SfButton btnGetsaldo;
-        private Syncfusion.WinForms.Controls.SfButton btnLogout;
     }
 }
 

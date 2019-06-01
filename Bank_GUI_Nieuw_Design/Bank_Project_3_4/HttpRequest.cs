@@ -19,8 +19,8 @@ namespace Bank_Project_3_4
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // url + controller + parameters, 'https://localhost:5001/api/ClientItems/1'
-        private String _url = "https://localhost:5001/api/";
+        // url + controller + parameters, 'https://projectbank.azurewebsites.net/api/ClientItems/1'
+        private String _url = "https://projectbank.azurewebsites.net/api/";
         private String _urlController = "";
         private object _urlPrameter = "";
 
@@ -68,6 +68,32 @@ namespace Bank_Project_3_4
             return user;
         }
 
+        //http get saldo
+        public static async Task<int> getSaldoAsync(String path)
+        {
+            int saldo = 0;
+            HttpResponseMessage response = await httpClient.GetAsync(path);
+
+            if (response.IsSuccessStatusCode)
+            {
+                saldo = await response.Content.ReadAsAsync<int>();
+            }
+            return saldo;
+        }
+
+        //http withdraw
+        public static async Task<int> withdrawAsync(String pPath)
+        {
+            int status = -1;
+            HttpResponseMessage response = await httpClient.GetAsync(pPath);
+
+            if (response.IsSuccessStatusCode)
+            {
+                status = await response.Content.ReadAsAsync<int>();
+            }
+            return status;
+        }
+
         //http authentication
         public static async Task<int> AuthenticationAsync(String path, String pPassword)
         {
@@ -98,6 +124,7 @@ namespace Bank_Project_3_4
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.
+            //pClient = await response.Content.ReadAsAsync<Client>();
             return response.StatusCode;
         }
 
@@ -108,6 +135,7 @@ namespace Bank_Project_3_4
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.
+            //pClient = await response.Content.ReadAsAsync<Client>();
             return response.StatusCode;
         }
     }

@@ -11,110 +11,52 @@ namespace Bank_Project_3_4
 {
     public class ExecuteTransaction
     {
-        private Client _currentClient;
-        private Transaction _transaction;
-        private CheckValidUserInput _checkInput;
+        private String _currentClientNuid;
         private HttpRequest _httpRequest;
         private PrintReceipt _print;
 
-        private int _userTagId;
-        private String _chosenBill = "";
+        private String _chosenBill = String.Empty;
         private int _billValue = 0;
-        public Boolean _tSuccesfull = false;
-        public Boolean _validInput = false;
         private String _billCombination = "";
+        private int _status = -1;
 
         //the bills to choose from
         private int[] _bill = { 5, 10, 20, 50, 100, 200, 500 };
 
-        public ExecuteTransaction(Client pCurrentClient, Transaction pTransaction, UserTagViewModel pUserTagViewModel)
+        public ExecuteTransaction(String pNuid)
         {
-            _currentClient = pCurrentClient;
-            _transaction = pTransaction;
-            _userTagId = pUserTagViewModel.UserTagId;
+            _currentClientNuid = pNuid;
         }
 
-        public void executeTransaction(String pBill, String pAmount)
+        public async Task<int> executeTransaction(String pBill, String pAmount)
         {
-            _checkInput = new CheckValidUserInput(_currentClient);
-            bool input = false;
-            _validInput = false;
-            double oldSaldo = _currentClient.Saldo;
-            int amount = 0;
-            
-            //checks if the user entered the input fields
-            if (!string.IsNullOrWhiteSpace(pAmount) && !string.IsNullOrEmpty(pBill))
+            if (!string.IsNullOrEmpty(pBill) && !string.IsNullOrEmpty(pAmount))
             {
-                try
+                int amount = Convert.ToInt32(pAmount.Replace("€", ""));
+
+                if (!string.IsNullOrEmpty(pBill))
                 {
-                    if (string.IsNullOrWhiteSpace(pAmount))
+                    _chosenBill = pBill.Replace("€", "");
+                    _billValue = Convert.ToInt32(_chosenBill);
+
+                    //withdraw
+                    if (((double)amount / (double)_billValue) % 1 == 0)
                     {
-                        pAmount = pBill.Replace("€","");
-                    }
-
-                    input = true;
-                    _validInput = _checkInput.validInput(pAmount, input);
-
-                    if (_validInput)
-                    {
-                        amount = Convert.ToInt32(pAmount);
-                    }
-                }
-                catch (OverflowException)
-                {
-                    Helper.showMessage("Uw hebt een te groot getal ingevoerd.", MessageBoxIcon.Error);
-                }
-
-
-                if (_validInput)
-                {
-                    if (!string.IsNullOrEmpty(pBill))
-                    {
-                        _chosenBill = pBill.Replace("€", "");
-                        _billValue = Convert.ToInt16(_chosenBill);
-
-                        //withdraw
-                        if (((double)amount / (double)_billValue) % 1 == 0)
-                        {
-                            Withdraw withDrawel = new Withdraw(_currentClient, _userTagId, amount);
-                            _tSuccesfull = withDrawel.withdrawMoney();
-                        }
-                        else
-                        {
-                            alternativeBilloption(amount);
-                        }
-                    }
-
-                    if (_tSuccesfull)
-                    {
-                        //creates and prints the receipt
-                        createReceipt(amount);
-                        _print = new PrintReceipt(_transaction, _currentClient, pBill, Convert.ToInt16(amount / _billValue), _billCombination);
-
-                        Helper.showMessage("Transactie geslaagd");
+                        _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{amount}");
+                        _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
                     }
                     else
                     {
-                        if (amount > _currentClient.Saldo)
-                        {
-                            Helper.showMessage("Transactie mislukt. U hebt niet genoeg saldo.", MessageBoxIcon.Error);
-                        }
-
-                        inputErrorMsg(_validInput);
+                       _status = await alternativeBilloption(amount);
                     }
-                }
-                else
-                {
-                    inputErrorMsg(_validInput);
+
+                    _print = new PrintReceipt(_currentClientNuid, pBill, Convert.ToInt32(amount / _billValue), _billCombination);
                 }
             }
-            else
-            {
-                Helper.showMessage("Graag al de velden invullen.", MessageBoxIcon.Error);
-            }
+            return _status;
         }
-        
-        private void alternativeBilloption(double pAmount)
+
+        private async Task<int> alternativeBilloption(double pAmount)
         {
             _billCombination = "";
             int x = 0;
@@ -122,17 +64,16 @@ namespace Bank_Project_3_4
             int billCount = 0;
             int a = 7;
             int previousBill = 0;
-            int withdrawAmount = Convert.ToInt16(pAmount);
+            int withdrawAmount = Convert.ToInt32(pAmount);
 
-            for (int i = 0; pAmount > _billValue; i++)
+            for (int i = 0; pAmount > _billValue; i++, x++)
             {
                 pAmount -= _billValue;
-                x++;
             }
 
             billCount = x;
-            rest = Convert.ToInt16(pAmount);
             x = 0;
+            rest = Convert.ToInt32(pAmount);
 
             for (int i = 0; i < 100; i++)
             {
@@ -178,80 +119,21 @@ namespace Bank_Project_3_4
                 }
             }
 
-            if (rest == 0)
+            if (rest != 0)
             {
-                DialogResult result;
-                if (billCount >= 2)
-                {
-                   result = Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. Wat wel kan zijn {billCount} biljetten van: €{_billValue}, {_billCombination}", MessageBoxButtons.OKCancel);
-                }
-                else
-                {
-                   result = Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. Wat wel kan is een {billCount} biljet van: €{_billValue}, {_billCombination}", MessageBoxButtons.OKCancel);
-                }
-
-                if (result == DialogResult.OK)
-                {
-                    Withdraw withDrawel = new Withdraw(_currentClient, _userTagId, withdrawAmount);
-                    _tSuccesfull = withDrawel.withdrawMoney();
-                }
+                withdrawAmount -= rest;       
             }
-            else
-            {
-                if (billCount >= 2)
-                {
-                    Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. \n" +
-                                        $"Wat wel kan is dat u {billCount} biljetten van: {_billValue},{_billCombination}. \n\n" +
-                                            $"De resterende €{rest} is niet meegerekend omdat daar geen biljetopties voor zijn. \n" +
-                                                $"Daarom graag op tienden afronden. Bijvoorbeeld: €150 i.p.v. €153.");
-                }
-                else
-                {
-                    Helper.showMessage($"Het biljet wat u hebt opgegeven kan het volledige bedrag niet bevatten. \n" +
-                                        $"Wat wel kan is dat u {billCount} biljet van: {_billValue},{_billCombination}. \n\n" +
-                                            $"De resterende €{rest} is niet meegerekend omdat daar geen biljetopties voor zijn. \n" +
-                                                $"Daarom graag op tienden afronden. Bijvoorbeeld: €150 i.p.v. €153.");
-                }
-            }
-    }
-
-        //create the receipt
-        private async void createReceipt(int pAmount)
-        {
-            DateTime now = DateTime.Now;
-            _transaction = new Transaction { Mode = "Withdrawel"
-                                            ,ClientId = _currentClient.ClientId
-                                            ,Name = _currentClient.Name
-                                            ,Iban = _currentClient.Iban
-                                            ,Amount = pAmount
-                                            ,Time = now };
-
-            _httpRequest = new HttpRequest("TransactionItems");
-            Object response = await HttpRequest.CreateAsync(_transaction, _httpRequest.createUrl());
+            _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{withdrawAmount}");
+            return await HttpRequest.withdrawAsync(_httpRequest.createUrl());
         }
-
-        //error message if the input is invalid
-        private void inputErrorMsg(bool pInput)
-        {
-            if (!pInput)
-            {
-                if (!_checkInput.validUserInput)
-                {
-                    Helper.showMessage("U mag alleen getallen invoeren ", MessageBoxIcon.Error);
-                }
-                else
-                {
-                    Helper.showMessage("Gelieve AL de velden invullen.", MessageBoxIcon.Error);
-                }
-            }
-        }
-
+    
         //prints the receipt on screen
-        public String printReceipt()
+        public async Task<String> printReceipt()
         {
-            if (_tSuccesfull)
+            if (_status == 0)
             {
-                return _print.print();
+                String receipt = await _print.print();
+                return receipt;
             }
             return "";
         }

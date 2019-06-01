@@ -126,33 +126,7 @@
       <DependentUpon>SetClientDialogBox.cs</DependentUpon>
     </Compile>
     <Compile Include="ExecuteTransaction.cs" />
-    <Compile Include="UserControls\SetUserControlDefault.cs" />
-    <Compile Include="UserControls\ucGetsaldo.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControls\ucGetsaldo.Designer.cs">
-      <DependentUpon>ucGetsaldo.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\ucMainMenu.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControls\ucMainMenu.Designer.cs">
-      <DependentUpon>ucMainMenu.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\ucWelcomePage.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControls\ucWelcomePage.Designer.cs">
-      <DependentUpon>ucWelcomePage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UserControls\ucWithdraw.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControls\ucWithdraw.Designer.cs">
-      <DependentUpon>ucWithdraw.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewModels\UserTagViewModel.cs" />
-    <Compile Include="Withdraw.cs" />
     <EmbeddedResource Include="UserControls\BackupControl.resx">
       <DependentUpon>BackupControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -174,18 +148,6 @@
     </Compile>
     <EmbeddedResource Include="SetClientDialogBox.resx">
       <DependentUpon>SetClientDialogBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\ucGetsaldo.resx">
-      <DependentUpon>ucGetsaldo.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\ucMainMenu.resx">
-      <DependentUpon>ucMainMenu.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\ucWelcomePage.resx">
-      <DependentUpon>ucWelcomePage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\ucWithdraw.resx">
-      <DependentUpon>ucWithdraw.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

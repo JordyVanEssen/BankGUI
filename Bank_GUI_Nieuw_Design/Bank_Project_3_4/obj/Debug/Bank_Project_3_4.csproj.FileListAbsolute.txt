@@ -87,7 +87,3 @@ C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.FormLogOut.resources
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.csprojAssemblyReference.cache
 C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.BackupControl.resources
-C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.UserControls.ucMainMenu.resources
-C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.UserControls.ucWelcomePage.resources
-C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.UserControls.ucGetsaldo.resources
-C:\Users\jordy\Documents\school\OP3\Project - de bank\GUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.UserControls.ucWithdraw.resources

@@ -16,33 +16,34 @@ namespace Bank_Project_3_4
     class PrintReceipt
     {
         Transaction _transaction;
-        Client _currentClient;
+        String _currentClientIban;
         String _bill;
         int _amountOfBills;
         Boolean withdraw = false;
         String _billCombination = "";
 
-        public PrintReceipt(Transaction pTransaction, Client pCClient, String pBill, int pBillCount, String pBillCombination)
+        public PrintReceipt(String pIban, String pBill, int pBillCount, String pBillCombination)
         {
             _billCombination = pBillCombination;
-            _currentClient = pCClient;
-            _transaction = pTransaction;
+            _currentClientIban = pIban;
             _bill = pBill;
             _amountOfBills = pBillCount;
             withdraw = true;
         }
 
-        public PrintReceipt(Transaction pTransaction, Client pCClient)
+        public PrintReceipt(Transaction pTransaction, String pIban)
         {
-            _currentClient = pCClient;
+            _currentClientIban = pIban;
             _transaction = pTransaction;
             withdraw = false;
         }
 
         //creates the receipt and returns it
-        public String print()
+        public async Task<String> print()
         {
-            String iban = _currentClient.Iban.Substring(0, 11);
+            HttpRequest _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClientIban}");
+            int saldo = await HttpRequest.getSaldoAsync(_httpRequest.createUrl());
+            String iban = _currentClientIban.Substring(10, 4);
             int max = 42;
             String receipt = "";
 
@@ -53,7 +54,7 @@ namespace Bank_Project_3_4
             }
 
             receipt += '\n';
-            receipt += $"IBAN:\t\t\t {iban}*** \n";
+            receipt += $"IBAN:\t\t\t **********{iban} \n";
 
             for (int i = 0; i < max - 4; i++)
             {
@@ -61,13 +62,12 @@ namespace Bank_Project_3_4
             }
 
             receipt += '\n';
-            receipt += $"Oud Saldo:\t\t €{_currentClient.Saldo + _transaction.Amount} \n";
-            receipt += $"Nieuw Saldo:\t\t €{_currentClient.Saldo} \n";
+            receipt += $"Nieuw Saldo:\t\t €{saldo} \n";
 
             for (int i = 0; i < max - 4; i++)
             {
                 receipt += "--";
-            }
+            }                     
 
             receipt += "\n";
 
@@ -89,7 +89,7 @@ namespace Bank_Project_3_4
             }
 
             receipt += '\n';
-            receipt += $"Tijd:\t\t\t {_transaction.Time.ToLocalTime()} \n";
+            receipt += $"Tijd:\t\t\t {DateTime.Now.ToString("HH:mm:ss tt")} \n";
 
             for (int i = 0; i < max; i++)
             {

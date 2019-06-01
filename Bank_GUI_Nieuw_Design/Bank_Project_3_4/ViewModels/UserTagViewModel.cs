@@ -11,5 +11,6 @@ namespace Bank_Project_3_4.ViewModels
         public int UserTagId { get; set; }
         public string PassId { get; set; }
         public Boolean PassBlocked { get; set; }
+        public String Token { get; set; }
     }
 }

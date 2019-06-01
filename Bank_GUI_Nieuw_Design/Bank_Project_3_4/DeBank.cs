@@ -64,7 +64,7 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM23";
+            myPort.PortName = "COM5";
             myPort.DataReceived += MyPort_DataReceived;
             myPort.Open();
             myPort.WriteLine("R");
@@ -85,7 +85,7 @@ namespace Bank_Project_3_4
         //===================\\
         //   The functions   \\
         //===================\\
-        #region Functions
+        #region CustomFunctions
 
         //checks if the entered nuid exists
         private async void nuidValidation(String pNuid)
@@ -111,8 +111,9 @@ namespace Bank_Project_3_4
                         myPort.WriteLine("R");
                     }
                 }
-                _enterPassword = false;
-                UpdateForm(null);
+                //_enterPassword = false;
+                //UpdateForm();
+                logOut();
             }
             else if (returnedObject.StatusCode == 0)//if the pass exists and is not blocked
             {
@@ -123,7 +124,7 @@ namespace Bank_Project_3_4
                 myPort.WriteLine("P");
                 _loggedOut = false;
                 //update the shown text on screen
-                updateText(_currentClient, "");
+                updateText("");
             }
             else if (returnedObject.StatusCode == 2)//the user pass is blocked
             {
@@ -135,7 +136,7 @@ namespace Bank_Project_3_4
             if (_currentClient != null)
             {
                 _enterPassword = true;
-                UpdateForm(_currentClient);
+                UpdateForm();
             }
         }
 
@@ -149,7 +150,7 @@ namespace Bank_Project_3_4
                 _lblPincodeText += "X";
                 _enteredPassword += pPassword;
                 lastChar = pPassword;
-                updateText(null, _lblPincodeText);
+                updateText(_lblPincodeText);
                 _lblPincodeText = string.Empty;
             }
             else if (pPassword == "*")
@@ -158,7 +159,7 @@ namespace Bank_Project_3_4
                 {
                     _enteredPassword = _enteredPassword.Remove(_enteredPassword.Length - 1);
                 }
-                updateText(null, "<>");
+                updateText("<>");
             }
             else if(pPassword == "#")
             {
@@ -169,16 +170,19 @@ namespace Bank_Project_3_4
                 if (_validPass)
                 {
                     //updates the form
-                    UpdateForm(_currentClient);
+                    UpdateForm();
                 }
                 else
                 {
-                    Helper.showMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. \n\n 1) lees uw pas in \n 2) voer uw wachtwoord in", MessageBoxIcon.Information);
+                    Helper.showMessage($"Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. " +
+                                        $"\n >> lees uw pas in " +
+                                        $"\n >> voer uw wachtwoord in"
+                                        ,MessageBoxIcon.Information);
                     myPort.Write("R");
                     _loggedOut = true;
                     _enterPassword = false;
-                    UpdateForm(null);
-                    updateText(_currentClient, "");
+                    UpdateForm();
+                    updateText("");
                 }
                 _enteredPassword = string.Empty;
             }
@@ -186,19 +190,18 @@ namespace Bank_Project_3_4
         }
 
         //updates the label text
-        public void updateText(Client pClient, String pInput)
+        public void updateText(String pInput)
         {
             //update the label text
             if (InvokeRequired)
             {
-                this.Invoke(new Action<Client, String>(updateText), new object[] { pClient, pInput });
+                this.Invoke(new Action<String>(updateText), new object[] { pInput });
                 return;
             }
 
             if (_loggedOut)
             {
                 lblWelcome.Text = $"Welkom, houd uw pas voor de reader.";
-                //_userControl.WelcomeLabel("Welkom, houd uw pas voor de reader");
             }
             else
             {
@@ -218,25 +221,21 @@ namespace Bank_Project_3_4
                 {
                     lblPinCode.Text += pInput;
                 }
-                //_userControl.WelcomeLabel("Graag uw pincode invoeren op het keypad");
             }
         }
 
-        //shows the transaction form
-        private void transaction()
+        //transaction
+        public async void transaction()
         {
-            //FormTransaction newTransaction = new FormTransaction(_currentClient, _transaction, _userTagView);
-            //newTransaction.transaction();
-
-            ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClient, _transaction, _userTagView);
-            exeTransaction.executeTransaction(cmbChooseBill.Text, tbAmount.Text);
+            ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClient.Iban);
+            int status = await exeTransaction.executeTransaction(cmbChooseBill.Text, tbAmount.Text);
 
             if (!string.IsNullOrEmpty(tbAmount.Text) || !string.IsNullOrEmpty(cmbChooseBill.Text))
             {
                 rtbReceipt.Visible = true;
-                rtbReceipt.Text = exeTransaction.printReceipt();
+                rtbReceipt.Text = await exeTransaction.printReceipt();
 
-                if (exeTransaction._tSuccesfull)
+                if (status == 0)
                 {
                     this.Enabled = false;
                     using (FormLogOut logOutForm = new FormLogOut())
@@ -247,18 +246,23 @@ namespace Bank_Project_3_4
                         }
                     }
                     this.Enabled = true;
-
-                    //logOut();
                 }
-            }            
+                else
+                {
+                    Helper.showMessage($"Controleer op de volgende dingen:" +
+                                        $"\n >> Alleen getallen ingevoerd?" +
+                                        $"\n >> Al de velden inveguld?" +
+                                        $"\n >> Heeft u genoeg saldo?");
+                }
+            }
         }
 
         //updates the text and visibility of the form
-        public void UpdateForm(Client pClient)//show client data
+        public void UpdateForm()//show client data
         {
             if (InvokeRequired)
             {
-                this.Invoke(new Action<Client>(UpdateForm), new object[] { pClient });
+                this.Invoke(new Action(UpdateForm));
                 return;
             }
 
@@ -289,16 +293,19 @@ namespace Bank_Project_3_4
         }
 
         //logs out
-        private void logOut()
+        public void logOut()
         {
+            //ucWelcomePage ucWelcome = new ucWelcomePage();
+            //ucWelcome.BringToFront();
+
             _enterPassword = false;
             _validPass = false;
-            UpdateForm(_currentClient);
+            UpdateForm();
             _loggedOut = true;
             _enteredPassword = string.Empty;
             rtbReceipt.Text = "";
 
-            updateText(null, "");
+            updateText("");
             
             myPort.WriteLine("R");
         }
@@ -320,7 +327,7 @@ namespace Bank_Project_3_4
         {
             for (int i = 0; i < bill.Length; i++)
             {
-                cmbChooseBill.Items.Remove("€" + $"{bill[i]}");
+                cmbChooseBill.Items.Remove($"€{bill[i]}");
             }
 
 
@@ -328,7 +335,7 @@ namespace Bank_Project_3_4
             {
                 if (pAmount >= bill[i])
                 {
-                    cmbChooseBill.Items.Add("€" + $"{bill[i]}");
+                    cmbChooseBill.Items.Add($"€{bill[i]}");
                 }
             }
         }
@@ -337,7 +344,7 @@ namespace Bank_Project_3_4
 
 
         //=====================\\
-        //   The Formbuttons   \\
+        //   The Formfunctions \\
         //=====================\\
         #region FormFunctions
 
@@ -363,6 +370,11 @@ namespace Bank_Project_3_4
                 {
                     checkPasswordValidation(pwResult);
                 }
+            }
+            else if (serialInput.Contains("nm{"))
+            {
+                String numberResult = stripString("nm{", "}", serialInput);
+                tbAmount.Text += numberResult;
             }
         }
 
@@ -392,10 +404,10 @@ namespace Bank_Project_3_4
         }
 
         //returns the saldo of the currentuser
-        private void btnGetSaldo_Click(object sender, EventArgs e)
+        private async void btnGetSaldo_Click(object sender, EventArgs e)
         {
-            CheckUserSaldo checkSaldo = new CheckUserSaldo(_currentClient, _userTagId);
-            tbUserSaldo.Text = "€ " + Convert.ToString(checkSaldo.getSaldo());//get the saldo of the current client
+            _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClient.Iban}");
+            tbUserSaldo.Text = $"€{await HttpRequest.getSaldoAsync(_httpRequest.createUrl())}";
         }
 
         private void tbAmount_TextChanged(object sender, EventArgs e)
@@ -409,13 +421,9 @@ namespace Bank_Project_3_4
                 }
             }
         }
-
-
+               
         #endregion
 
-        private void pnlWelcome_Paint(object sender, PaintEventArgs e)
-        {
 
-        }
     }
 }

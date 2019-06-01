@@ -14,7 +14,7 @@ namespace Bank_Project_3_4
         public async Task<Boolean> validatePassword(String pPassword, String pNuid)
         {
             _httpRequest = new HttpRequest("Authentication");
-            int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), pPassword + "/" + pNuid);
+            int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pNuid}");
 
             if (response == 1)
             {
