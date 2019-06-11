@@ -86,9 +86,13 @@
     <Reference Include="System.Xml" />
     <Reference Include="UIAutomationProvider" />
     <Reference Include="UIAutomationTypes" />
+    <Reference Include="websocket-sharp, Version=1.0.2.32519, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp-NonPreRelease.1.0.0\lib\net35\websocket-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CentralBankConnection.cs" />
     <Compile Include="UserControls\BackupControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -126,6 +130,12 @@
       <DependentUpon>SetClientDialogBox.cs</DependentUpon>
     </Compile>
     <Compile Include="ExecuteTransaction.cs" />
+    <Compile Include="UserControls\ucTest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucTest.Designer.cs">
+      <DependentUpon>ucTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\UserTagViewModel.cs" />
     <EmbeddedResource Include="UserControls\BackupControl.resx">
       <DependentUpon>BackupControl.cs</DependentUpon>
@@ -148,6 +158,9 @@
     </Compile>
     <EmbeddedResource Include="SetClientDialogBox.resx">
       <DependentUpon>SetClientDialogBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\ucTest.resx">
+      <DependentUpon>ucTest.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

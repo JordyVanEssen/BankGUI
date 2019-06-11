@@ -67,7 +67,7 @@
             this.grpbLoggedIn.Controls.Add(this.lblAmount);
             this.grpbLoggedIn.Controls.Add(this.btnTransaction);
             this.grpbLoggedIn.Controls.Add(this.cmbChooseBill);
-            this.grpbLoggedIn.Location = new System.Drawing.Point(100, 110);
+            this.grpbLoggedIn.Location = new System.Drawing.Point(209, 110);
             this.grpbLoggedIn.Name = "grpbLoggedIn";
             this.grpbLoggedIn.Size = new System.Drawing.Size(516, 277);
             this.grpbLoggedIn.TabIndex = 41;
@@ -189,7 +189,7 @@
             this.btnCancel.AccessibleName = "Button";
             this.btnCancel.BackColor = System.Drawing.Color.LightGray;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnCancel.Location = new System.Drawing.Point(647, 519);
+            this.btnCancel.Location = new System.Drawing.Point(569, 493);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(139, 33);
             this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
@@ -225,10 +225,10 @@
             // 
             this.rtbReceipt.BackColor = System.Drawing.Color.White;
             this.rtbReceipt.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.rtbReceipt.Location = new System.Drawing.Point(647, 110);
+            this.rtbReceipt.Location = new System.Drawing.Point(764, 110);
             this.rtbReceipt.Name = "rtbReceipt";
             this.rtbReceipt.ReadOnly = true;
-            this.rtbReceipt.Size = new System.Drawing.Size(389, 277);
+            this.rtbReceipt.Size = new System.Drawing.Size(350, 277);
             this.rtbReceipt.TabIndex = 37;
             this.rtbReceipt.Text = "";
             this.rtbReceipt.Visible = false;
@@ -238,7 +238,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1141, 589);
+            this.ClientSize = new System.Drawing.Size(1145, 593);
             this.Controls.Add(this.grpbLoggedIn);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblPinCode);

@@ -27,29 +27,22 @@ namespace Bank_Project_3_4
         Client _currentClient;//the currentclient
         HttpRequest _httpRequest;
         UserTagViewModel _userTagView = new UserTagViewModel();
-        Transaction _transaction = new Transaction();
-
 
         private string serialInput;//incoming data is stored in String rxString
 
         //the password strings
         String _enteredPassword = string.Empty;
-        String _readPass = string.Empty;
         String _lblPincodeText = string.Empty;
-
-
-        //the userTagId
-        String _userTagId = String.Empty;
 
         //user NUID
         private String _currentClientNuid = String.Empty;
 
         //booleans for validation of the password
-        bool _validPass = false;
+        public static bool _validPass = false;
         bool _loggedOut = false;
         bool _enterPassword = false;
 
-        private int[] bill = { 5, 10, 20, 50, 100, 200, 500 };
+        private int[] bill = { 100, 200, 500 };
 
         private static readonly HttpClient httpClient = new HttpClient();
 
@@ -64,17 +57,22 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM5";
+            myPort.PortName = "COM12";
             myPort.DataReceived += MyPort_DataReceived;
-            myPort.Open();
-            myPort.WriteLine("R");
-            myPort.WriteLine("R");
+
+            try
+            {
+                myPort.Open();
+                myPort.WriteLine("R");
+                myPort.WriteLine("R");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
 
             //the default bills
-            cmbChooseBill.Items.Add("€5");
-            cmbChooseBill.Items.Add("€10");
-            cmbChooseBill.Items.Add("€20");
-            cmbChooseBill.Items.Add("€50");
             cmbChooseBill.Items.Add("€100");
             cmbChooseBill.Items.Add("€200");
             cmbChooseBill.Items.Add("€500");
@@ -97,23 +95,12 @@ namespace Bank_Project_3_4
 
             if (returnedObject.StatusCode == 3)//if pass does not exist
             {
-                //the new client
-                UserTag newUserTag = new UserTag { PassId = pNuid };
-                Client newClient = new Client();
-                _currentClient = newClient;
+                myPort.WriteLine("P");
+                _loggedOut = false;
+                //update the shown text on screen
+                updateText("");
 
-                //opens a new form to add the new user
-                using (SetClientDialogBox clientForm = new SetClientDialogBox(_currentClient, newUserTag))
-                {
-                    //opens a new form to add the new client to the database
-                    if (clientForm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    {
-                        myPort.WriteLine("R");
-                    }
-                }
-                //_enterPassword = false;
-                //UpdateForm();
-                logOut();
+               
             }
             else if (returnedObject.StatusCode == 0)//if the pass exists and is not blocked
             {

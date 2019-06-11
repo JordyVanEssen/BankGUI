@@ -13,8 +13,19 @@ namespace Bank_Project_3_4
 
         public async Task<Boolean> validatePassword(String pPassword, String pNuid)
         {
-            _httpRequest = new HttpRequest("Authentication");
-            int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pNuid}");
+            int response = 0;
+            if (pNuid.Contains("PILS"))
+            {
+                _httpRequest = new HttpRequest("Authentication");
+                response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pNuid}");
+            }
+            else
+            {
+                String bankCode = pNuid.Substring(4, 8);
+                CentralBankConnection cbc = new CentralBankConnection();
+                CentralBankConnection.sendCommand($"\"{bankCode}\", \"PILS\", \"pinCheck\", \"{pNuid}\", \"{pPassword}\"");
+            }
+            
 
             if (response == 1)
             {
