@@ -31,12 +31,10 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeBank));
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
-            this.grpbLoggedIn = new System.Windows.Forms.GroupBox();
             this.btnLogout = new Syncfusion.WinForms.Controls.SfButton();
             this.btnGetsaldo = new Syncfusion.WinForms.Controls.SfButton();
             this.label2 = new System.Windows.Forms.Label();
             this.tbUserSaldo = new System.Windows.Forms.TextBox();
-            this.autoLabel2 = new Syncfusion.Windows.Forms.Tools.AutoLabel();
             this.lblBill = new System.Windows.Forms.Label();
             this.tbAmount = new System.Windows.Forms.TextBox();
             this.lblAmount = new System.Windows.Forms.Label();
@@ -44,9 +42,25 @@
             this.cmbChooseBill = new System.Windows.Forms.ComboBox();
             this.btnCancel = new Syncfusion.WinForms.Controls.SfButton();
             this.lblPinCode = new Syncfusion.Windows.Forms.Tools.AutoLabel();
-            this.lblWelcome = new System.Windows.Forms.Label();
+            this.lblMessage = new System.Windows.Forms.Label();
             this.rtbReceipt = new System.Windows.Forms.RichTextBox();
-            this.grpbLoggedIn.SuspendLayout();
+            this.pnlOtherTransaction = new System.Windows.Forms.Panel();
+            this.lblOtherTransaction = new System.Windows.Forms.Label();
+            this.pnlSaldo = new System.Windows.Forms.Panel();
+            this.pnlMenu = new System.Windows.Forms.Panel();
+            this.pnlTransaction = new System.Windows.Forms.Panel();
+            this.btn10 = new Syncfusion.WinForms.Controls.SfButton();
+            this.btn50 = new Syncfusion.WinForms.Controls.SfButton();
+            this.btn100 = new Syncfusion.WinForms.Controls.SfButton();
+            this.btnOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
+            this.btnExeOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
+            this.btnBack = new Syncfusion.WinForms.Controls.SfButton();
+            this.pnlBack = new System.Windows.Forms.Panel();
+            this.pnlOtherTransaction.SuspendLayout();
+            this.pnlSaldo.SuspendLayout();
+            this.pnlMenu.SuspendLayout();
+            this.pnlTransaction.SuspendLayout();
+            this.pnlBack.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -54,32 +68,12 @@
             this.serialPort1.PortName = "COM6";
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.MyPort_DataReceived);
             // 
-            // grpbLoggedIn
-            // 
-            this.grpbLoggedIn.BackColor = System.Drawing.Color.MintCream;
-            this.grpbLoggedIn.Controls.Add(this.btnLogout);
-            this.grpbLoggedIn.Controls.Add(this.btnGetsaldo);
-            this.grpbLoggedIn.Controls.Add(this.label2);
-            this.grpbLoggedIn.Controls.Add(this.tbUserSaldo);
-            this.grpbLoggedIn.Controls.Add(this.autoLabel2);
-            this.grpbLoggedIn.Controls.Add(this.lblBill);
-            this.grpbLoggedIn.Controls.Add(this.tbAmount);
-            this.grpbLoggedIn.Controls.Add(this.lblAmount);
-            this.grpbLoggedIn.Controls.Add(this.btnTransaction);
-            this.grpbLoggedIn.Controls.Add(this.cmbChooseBill);
-            this.grpbLoggedIn.Location = new System.Drawing.Point(209, 110);
-            this.grpbLoggedIn.Name = "grpbLoggedIn";
-            this.grpbLoggedIn.Size = new System.Drawing.Size(516, 277);
-            this.grpbLoggedIn.TabIndex = 41;
-            this.grpbLoggedIn.TabStop = false;
-            this.grpbLoggedIn.Visible = false;
-            // 
             // btnLogout
             // 
             this.btnLogout.AccessibleName = "Button";
             this.btnLogout.BackColor = System.Drawing.Color.LightGray;
             this.btnLogout.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnLogout.Location = new System.Drawing.Point(360, 224);
+            this.btnLogout.Location = new System.Drawing.Point(12, 272);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(139, 33);
             this.btnLogout.Style.BackColor = System.Drawing.Color.LightGray;
@@ -93,7 +87,7 @@
             this.btnGetsaldo.AccessibleName = "Button";
             this.btnGetsaldo.BackColor = System.Drawing.Color.LightGray;
             this.btnGetsaldo.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnGetsaldo.Location = new System.Drawing.Point(360, 94);
+            this.btnGetsaldo.Location = new System.Drawing.Point(12, 52);
             this.btnGetsaldo.Name = "btnGetsaldo";
             this.btnGetsaldo.Size = new System.Drawing.Size(139, 33);
             this.btnGetsaldo.Style.BackColor = System.Drawing.Color.LightGray;
@@ -106,7 +100,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.label2.Location = new System.Drawing.Point(8, 120);
+            this.label2.Location = new System.Drawing.Point(7, 24);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(68, 19);
             this.label2.TabIndex = 18;
@@ -115,27 +109,17 @@
             // tbUserSaldo
             // 
             this.tbUserSaldo.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.tbUserSaldo.Location = new System.Drawing.Point(120, 117);
+            this.tbUserSaldo.Location = new System.Drawing.Point(112, 21);
             this.tbUserSaldo.Name = "tbUserSaldo";
             this.tbUserSaldo.ReadOnly = true;
             this.tbUserSaldo.Size = new System.Drawing.Size(143, 25);
             this.tbUserSaldo.TabIndex = 17;
             // 
-            // autoLabel2
-            // 
-            this.autoLabel2.BackColor = System.Drawing.Color.MintCream;
-            this.autoLabel2.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.autoLabel2.Location = new System.Drawing.Point(12, 24);
-            this.autoLabel2.Name = "autoLabel2";
-            this.autoLabel2.Size = new System.Drawing.Size(297, 19);
-            this.autoLabel2.TabIndex = 13;
-            this.autoLabel2.Text = "Vul zelf een bedrag in of kies alleen een biljet:";
-            // 
             // lblBill
             // 
             this.lblBill.AutoSize = true;
             this.lblBill.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblBill.Location = new System.Drawing.Point(11, 89);
+            this.lblBill.Location = new System.Drawing.Point(3, 86);
             this.lblBill.Name = "lblBill";
             this.lblBill.Size = new System.Drawing.Size(88, 19);
             this.lblBill.TabIndex = 3;
@@ -144,7 +128,7 @@
             // tbAmount
             // 
             this.tbAmount.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.tbAmount.Location = new System.Drawing.Point(120, 55);
+            this.tbAmount.Location = new System.Drawing.Point(112, 52);
             this.tbAmount.Name = "tbAmount";
             this.tbAmount.Size = new System.Drawing.Size(143, 25);
             this.tbAmount.TabIndex = 2;
@@ -154,7 +138,7 @@
             // 
             this.lblAmount.AutoSize = true;
             this.lblAmount.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblAmount.Location = new System.Drawing.Point(11, 58);
+            this.lblAmount.Location = new System.Drawing.Point(3, 55);
             this.lblAmount.Name = "lblAmount";
             this.lblAmount.Size = new System.Drawing.Size(55, 19);
             this.lblAmount.TabIndex = 1;
@@ -165,7 +149,7 @@
             this.btnTransaction.AccessibleName = "Button";
             this.btnTransaction.BackColor = System.Drawing.Color.LightGray;
             this.btnTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnTransaction.Location = new System.Drawing.Point(360, 55);
+            this.btnTransaction.Location = new System.Drawing.Point(12, 10);
             this.btnTransaction.Name = "btnTransaction";
             this.btnTransaction.Size = new System.Drawing.Size(139, 33);
             this.btnTransaction.Style.BackColor = System.Drawing.Color.LightGray;
@@ -179,7 +163,7 @@
             this.cmbChooseBill.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbChooseBill.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.cmbChooseBill.FormattingEnabled = true;
-            this.cmbChooseBill.Location = new System.Drawing.Point(120, 86);
+            this.cmbChooseBill.Location = new System.Drawing.Point(112, 83);
             this.cmbChooseBill.Name = "cmbChooseBill";
             this.cmbChooseBill.Size = new System.Drawing.Size(143, 25);
             this.cmbChooseBill.TabIndex = 0;
@@ -189,7 +173,7 @@
             this.btnCancel.AccessibleName = "Button";
             this.btnCancel.BackColor = System.Drawing.Color.LightGray;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnCancel.Location = new System.Drawing.Point(569, 493);
+            this.btnCancel.Location = new System.Drawing.Point(603, 500);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(139, 33);
             this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
@@ -211,15 +195,15 @@
             this.lblPinCode.Text = "PIN: ";
             this.lblPinCode.Visible = false;
             // 
-            // lblWelcome
+            // lblMessage
             // 
-            this.lblWelcome.AutoSize = true;
-            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
-            this.lblWelcome.Location = new System.Drawing.Point(201, 32);
-            this.lblWelcome.Name = "lblWelcome";
-            this.lblWelcome.Size = new System.Drawing.Size(570, 45);
-            this.lblWelcome.TabIndex = 38;
-            this.lblWelcome.Text = "Welkom, houd uw pas voor de reader.";
+            this.lblMessage.AutoSize = true;
+            this.lblMessage.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
+            this.lblMessage.Location = new System.Drawing.Point(201, 32);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(570, 45);
+            this.lblMessage.TabIndex = 38;
+            this.lblMessage.Text = "Welkom, houd uw pas voor de reader.";
             // 
             // rtbReceipt
             // 
@@ -228,21 +212,180 @@
             this.rtbReceipt.Location = new System.Drawing.Point(764, 110);
             this.rtbReceipt.Name = "rtbReceipt";
             this.rtbReceipt.ReadOnly = true;
-            this.rtbReceipt.Size = new System.Drawing.Size(350, 277);
+            this.rtbReceipt.Size = new System.Drawing.Size(350, 256);
             this.rtbReceipt.TabIndex = 37;
             this.rtbReceipt.Text = "";
             this.rtbReceipt.Visible = false;
+            // 
+            // pnlOtherTransaction
+            // 
+            this.pnlOtherTransaction.BackColor = System.Drawing.Color.MintCream;
+            this.pnlOtherTransaction.Controls.Add(this.btnExeOtherTransaction);
+            this.pnlOtherTransaction.Controls.Add(this.lblOtherTransaction);
+            this.pnlOtherTransaction.Controls.Add(this.lblAmount);
+            this.pnlOtherTransaction.Controls.Add(this.cmbChooseBill);
+            this.pnlOtherTransaction.Controls.Add(this.tbAmount);
+            this.pnlOtherTransaction.Controls.Add(this.lblBill);
+            this.pnlOtherTransaction.Location = new System.Drawing.Point(475, 110);
+            this.pnlOtherTransaction.Name = "pnlOtherTransaction";
+            this.pnlOtherTransaction.Size = new System.Drawing.Size(267, 186);
+            this.pnlOtherTransaction.TabIndex = 42;
+            this.pnlOtherTransaction.Visible = false;
+            // 
+            // lblOtherTransaction
+            // 
+            this.lblOtherTransaction.AutoSize = true;
+            this.lblOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.lblOtherTransaction.Location = new System.Drawing.Point(7, 24);
+            this.lblOtherTransaction.Name = "lblOtherTransaction";
+            this.lblOtherTransaction.Size = new System.Drawing.Size(146, 19);
+            this.lblOtherTransaction.TabIndex = 4;
+            this.lblOtherTransaction.Text = "Vul zelf een bedrag in";
+            // 
+            // pnlSaldo
+            // 
+            this.pnlSaldo.BackColor = System.Drawing.Color.MintCream;
+            this.pnlSaldo.Controls.Add(this.tbUserSaldo);
+            this.pnlSaldo.Controls.Add(this.label2);
+            this.pnlSaldo.Location = new System.Drawing.Point(473, 302);
+            this.pnlSaldo.Name = "pnlSaldo";
+            this.pnlSaldo.Size = new System.Drawing.Size(267, 64);
+            this.pnlSaldo.TabIndex = 43;
+            this.pnlSaldo.Visible = false;
+            // 
+            // pnlMenu
+            // 
+            this.pnlMenu.BackColor = System.Drawing.Color.MintCream;
+            this.pnlMenu.Controls.Add(this.btnGetsaldo);
+            this.pnlMenu.Controls.Add(this.btnLogout);
+            this.pnlMenu.Controls.Add(this.btnTransaction);
+            this.pnlMenu.Location = new System.Drawing.Point(175, 110);
+            this.pnlMenu.Name = "pnlMenu";
+            this.pnlMenu.Size = new System.Drawing.Size(171, 319);
+            this.pnlMenu.TabIndex = 44;
+            this.pnlMenu.Visible = false;
+            // 
+            // pnlTransaction
+            // 
+            this.pnlTransaction.BackColor = System.Drawing.Color.MintCream;
+            this.pnlTransaction.Controls.Add(this.btnOtherTransaction);
+            this.pnlTransaction.Controls.Add(this.btn100);
+            this.pnlTransaction.Controls.Add(this.btn50);
+            this.pnlTransaction.Controls.Add(this.btn10);
+            this.pnlTransaction.Location = new System.Drawing.Point(352, 110);
+            this.pnlTransaction.Name = "pnlTransaction";
+            this.pnlTransaction.Size = new System.Drawing.Size(115, 319);
+            this.pnlTransaction.TabIndex = 45;
+            this.pnlTransaction.Visible = false;
+            // 
+            // btn10
+            // 
+            this.btn10.AccessibleName = "Button";
+            this.btn10.BackColor = System.Drawing.Color.LightGray;
+            this.btn10.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btn10.Location = new System.Drawing.Point(21, 10);
+            this.btn10.Name = "btn10";
+            this.btn10.Size = new System.Drawing.Size(72, 33);
+            this.btn10.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btn10.TabIndex = 21;
+            this.btn10.Text = "€ 10";
+            this.btn10.UseVisualStyleBackColor = false;
+            this.btn10.Click += new System.EventHandler(this.Btn10_Click);
+            // 
+            // btn50
+            // 
+            this.btn50.AccessibleName = "Button";
+            this.btn50.BackColor = System.Drawing.Color.LightGray;
+            this.btn50.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btn50.Location = new System.Drawing.Point(21, 52);
+            this.btn50.Name = "btn50";
+            this.btn50.Size = new System.Drawing.Size(72, 33);
+            this.btn50.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btn50.TabIndex = 22;
+            this.btn50.Text = "€ 50";
+            this.btn50.UseVisualStyleBackColor = false;
+            this.btn50.Click += new System.EventHandler(this.Btn50_Click);
+            // 
+            // btn100
+            // 
+            this.btn100.AccessibleName = "Button";
+            this.btn100.BackColor = System.Drawing.Color.LightGray;
+            this.btn100.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btn100.Location = new System.Drawing.Point(21, 94);
+            this.btn100.Name = "btn100";
+            this.btn100.Size = new System.Drawing.Size(72, 33);
+            this.btn100.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btn100.TabIndex = 23;
+            this.btn100.Text = "€ 100";
+            this.btn100.UseVisualStyleBackColor = false;
+            this.btn100.Click += new System.EventHandler(this.Btn100_Click);
+            // 
+            // btnOtherTransaction
+            // 
+            this.btnOtherTransaction.AccessibleName = "Button";
+            this.btnOtherTransaction.BackColor = System.Drawing.Color.LightGray;
+            this.btnOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnOtherTransaction.Location = new System.Drawing.Point(21, 272);
+            this.btnOtherTransaction.Name = "btnOtherTransaction";
+            this.btnOtherTransaction.Size = new System.Drawing.Size(72, 33);
+            this.btnOtherTransaction.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnOtherTransaction.TabIndex = 24;
+            this.btnOtherTransaction.Text = "Anderss";
+            this.btnOtherTransaction.UseVisualStyleBackColor = false;
+            this.btnOtherTransaction.Click += new System.EventHandler(this.BtnOtherTransaction_Click);
+            // 
+            // btnExeOtherTransaction
+            // 
+            this.btnExeOtherTransaction.AccessibleName = "Button";
+            this.btnExeOtherTransaction.BackColor = System.Drawing.Color.LightGray;
+            this.btnExeOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnExeOtherTransaction.Location = new System.Drawing.Point(116, 139);
+            this.btnExeOtherTransaction.Name = "btnExeOtherTransaction";
+            this.btnExeOtherTransaction.Size = new System.Drawing.Size(139, 33);
+            this.btnExeOtherTransaction.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnExeOtherTransaction.TabIndex = 21;
+            this.btnExeOtherTransaction.Text = "Bedrag opnemen";
+            this.btnExeOtherTransaction.UseVisualStyleBackColor = false;
+            this.btnExeOtherTransaction.Click += new System.EventHandler(this.BtnExeOtherTransaction_Click);
+            // 
+            // btnBack
+            // 
+            this.btnBack.AccessibleName = "Button";
+            this.btnBack.BackColor = System.Drawing.Color.LightGray;
+            this.btnBack.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnBack.Location = new System.Drawing.Point(185, 9);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(72, 33);
+            this.btnBack.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnBack.TabIndex = 25;
+            this.btnBack.Text = "Terug";
+            this.btnBack.UseVisualStyleBackColor = false;
+            this.btnBack.Click += new System.EventHandler(this.BtnBack_Click);
+            // 
+            // pnlBack
+            // 
+            this.pnlBack.BackColor = System.Drawing.Color.MintCream;
+            this.pnlBack.Controls.Add(this.btnBack);
+            this.pnlBack.Location = new System.Drawing.Point(473, 373);
+            this.pnlBack.Name = "pnlBack";
+            this.pnlBack.Size = new System.Drawing.Size(267, 56);
+            this.pnlBack.TabIndex = 46;
+            this.pnlBack.Visible = false;
             // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1145, 593);
-            this.Controls.Add(this.grpbLoggedIn);
+            this.ClientSize = new System.Drawing.Size(1153, 601);
+            this.Controls.Add(this.pnlBack);
+            this.Controls.Add(this.pnlTransaction);
+            this.Controls.Add(this.pnlMenu);
+            this.Controls.Add(this.pnlSaldo);
+            this.Controls.Add(this.pnlOtherTransaction);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblPinCode);
-            this.Controls.Add(this.lblWelcome);
+            this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.rtbReceipt);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -254,8 +397,13 @@
             this.Text = "Pinautomaat";
             this.TransparencyKey = System.Drawing.Color.Silver;
             this.Load += new System.EventHandler(this.DeBank_Load);
-            this.grpbLoggedIn.ResumeLayout(false);
-            this.grpbLoggedIn.PerformLayout();
+            this.pnlOtherTransaction.ResumeLayout(false);
+            this.pnlOtherTransaction.PerformLayout();
+            this.pnlSaldo.ResumeLayout(false);
+            this.pnlSaldo.PerformLayout();
+            this.pnlMenu.ResumeLayout(false);
+            this.pnlTransaction.ResumeLayout(false);
+            this.pnlBack.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -263,12 +411,10 @@
 
         #endregion
         private System.IO.Ports.SerialPort serialPort1;
-        private System.Windows.Forms.GroupBox grpbLoggedIn;
         private Syncfusion.WinForms.Controls.SfButton btnLogout;
         private Syncfusion.WinForms.Controls.SfButton btnGetsaldo;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox tbUserSaldo;
-        private Syncfusion.Windows.Forms.Tools.AutoLabel autoLabel2;
         private System.Windows.Forms.Label lblBill;
         private System.Windows.Forms.TextBox tbAmount;
         private System.Windows.Forms.Label lblAmount;
@@ -276,8 +422,20 @@
         private System.Windows.Forms.ComboBox cmbChooseBill;
         private Syncfusion.WinForms.Controls.SfButton btnCancel;
         private Syncfusion.Windows.Forms.Tools.AutoLabel lblPinCode;
-        private System.Windows.Forms.Label lblWelcome;
+        private System.Windows.Forms.Label lblMessage;
         private System.Windows.Forms.RichTextBox rtbReceipt;
+        private System.Windows.Forms.Panel pnlOtherTransaction;
+        private System.Windows.Forms.Label lblOtherTransaction;
+        private System.Windows.Forms.Panel pnlSaldo;
+        private System.Windows.Forms.Panel pnlMenu;
+        private System.Windows.Forms.Panel pnlTransaction;
+        private Syncfusion.WinForms.Controls.SfButton btnOtherTransaction;
+        private Syncfusion.WinForms.Controls.SfButton btn100;
+        private Syncfusion.WinForms.Controls.SfButton btn50;
+        private Syncfusion.WinForms.Controls.SfButton btn10;
+        private Syncfusion.WinForms.Controls.SfButton btnExeOtherTransaction;
+        private Syncfusion.WinForms.Controls.SfButton btnBack;
+        private System.Windows.Forms.Panel pnlBack;
     }
 }
 

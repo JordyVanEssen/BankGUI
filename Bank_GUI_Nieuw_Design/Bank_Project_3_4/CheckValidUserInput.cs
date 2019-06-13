@@ -12,7 +12,6 @@ namespace Bank_Project_3_4
     {
         public String _username = "";
         public String _password = "";
-        Client _currentClient;
 
         //check if the input is valid
         public bool filledInField = false;
@@ -25,9 +24,9 @@ namespace Bank_Project_3_4
         //the password chars
         public char[] passwordChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
-        public CheckValidUserInput(Client pCurrentClient)
+        public CheckValidUserInput()
         {
-            _currentClient = pCurrentClient;
+
         }
 
         //check if the input is correct, retuns true or false

@@ -34,7 +34,7 @@ namespace Bank_Project_3_4
         private async void btnOk_Click(object sender, EventArgs e)
         {
             Boolean validInput = false;
-            checkInput = new CheckValidUserInput(_currentClient);
+            checkInput = new CheckValidUserInput();
 
             if (!string.IsNullOrWhiteSpace(tbUserName.Text) && !string.IsNullOrWhiteSpace(tbUserPassword.Text))
             {

@@ -21,7 +21,7 @@ namespace Bank_Project_3_4
         private int _status = -1;
 
         //the bills to choose from
-        private int[] _bill = { 5, 10, 20, 50, 100, 200, 500 };
+        private int[] _bill = { 10, 50, 100 };
 
         public ExecuteTransaction(String pNuid)
         {
@@ -62,12 +62,13 @@ namespace Bank_Project_3_4
             int x = 0;
             int rest = 0;
             int billCount = 0;
-            int a = 7;
+            int a = _bill.Length;
             int previousBill = 0;
             int withdrawAmount = Convert.ToInt32(pAmount);
 
-            for (int i = 0; pAmount > _billValue; i++, x++)
+            while (pAmount >= _billValue)
             {
+                x++;
                 pAmount -= _billValue;
             }
 
@@ -110,12 +111,10 @@ namespace Bank_Project_3_4
                 if (a == 0)
                 {
                     if (rest <= 4)
-                    {
                         break;
-                    }
 
                     i = 0;
-                    a = 6;
+                    a = _bill.Length;
                 }
             }
 

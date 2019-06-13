@@ -42,7 +42,7 @@ namespace Bank_Project_3_4
         bool _loggedOut = false;
         bool _enterPassword = false;
 
-        private int[] bill = { 100, 200, 500 };
+        private int[] bill = { 10, 50, 100 };
 
         private static readonly HttpClient httpClient = new HttpClient();
 
@@ -73,9 +73,9 @@ namespace Bank_Project_3_4
             
 
             //the default bills
+            cmbChooseBill.Items.Add("€10");
+            cmbChooseBill.Items.Add("€50");
             cmbChooseBill.Items.Add("€100");
-            cmbChooseBill.Items.Add("€200");
-            cmbChooseBill.Items.Add("€500");
         }
 
         
@@ -161,10 +161,7 @@ namespace Bank_Project_3_4
                 }
                 else
                 {
-                    Helper.showMessage($"Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. " +
-                                        $"\n >> lees uw pas in " +
-                                        $"\n >> voer uw wachtwoord in"
-                                        ,MessageBoxIcon.Information);
+                    updateMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. ");
                     myPort.Write("R");
                     _loggedOut = true;
                     _enterPassword = false;
@@ -173,7 +170,18 @@ namespace Bank_Project_3_4
                 }
                 _enteredPassword = string.Empty;
             }
-            
+        }
+
+        public void updateMessage(String pInput)
+        {
+            //update the label text
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<String>(updateMessage), new object[] { pInput });
+                return;
+            }
+
+            lblMessage.Text = pInput;
         }
 
         //updates the label text
@@ -188,11 +196,11 @@ namespace Bank_Project_3_4
 
             if (_loggedOut)
             {
-                lblWelcome.Text = $"Welkom, houd uw pas voor de reader.";
+                lblMessage.Text = $"Welkom, houd uw pas voor de reader.";
             }
             else
             {
-                lblWelcome.Text = $"Graag uw pincode invoeren op het keypad ";
+                lblMessage.Text = $"Graag uw pincode invoeren op het keypad ";
 
                 if (pInput == "<>")
                 {
@@ -212,13 +220,13 @@ namespace Bank_Project_3_4
         }
 
         //transaction
-        public async void transaction()
+        public async void transaction(String pAmount, String pBill)
         {
-            ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClient.Iban);
-            int status = await exeTransaction.executeTransaction(cmbChooseBill.Text, tbAmount.Text);
-
-            if (!string.IsNullOrEmpty(tbAmount.Text) || !string.IsNullOrEmpty(cmbChooseBill.Text))
+            if (!string.IsNullOrEmpty(pAmount) || !string.IsNullOrEmpty(pBill))
             {
+                ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClient.Iban);
+                int status = await exeTransaction.executeTransaction(pBill, pAmount);
+
                 rtbReceipt.Visible = true;
                 rtbReceipt.Text = await exeTransaction.printReceipt();
 
@@ -256,14 +264,15 @@ namespace Bank_Project_3_4
             if (_validPass)
             {
                 _enterPassword = false;
-                lblWelcome.Visible = false;
-                grpbLoggedIn.Visible = true;
+                lblMessage.Visible = false;
+                myPort.WriteLine("P");
+                showPanel(pnlMenu);
             }
             else
             {
-                lblWelcome.Visible = true;
+                lblMessage.Visible = true;
                 rtbReceipt.Visible = false;
-                grpbLoggedIn.Visible = false;
+                showPanel(null);
             }
 
             if (_enterPassword)
@@ -317,7 +326,6 @@ namespace Bank_Project_3_4
                 cmbChooseBill.Items.Remove($"€{bill[i]}");
             }
 
-
             for (int i = 0; i < bill.Length; i++)
             {
                 if (pAmount >= bill[i])
@@ -353,22 +361,50 @@ namespace Bank_Project_3_4
             {
                 String pwResult = stripString("pw{", "}", serialInput);
 
-                if (!string.IsNullOrEmpty(pwResult))
+                if (!string.IsNullOrEmpty(pwResult) && !_validPass)
                 {
                     checkPasswordValidation(pwResult);
                 }
+                else
+                {
+                    if (pnlOtherTransaction.Visible)
+                        addNumToTb(pwResult);
+                }
             }
-            else if (serialInput.Contains("nm{"))
+        }
+
+        private void addNumToTb(String pInput)
+        {
+            if (InvokeRequired)
             {
-                String numberResult = stripString("nm{", "}", serialInput);
-                tbAmount.Text += numberResult;
+                this.Invoke(new Action<String>(addNumToTb), new object[] { pInput });
+                return;
             }
+
+            tbAmount.Text += pInput;
         }
 
         //debug button
         private void btnReset_Click(object sender, EventArgs e)
         {
             myPort.WriteLine("R");
+        }
+
+        //makes panels visible or not
+        private void showPanel(Panel pPanel)
+        {
+            Panel[] pnlList = { pnlMenu, pnlOtherTransaction, pnlSaldo, pnlTransaction, pnlBack };
+
+            foreach (Panel panel in pnlList)
+            {
+                panel.Visible = false;
+
+                if (panel == pPanel)
+                    pPanel.Visible = true;
+
+                if (_validPass)
+                    pnlBack.Visible = true;
+            }
         }
 
         //the user logs out, another user can log in
@@ -387,19 +423,22 @@ namespace Bank_Project_3_4
         //execute a transaction
         private void btnTransaction_Click(object sender, EventArgs e)
         {
-            transaction();
+            //transaction();
+            showPanel(pnlTransaction);
         }
 
         //returns the saldo of the currentuser
         private async void btnGetSaldo_Click(object sender, EventArgs e)
         {
+            showPanel(pnlSaldo);
+
             _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClient.Iban}");
             tbUserSaldo.Text = $"€{await HttpRequest.getSaldoAsync(_httpRequest.createUrl())}";
         }
 
         private void tbAmount_TextChanged(object sender, EventArgs e)
         {
-            CheckValidUserInput check = new CheckValidUserInput(_currentClient);
+            CheckValidUserInput check = new CheckValidUserInput();
             if (!string.IsNullOrEmpty(tbAmount.Text))
             {
                 if(check.validInput(tbAmount.Text, true))
@@ -408,7 +447,37 @@ namespace Bank_Project_3_4
                 }
             }
         }
-               
+
+        private void BtnOtherTransaction_Click(object sender, EventArgs e)
+        {
+            showPanel(pnlOtherTransaction);
+        }
+
+        private void BtnExeOtherTransaction_Click(object sender, EventArgs e)
+        {
+            transaction(tbAmount.Text, cmbChooseBill.Text);
+        }
+
+        private void Btn10_Click(object sender, EventArgs e)
+        {
+            transaction("10", "10");
+        }
+
+        private void Btn50_Click(object sender, EventArgs e)
+        {
+            transaction("50", "50");
+        }
+
+        private void Btn100_Click(object sender, EventArgs e)
+        {
+            transaction("100", "100");
+        }
+
+        private void BtnBack_Click(object sender, EventArgs e)
+        {
+            showPanel(pnlMenu);
+        }
+
         #endregion
 
 

@@ -14,6 +14,9 @@ namespace Bank_Project_3_4
         public async Task<Boolean> validatePassword(String pPassword, String pNuid)
         {
             int response = 0;
+            _httpRequest = new HttpRequest("Authentication");
+            response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pNuid}");
+            /*
             if (pNuid.Contains("PILS"))
             {
                 _httpRequest = new HttpRequest("Authentication");
@@ -25,7 +28,7 @@ namespace Bank_Project_3_4
                 CentralBankConnection cbc = new CentralBankConnection();
                 CentralBankConnection.sendCommand($"\"{bankCode}\", \"PILS\", \"pinCheck\", \"{pNuid}\", \"{pPassword}\"");
             }
-            
+            */
 
             if (response == 1)
             {
