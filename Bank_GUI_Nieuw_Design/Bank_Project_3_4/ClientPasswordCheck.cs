@@ -11,30 +11,10 @@ namespace Bank_Project_3_4
     {
         HttpRequest _httpRequest;
 
-        public async Task<Boolean> validatePassword(String pPassword, String pNuid)
+        public async Task<int> validatePassword(String pPassword, String pIban)
         {
-            int response = 0;
             _httpRequest = new HttpRequest("Authentication");
-            response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pNuid}");
-            /*
-            if (pNuid.Contains("PILS"))
-            {
-                _httpRequest = new HttpRequest("Authentication");
-                response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pNuid}");
-            }
-            else
-            {
-                String bankCode = pNuid.Substring(4, 8);
-                CentralBankConnection cbc = new CentralBankConnection();
-                CentralBankConnection.sendCommand($"\"{bankCode}\", \"PILS\", \"pinCheck\", \"{pNuid}\", \"{pPassword}\"");
-            }
-            */
-
-            if (response == 1)
-            {
-                return true;
-            }
-            return false;
+            return await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{pPassword}/{pIban}");
         }
     }
 }

@@ -113,7 +113,7 @@ namespace Bank_Project_3_4
                     if (rest <= 4)
                         break;
 
-                    i = 0;
+                    //i = 0;
                     a = _bill.Length;
                 }
             }

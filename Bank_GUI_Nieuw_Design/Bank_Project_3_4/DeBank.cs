@@ -24,7 +24,6 @@ namespace Bank_Project_3_4
     {
         //instances 
         SerialPort myPort = new SerialPort();//create a serial port
-        Client _currentClient;//the currentclient
         HttpRequest _httpRequest;
         UserTagViewModel _userTagView = new UserTagViewModel();
 
@@ -57,7 +56,7 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM12";
+            myPort.PortName = "COM5";
             myPort.DataReceived += MyPort_DataReceived;
 
             try
@@ -88,43 +87,10 @@ namespace Bank_Project_3_4
         //checks if the entered nuid exists
         private async void nuidValidation(String pNuid)
         {
-            ReturnObject returnedObject = new ReturnObject();
-            _httpRequest = new HttpRequest("UserTagItems", pNuid);
-            returnedObject = await HttpRequest.GetUserTagAsync(_httpRequest.createUrl());
-            _userTagView = returnedObject.ReturnUserTag;
-
-            if (returnedObject.StatusCode == 3)//if pass does not exist
-            {
-                myPort.WriteLine("P");
-                _loggedOut = false;
-                //update the shown text on screen
-                updateText("");
-
-               
-            }
-            else if (returnedObject.StatusCode == 0)//if the pass exists and is not blocked
-            {
-                _httpRequest = new HttpRequest("ClientItems", _userTagView.UserTagId.ToString());
-                _currentClient = await HttpRequest.GetClientAsync(_httpRequest.createUrl());
-
-                //sends command to arduino to read the keypad
-                myPort.WriteLine("P");
-                _loggedOut = false;
-                //update the shown text on screen
-                updateText("");
-            }
-            else if (returnedObject.StatusCode == 2)//the user pass is blocked
-            {
-                //error, pass is blocked
-                Helper.showMessage("Helaas, Uw pas is geblokkeerd", MessageBoxIcon.Error);
-                myPort.WriteLine("R");
-            }
-            //update the form
-            if (_currentClient != null)
-            {
-                _enterPassword = true;
-                UpdateForm();
-            }
+            updateText("");
+            myPort.WriteLine("P");
+            _enterPassword = true;
+            UpdateForm();
         }
 
         //checks if the user entered a valid password
@@ -151,8 +117,15 @@ namespace Bank_Project_3_4
             else if(pPassword == "#")
             {
                 //validates the password
-                _validPass = await checkPass.validatePassword(_enteredPassword, _currentClientNuid);
+                int response = await checkPass.validatePassword(_enteredPassword, _currentClientNuid);
 
+                if (response == 0)
+                    _validPass = false;
+                else if (response == 1)
+                    _validPass = true;
+                else if (response == 2)
+                    Helper.showMessage("Uw pas is geblokkeerd", MessageBoxIcon.Error);
+            
                 //if the password is correct
                 if (_validPass)
                 {
@@ -161,12 +134,15 @@ namespace Bank_Project_3_4
                 }
                 else
                 {
-                    updateMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw. ");
-                    myPort.Write("R");
-                    _loggedOut = true;
-                    _enterPassword = false;
-                    UpdateForm();
-                    updateText("");
+                    if (response == 0)
+                    {
+                        Helper.showMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw.");
+                        myPort.Write("R");
+                        _loggedOut = true;
+                        _enterPassword = false;
+                        UpdateForm();
+                        updateText("");
+                    }
                 }
                 _enteredPassword = string.Empty;
             }
@@ -224,7 +200,7 @@ namespace Bank_Project_3_4
         {
             if (!string.IsNullOrEmpty(pAmount) || !string.IsNullOrEmpty(pBill))
             {
-                ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClient.Iban);
+                ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientNuid);
                 int status = await exeTransaction.executeTransaction(pBill, pAmount);
 
                 rtbReceipt.Visible = true;
@@ -354,7 +330,7 @@ namespace Bank_Project_3_4
                 String nuidResult = stripString("nuid{", "}", serialInput);
                 nuidResult = nuidResult.Replace(" ","");
 
-                _currentClientNuid = nuidResult;
+                _currentClientNuid = nuidResult.Substring(0, nuidResult.Length - 4).Trim();
                 nuidValidation(nuidResult);
             }
             else if (serialInput.Contains("pw{"))
@@ -432,7 +408,7 @@ namespace Bank_Project_3_4
         {
             showPanel(pnlSaldo);
 
-            _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClient.Iban}");
+            _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClientNuid}");
             tbUserSaldo.Text = $"€{await HttpRequest.getSaldoAsync(_httpRequest.createUrl())}";
         }
 
@@ -460,17 +436,17 @@ namespace Bank_Project_3_4
 
         private void Btn10_Click(object sender, EventArgs e)
         {
-            transaction("10", "10");
+            transaction("10", cmbChooseBill.Text);
         }
 
         private void Btn50_Click(object sender, EventArgs e)
         {
-            transaction("50", "50");
+            transaction("50", cmbChooseBill.Text);
         }
 
         private void Btn100_Click(object sender, EventArgs e)
         {
-            transaction("100", "100");
+            transaction("100", cmbChooseBill.Text);
         }
 
         private void BtnBack_Click(object sender, EventArgs e)

@@ -11,6 +11,7 @@ using System.IO.Ports;
 using System.Data.Entity;
 using System.Net.Http;
 using BankDataLayer;
+using Bank_Project_3_4.Models;
 using System.Net;
 
 namespace Bank_Project_3_4
@@ -79,6 +80,20 @@ namespace Bank_Project_3_4
                 saldo = await response.Content.ReadAsAsync<int>();
             }
             return saldo;
+        }
+
+        //http get the first message in the queueu
+        public static async Task<MessageQueue> getMessageQueue(String path)
+        {
+            HttpResponseMessage response = await httpClient.GetAsync(path);
+
+            if (response.IsSuccessStatusCode)
+            {
+                MessageQueue mq = await response.Content.ReadAsAsync<MessageQueue>();
+                return mq;
+            }
+
+            return null;
         }
 
         //http withdraw

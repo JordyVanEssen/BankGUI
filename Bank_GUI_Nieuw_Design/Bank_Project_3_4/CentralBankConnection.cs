@@ -5,6 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using WebSocketSharp;
+using System.Windows.Forms;
+using Bank_Project_3_4.Models;
+using BankDataLayer;
+using Newtonsoft.Json;
 
 namespace Bank_Project_3_4
 {
@@ -25,7 +29,7 @@ namespace Bank_Project_3_4
 
         public static void sendCommand(String pCommand)
         {
-            _slave.Send(pCommand);
+            _master.Send(pCommand);
         }
 
         public static void connection(WebSocket pSocket, String pMode)
@@ -42,7 +46,14 @@ namespace Bank_Project_3_4
                     }
                     else if (_lastCommand.Equals("withdraw") && e.Data.ToLower().Contains("true"))
                     {
-
+                        using (FormLogOut logOutForm = new FormLogOut())
+                        {
+                            if (logOutForm.ShowDialog() == DialogResult.OK)
+                            {
+                                DeBank bank = new DeBank();
+                                bank.logOut();
+                            }
+                        }
                     }
                 }
                 else
@@ -91,15 +102,28 @@ namespace Bank_Project_3_4
                 int amount = Int32.Parse(pieces[3]);
                 http = new HttpRequest("Withdraw", $"{pieces[1].ToUpper()}/ATM/{amount}");
                 await HttpRequest.withdrawAsync(http.createUrl());
-                _slave.Send("[\"true\"]");
+                _master.Send("[\"true\"]");
             }
             else if (command.Equals("pinCheck") && valid == 1)
             {
-                _slave.Send("[\"true\"]");
+                _master.Send("[\"true\"]");
             }
             else
             {
-                _slave.Send("[\"false\"]");
+                _master.Send("[\"false\"]");
+            }
+        }
+
+        public async void getMessage()
+        {
+            HttpRequest http = new HttpRequest("MessageQueues");
+            MessageQueue mq = await HttpRequest.getMessageQueue(http.createUrl());
+
+            JsonPayload msg = JsonConvert.DeserializeObject<JsonPayload>(mq.DataObject);
+
+            if (mq != null)
+            {
+                String msgToSend = $"[\"{msg.IDRecBank}\" {msg}]";
             }
         }
     }

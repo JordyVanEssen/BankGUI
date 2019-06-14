@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Data.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Bank_Project_3_4.Models;
 
 namespace BankDataLayer
 {
@@ -44,7 +45,16 @@ namespace BankDataLayer
         public Client Client { get; set; }
     }
 
-
+    class MessageQueue
+    {
+        public int MessageId { get; set; }
+        public String ActionCode { get; set; }
+        public String DataObject { get; set; }
+        public int StatusCode { get; set; }
+        public Boolean Finished { get; set; }
+        public Boolean ValidPassword { get; set; }
+        public String Message { get; set; }
+    }
 
     public partial class ClientContext : DbContext
     {

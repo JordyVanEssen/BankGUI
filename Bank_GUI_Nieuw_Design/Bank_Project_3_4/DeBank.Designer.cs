@@ -45,22 +45,24 @@
             this.lblMessage = new System.Windows.Forms.Label();
             this.rtbReceipt = new System.Windows.Forms.RichTextBox();
             this.pnlOtherTransaction = new System.Windows.Forms.Panel();
+            this.btnExeOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.lblOtherTransaction = new System.Windows.Forms.Label();
             this.pnlSaldo = new System.Windows.Forms.Panel();
             this.pnlMenu = new System.Windows.Forms.Panel();
             this.pnlTransaction = new System.Windows.Forms.Panel();
-            this.btn10 = new Syncfusion.WinForms.Controls.SfButton();
-            this.btn50 = new Syncfusion.WinForms.Controls.SfButton();
-            this.btn100 = new Syncfusion.WinForms.Controls.SfButton();
             this.btnOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
-            this.btnExeOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
+            this.btn100 = new Syncfusion.WinForms.Controls.SfButton();
+            this.btn50 = new Syncfusion.WinForms.Controls.SfButton();
+            this.btn10 = new Syncfusion.WinForms.Controls.SfButton();
             this.btnBack = new Syncfusion.WinForms.Controls.SfButton();
             this.pnlBack = new System.Windows.Forms.Panel();
+            this.pnlChooseBill = new System.Windows.Forms.Panel();
             this.pnlOtherTransaction.SuspendLayout();
             this.pnlSaldo.SuspendLayout();
             this.pnlMenu.SuspendLayout();
             this.pnlTransaction.SuspendLayout();
             this.pnlBack.SuspendLayout();
+            this.pnlChooseBill.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -119,7 +121,7 @@
             // 
             this.lblBill.AutoSize = true;
             this.lblBill.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblBill.Location = new System.Drawing.Point(3, 86);
+            this.lblBill.Location = new System.Drawing.Point(18, 16);
             this.lblBill.Name = "lblBill";
             this.lblBill.Size = new System.Drawing.Size(88, 19);
             this.lblBill.TabIndex = 3;
@@ -163,7 +165,7 @@
             this.cmbChooseBill.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbChooseBill.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.cmbChooseBill.FormattingEnabled = true;
-            this.cmbChooseBill.Location = new System.Drawing.Point(112, 83);
+            this.cmbChooseBill.Location = new System.Drawing.Point(127, 13);
             this.cmbChooseBill.Name = "cmbChooseBill";
             this.cmbChooseBill.Size = new System.Drawing.Size(143, 25);
             this.cmbChooseBill.TabIndex = 0;
@@ -212,7 +214,7 @@
             this.rtbReceipt.Location = new System.Drawing.Point(764, 110);
             this.rtbReceipt.Name = "rtbReceipt";
             this.rtbReceipt.ReadOnly = true;
-            this.rtbReceipt.Size = new System.Drawing.Size(350, 256);
+            this.rtbReceipt.Size = new System.Drawing.Size(388, 319);
             this.rtbReceipt.TabIndex = 37;
             this.rtbReceipt.Text = "";
             this.rtbReceipt.Visible = false;
@@ -223,14 +225,26 @@
             this.pnlOtherTransaction.Controls.Add(this.btnExeOtherTransaction);
             this.pnlOtherTransaction.Controls.Add(this.lblOtherTransaction);
             this.pnlOtherTransaction.Controls.Add(this.lblAmount);
-            this.pnlOtherTransaction.Controls.Add(this.cmbChooseBill);
             this.pnlOtherTransaction.Controls.Add(this.tbAmount);
-            this.pnlOtherTransaction.Controls.Add(this.lblBill);
             this.pnlOtherTransaction.Location = new System.Drawing.Point(475, 110);
             this.pnlOtherTransaction.Name = "pnlOtherTransaction";
             this.pnlOtherTransaction.Size = new System.Drawing.Size(267, 186);
             this.pnlOtherTransaction.TabIndex = 42;
             this.pnlOtherTransaction.Visible = false;
+            // 
+            // btnExeOtherTransaction
+            // 
+            this.btnExeOtherTransaction.AccessibleName = "Button";
+            this.btnExeOtherTransaction.BackColor = System.Drawing.Color.LightGray;
+            this.btnExeOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnExeOtherTransaction.Location = new System.Drawing.Point(116, 139);
+            this.btnExeOtherTransaction.Name = "btnExeOtherTransaction";
+            this.btnExeOtherTransaction.Size = new System.Drawing.Size(139, 33);
+            this.btnExeOtherTransaction.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnExeOtherTransaction.TabIndex = 21;
+            this.btnExeOtherTransaction.Text = "Bedrag opnemen";
+            this.btnExeOtherTransaction.UseVisualStyleBackColor = false;
+            this.btnExeOtherTransaction.Click += new System.EventHandler(this.BtnExeOtherTransaction_Click);
             // 
             // lblOtherTransaction
             // 
@@ -278,33 +292,19 @@
             this.pnlTransaction.TabIndex = 45;
             this.pnlTransaction.Visible = false;
             // 
-            // btn10
+            // btnOtherTransaction
             // 
-            this.btn10.AccessibleName = "Button";
-            this.btn10.BackColor = System.Drawing.Color.LightGray;
-            this.btn10.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btn10.Location = new System.Drawing.Point(21, 10);
-            this.btn10.Name = "btn10";
-            this.btn10.Size = new System.Drawing.Size(72, 33);
-            this.btn10.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btn10.TabIndex = 21;
-            this.btn10.Text = "€ 10";
-            this.btn10.UseVisualStyleBackColor = false;
-            this.btn10.Click += new System.EventHandler(this.Btn10_Click);
-            // 
-            // btn50
-            // 
-            this.btn50.AccessibleName = "Button";
-            this.btn50.BackColor = System.Drawing.Color.LightGray;
-            this.btn50.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btn50.Location = new System.Drawing.Point(21, 52);
-            this.btn50.Name = "btn50";
-            this.btn50.Size = new System.Drawing.Size(72, 33);
-            this.btn50.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btn50.TabIndex = 22;
-            this.btn50.Text = "€ 50";
-            this.btn50.UseVisualStyleBackColor = false;
-            this.btn50.Click += new System.EventHandler(this.Btn50_Click);
+            this.btnOtherTransaction.AccessibleName = "Button";
+            this.btnOtherTransaction.BackColor = System.Drawing.Color.LightGray;
+            this.btnOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnOtherTransaction.Location = new System.Drawing.Point(21, 272);
+            this.btnOtherTransaction.Name = "btnOtherTransaction";
+            this.btnOtherTransaction.Size = new System.Drawing.Size(72, 33);
+            this.btnOtherTransaction.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnOtherTransaction.TabIndex = 24;
+            this.btnOtherTransaction.Text = "Anderss";
+            this.btnOtherTransaction.UseVisualStyleBackColor = false;
+            this.btnOtherTransaction.Click += new System.EventHandler(this.BtnOtherTransaction_Click);
             // 
             // btn100
             // 
@@ -320,33 +320,33 @@
             this.btn100.UseVisualStyleBackColor = false;
             this.btn100.Click += new System.EventHandler(this.Btn100_Click);
             // 
-            // btnOtherTransaction
+            // btn50
             // 
-            this.btnOtherTransaction.AccessibleName = "Button";
-            this.btnOtherTransaction.BackColor = System.Drawing.Color.LightGray;
-            this.btnOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnOtherTransaction.Location = new System.Drawing.Point(21, 272);
-            this.btnOtherTransaction.Name = "btnOtherTransaction";
-            this.btnOtherTransaction.Size = new System.Drawing.Size(72, 33);
-            this.btnOtherTransaction.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnOtherTransaction.TabIndex = 24;
-            this.btnOtherTransaction.Text = "Anderss";
-            this.btnOtherTransaction.UseVisualStyleBackColor = false;
-            this.btnOtherTransaction.Click += new System.EventHandler(this.BtnOtherTransaction_Click);
+            this.btn50.AccessibleName = "Button";
+            this.btn50.BackColor = System.Drawing.Color.LightGray;
+            this.btn50.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btn50.Location = new System.Drawing.Point(21, 52);
+            this.btn50.Name = "btn50";
+            this.btn50.Size = new System.Drawing.Size(72, 33);
+            this.btn50.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btn50.TabIndex = 22;
+            this.btn50.Text = "€ 50";
+            this.btn50.UseVisualStyleBackColor = false;
+            this.btn50.Click += new System.EventHandler(this.Btn50_Click);
             // 
-            // btnExeOtherTransaction
+            // btn10
             // 
-            this.btnExeOtherTransaction.AccessibleName = "Button";
-            this.btnExeOtherTransaction.BackColor = System.Drawing.Color.LightGray;
-            this.btnExeOtherTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnExeOtherTransaction.Location = new System.Drawing.Point(116, 139);
-            this.btnExeOtherTransaction.Name = "btnExeOtherTransaction";
-            this.btnExeOtherTransaction.Size = new System.Drawing.Size(139, 33);
-            this.btnExeOtherTransaction.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnExeOtherTransaction.TabIndex = 21;
-            this.btnExeOtherTransaction.Text = "Bedrag opnemen";
-            this.btnExeOtherTransaction.UseVisualStyleBackColor = false;
-            this.btnExeOtherTransaction.Click += new System.EventHandler(this.BtnExeOtherTransaction_Click);
+            this.btn10.AccessibleName = "Button";
+            this.btn10.BackColor = System.Drawing.Color.LightGray;
+            this.btn10.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btn10.Location = new System.Drawing.Point(21, 10);
+            this.btn10.Name = "btn10";
+            this.btn10.Size = new System.Drawing.Size(72, 33);
+            this.btn10.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btn10.TabIndex = 21;
+            this.btn10.Text = "€ 10";
+            this.btn10.UseVisualStyleBackColor = false;
+            this.btn10.Click += new System.EventHandler(this.Btn10_Click);
             // 
             // btnBack
             // 
@@ -372,12 +372,23 @@
             this.pnlBack.TabIndex = 46;
             this.pnlBack.Visible = false;
             // 
+            // pnlChooseBill
+            // 
+            this.pnlChooseBill.BackColor = System.Drawing.Color.MintCream;
+            this.pnlChooseBill.Controls.Add(this.cmbChooseBill);
+            this.pnlChooseBill.Controls.Add(this.lblBill);
+            this.pnlChooseBill.Location = new System.Drawing.Point(187, 447);
+            this.pnlChooseBill.Name = "pnlChooseBill";
+            this.pnlChooseBill.Size = new System.Drawing.Size(292, 54);
+            this.pnlChooseBill.TabIndex = 47;
+            // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1153, 601);
+            this.ClientSize = new System.Drawing.Size(1157, 605);
+            this.Controls.Add(this.pnlChooseBill);
             this.Controls.Add(this.pnlBack);
             this.Controls.Add(this.pnlTransaction);
             this.Controls.Add(this.pnlMenu);
@@ -404,6 +415,8 @@
             this.pnlMenu.ResumeLayout(false);
             this.pnlTransaction.ResumeLayout(false);
             this.pnlBack.ResumeLayout(false);
+            this.pnlChooseBill.ResumeLayout(false);
+            this.pnlChooseBill.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -436,6 +449,7 @@
         private Syncfusion.WinForms.Controls.SfButton btnExeOtherTransaction;
         private Syncfusion.WinForms.Controls.SfButton btnBack;
         private System.Windows.Forms.Panel pnlBack;
+        private System.Windows.Forms.Panel pnlChooseBill;
     }
 }
 
