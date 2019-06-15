@@ -70,7 +70,6 @@ namespace Bank_Project_3_4
             {
                 MessageBox.Show(ex.Message);
             }
-            
 
             //the default bills
             cmbChooseBill.Items.Add("€10");

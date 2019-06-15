@@ -18,6 +18,8 @@ namespace Bank_Project_3_4
     {
         static WebSocket _master = new WebSocket("ws://145.24.222.24:8080");
         static WebSocket _slave = new WebSocket("ws://145.24.222.24:8080");
+        //static WebSocket _master = new WebSocket("ws://localhost:6666");
+        //static WebSocket _slave = new WebSocket("ws://localhost:6666");
         static String _lastCommand = string.Empty;
 
         public CentralBankConnection()
@@ -28,7 +30,7 @@ namespace Bank_Project_3_4
 
             _threadSlave.Start();
             _threadMaster.Start();
-            handleOutgoingMessage.Start();
+            //handleOutgoingMessage.Start();
         }
 
         public static void sendCommand(String pCommand)
@@ -39,7 +41,7 @@ namespace Bank_Project_3_4
         public static void connection(WebSocket pSocket, String pMode)
         {
             pSocket.OnOpen += (sender, e) =>
-                Console.WriteLine("Connection open");
+            Console.WriteLine("Connection open");
 
             pSocket.OnMessage += (sender, e) => {
                 if (e.Data.ToLower().Contains("true") || e.Data.ToLower().Contains("false"))
@@ -66,8 +68,11 @@ namespace Bank_Project_3_4
                 }
             };
 
-            pSocket.OnClose += (sender, e) => { };
-            pSocket.Connect();
+            pSocket.OnError += (sender, e) => {
+                Console.WriteLine(e.Message);
+            };
+
+            pSocket.OnClose += WsOnOnClose;
 
             if (pSocket.ReadyState != WebSocketState.Open)
             {
@@ -77,6 +82,26 @@ namespace Bank_Project_3_4
             if (pSocket.ReadyState == WebSocketState.Open)
             {
                 pSocket.Send($"[\"register\", \"{pMode}\", \"pils\"]");
+            }
+        }
+
+        private static void WsOnOnClose(object sender, CloseEventArgs closeEventArgs)
+        {
+            if (!closeEventArgs.WasClean)
+            {
+                if (!_master.IsAlive)
+                {
+                    Console.WriteLine("Connection master closed");
+                    Thread.Sleep(2000);
+                    _master.Connect();
+                }
+
+                if (!_slave.IsAlive)
+                {
+                    Console.WriteLine("Connection slave closed");
+                    Thread.Sleep(2000);
+                    _slave.Connect();
+                }
             }
         }
 
@@ -130,11 +155,11 @@ namespace Bank_Project_3_4
 
             if (mq != null)
             {
-                String msgToSend = $"['{jo.Property("revBank").Value}', '{Convert.ToString(sMsg)}']";
+                String msgToSend = $"[\"{jo.Property("revBank").Value}\", {Convert.ToString(sMsg)}]";
                 msgToSend = Regex.Replace(msgToSend, @"\t|\n|\r", "");
                 try
                 {
-                    _master.Send(msgToSend);
+                   _master.Send(msgToSend);
                 }
                 catch (Exception ex)
                 {
@@ -142,7 +167,13 @@ namespace Bank_Project_3_4
                 }
             }
 
-            getMessage();
+            //getMessage();
+        }
+
+        public void close()
+        {
+            _master.Close();
+            _slave.Close();
         }
     }
 }
