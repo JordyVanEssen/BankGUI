@@ -9,22 +9,26 @@ using System.Windows.Forms;
 using Bank_Project_3_4.Models;
 using BankDataLayer;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace Bank_Project_3_4
 {
     class CentralBankConnection
     {
-        static WebSocket _master = new WebSocket($"ws://127.0.0.1:6666");
-        static WebSocket _slave = new WebSocket($"ws://127.0.0.1:6666");
+        static WebSocket _master = new WebSocket("ws://145.24.222.24:8080");
+        static WebSocket _slave = new WebSocket("ws://145.24.222.24:8080");
         static String _lastCommand = string.Empty;
 
         public CentralBankConnection()
         {
             Thread _threadSlave = new Thread(new ThreadStart(() => connection(_slave, "slave")));
             Thread _threadMaster = new Thread(new ThreadStart(() => connection(_master, "master")));
+            Thread handleOutgoingMessage = new Thread(new ThreadStart(getMessage));
 
             _threadSlave.Start();
             _threadMaster.Start();
+            handleOutgoingMessage.Start();
         }
 
         public static void sendCommand(String pCommand)
@@ -79,32 +83,20 @@ namespace Bank_Project_3_4
         static async void handleCommand(String pCommand)
         {
             HttpRequest http;
-            String[] pieces = pCommand.Split(new[] { ',' }, 6);
 
-            for (int i = 0; i < pieces.Length; i++)
-            {
-                pieces[i] = pieces[i].Replace("[", "");
-                pieces[i] = pieces[i].Replace('"', ' ');
-                pieces[i] = pieces[i].Replace("]", "");
-                pieces[i] = pieces[i].Trim();
-
-                if (!string.IsNullOrEmpty(pieces[i]))
-                    Console.WriteLine(pieces[i]);
-            }
-
-            String command = pieces[1];
+            JsonPayload recieveCommand = JsonConvert.DeserializeObject<JsonPayload>(pCommand);
 
             http = new HttpRequest("Authentication");
-            int valid = Convert.ToInt32(await HttpRequest.AuthenticationAsync(http.createUrl(), $"{pieces[4]}/{pieces[3].ToUpper()}"));
+            int valid = Convert.ToInt32(await HttpRequest.AuthenticationAsync(http.createUrl(), $"{recieveCommand.PIN}/{recieveCommand.IBAN.ToUpper()}"));
 
-            if (command.Equals("withdraw") && valid == 1)
+            if (recieveCommand.Func.Equals("withdraw") && valid == 1)
             {
-                int amount = Int32.Parse(pieces[3]);
-                http = new HttpRequest("Withdraw", $"{pieces[1].ToUpper()}/ATM/{amount}");
+                int amount = Convert.ToInt32(recieveCommand.Amount);
+                http = new HttpRequest("Withdraw", $"{recieveCommand.IBAN.ToUpper()}/ATM/{amount}");
                 await HttpRequest.withdrawAsync(http.createUrl());
                 _master.Send("[\"true\"]");
             }
-            else if (command.Equals("pinCheck") && valid == 1)
+            else if (recieveCommand.Func.Equals("checkPin") && valid == 1)
             {
                 _master.Send("[\"true\"]");
             }
@@ -117,14 +109,40 @@ namespace Bank_Project_3_4
         public async void getMessage()
         {
             HttpRequest http = new HttpRequest("MessageQueues");
-            MessageQueue mq = await HttpRequest.getMessageQueue(http.createUrl());
+            MessageQueue mq;
 
-            JsonPayload msg = JsonConvert.DeserializeObject<JsonPayload>(mq.DataObject);
+            while (true)
+            {
+                mq = await HttpRequest.getMessageQueue(http.createUrl());
+
+                if (mq != null)
+                    break;
+
+                Thread.Sleep(2000);
+            }
+
+            //JsonPayload msg = JsonConvert.DeserializeObject<JsonPayload>(mq.DataObject);
+            //String sMsg = Convert.ToString(mq.DataObject);
+
+            JObject jo = JObject.Parse(mq.DataObject);
+            jo.Property("Amount").Remove();
+            String sMsg = jo.ToString();
 
             if (mq != null)
             {
-                String msgToSend = $"[\"{msg.IDRecBank}\" {msg}]";
+                String msgToSend = $"['{jo.Property("revBank").Value}', '{Convert.ToString(sMsg)}']";
+                msgToSend = Regex.Replace(msgToSend, @"\t|\n|\r", "");
+                try
+                {
+                    _master.Send(msgToSend);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
             }
+
+            getMessage();
         }
     }
 }

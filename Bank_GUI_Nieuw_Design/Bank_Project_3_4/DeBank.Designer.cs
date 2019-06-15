@@ -57,6 +57,10 @@
             this.btnBack = new Syncfusion.WinForms.Controls.SfButton();
             this.pnlBack = new System.Windows.Forms.Panel();
             this.pnlChooseBill = new System.Windows.Forms.Panel();
+            this.tbOtherIban = new System.Windows.Forms.TextBox();
+            this.tbOtherPassword = new System.Windows.Forms.TextBox();
+            this.btnOtherUserValidation = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.pnlOtherTransaction.SuspendLayout();
             this.pnlSaldo.SuspendLayout();
             this.pnlMenu.SuspendLayout();
@@ -382,12 +386,50 @@
             this.pnlChooseBill.Size = new System.Drawing.Size(292, 54);
             this.pnlChooseBill.TabIndex = 47;
             // 
+            // tbOtherIban
+            // 
+            this.tbOtherIban.Location = new System.Drawing.Point(6, 110);
+            this.tbOtherIban.Name = "tbOtherIban";
+            this.tbOtherIban.Size = new System.Drawing.Size(135, 20);
+            this.tbOtherIban.TabIndex = 48;
+            // 
+            // tbOtherPassword
+            // 
+            this.tbOtherPassword.Location = new System.Drawing.Point(6, 134);
+            this.tbOtherPassword.Name = "tbOtherPassword";
+            this.tbOtherPassword.Size = new System.Drawing.Size(135, 20);
+            this.tbOtherPassword.TabIndex = 49;
+            // 
+            // btnOtherUserValidation
+            // 
+            this.btnOtherUserValidation.Location = new System.Drawing.Point(6, 161);
+            this.btnOtherUserValidation.Name = "btnOtherUserValidation";
+            this.btnOtherUserValidation.Size = new System.Drawing.Size(75, 23);
+            this.btnOtherUserValidation.TabIndex = 50;
+            this.btnOtherUserValidation.Text = "button1";
+            this.btnOtherUserValidation.UseVisualStyleBackColor = true;
+            this.btnOtherUserValidation.Click += new System.EventHandler(this.BtnOtherUserValidation_Click);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(6, 213);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 51;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
+            // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1157, 605);
+            this.ClientSize = new System.Drawing.Size(1161, 609);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnOtherUserValidation);
+            this.Controls.Add(this.tbOtherPassword);
+            this.Controls.Add(this.tbOtherIban);
             this.Controls.Add(this.pnlChooseBill);
             this.Controls.Add(this.pnlBack);
             this.Controls.Add(this.pnlTransaction);
@@ -450,6 +492,10 @@
         private Syncfusion.WinForms.Controls.SfButton btnBack;
         private System.Windows.Forms.Panel pnlBack;
         private System.Windows.Forms.Panel pnlChooseBill;
+        private System.Windows.Forms.TextBox tbOtherIban;
+        private System.Windows.Forms.TextBox tbOtherPassword;
+        private System.Windows.Forms.Button btnOtherUserValidation;
+        private System.Windows.Forms.Button button1;
     }
 }
 

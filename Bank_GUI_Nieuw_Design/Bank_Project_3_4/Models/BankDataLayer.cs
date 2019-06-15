@@ -48,7 +48,7 @@ namespace BankDataLayer
     class MessageQueue
     {
         public int MessageId { get; set; }
-        public String ActionCode { get; set; }
+        public String Function { get; set; }
         public String DataObject { get; set; }
         public int StatusCode { get; set; }
         public Boolean Finished { get; set; }

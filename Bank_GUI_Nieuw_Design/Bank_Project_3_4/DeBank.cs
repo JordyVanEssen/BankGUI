@@ -53,10 +53,11 @@ namespace Bank_Project_3_4
         //when the form is loaded the following will be executed:
         private void DeBank_Load(object sender, EventArgs e)
         {
+           
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM5";
+            myPort.PortName = "COM3";
             myPort.DataReceived += MyPort_DataReceived;
 
             try
@@ -454,8 +455,19 @@ namespace Bank_Project_3_4
             showPanel(pnlMenu);
         }
 
+
         #endregion
 
+        private async void BtnOtherUserValidation_Click(object sender, EventArgs e)
+        {
+            _httpRequest = new HttpRequest("Authentication");
+            int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{tbOtherPassword.Text}/{tbOtherIban.Text}");
+        }
 
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            APICentraleBankConnection f = new APICentraleBankConnection();
+            f.Show();
+        }
     }
 }

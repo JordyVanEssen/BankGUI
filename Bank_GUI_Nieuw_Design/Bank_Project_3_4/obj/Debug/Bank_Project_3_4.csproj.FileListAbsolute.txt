@@ -134,3 +134,4 @@ C:\Users\jordy\Documents\school\OP3\Project_de_bank\GUI\BankGUI\Bank_GUI_Nieuw_D
 C:\Users\jordy\Documents\school\OP3\Project_de_bank\GUI\BankGUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.csproj.CoreCompileInputs.cache
 C:\Users\jordy\Documents\school\OP3\Project_de_bank\GUI\BankGUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.csproj.CopyComplete
 C:\Users\jordy\Documents\school\OP3\Project_de_bank\GUI\BankGUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\bin\Debug\websocket-sharp.dll
+C:\Users\jordy\Documents\school\OP3\Project_de_bank\GUI\BankGUI\Bank_GUI_Nieuw_Design\Bank_Project_3_4\obj\Debug\Bank_Project_3_4.APICentraleBankConnection.resources

@@ -22,8 +22,18 @@ namespace Bank_Project_3_4
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            if (args.Length != 0)
+            {
+                if (args[0] == 1.ToString())
+                {
+                    Application.Run(new APICentraleBankConnection());
+                }
+            }
+            else
+            {
+                Application.Run(new DeBank());
+            }
 
-            Application.Run(new DeBank());
         }
     }
 }

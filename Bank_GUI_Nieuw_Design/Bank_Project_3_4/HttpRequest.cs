@@ -20,8 +20,8 @@ namespace Bank_Project_3_4
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // url + controller + parameters, 'https://projectbank.azurewebsites.net/api/ClientItems/1'
-        private String _url = "https://projectbank.azurewebsites.net/api/";
+        // url + controller + parameters, 'https://debankproject34.azurewebsites.net/api/ClientItems/1'
+        private String _url = "https://localhost:5001/api/";
         private String _urlController = "";
         private object _urlPrameter = "";
 

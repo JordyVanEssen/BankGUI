@@ -114,6 +114,7 @@
       <DependentUpon>APICentraleBankConnection.cs</DependentUpon>
     </Compile>
     <Compile Include="CentralBankConnection.cs" />
+    <Compile Include="Models\JsonPayload.cs" />
     <Compile Include="UserControls\BackupControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
