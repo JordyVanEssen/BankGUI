@@ -21,7 +21,7 @@ namespace Bank_Project_3_4
         private static readonly HttpClient httpClient = new HttpClient();
 
         // url + controller + parameters, 'https://debankproject34.azurewebsites.net/api/ClientItems/1'
-        private String _url = "https://localhost:5001/api/";
+        private String _url = "https://project34bank.azurewebsites.net/api/";
         private String _urlController = "";
         private object _urlPrameter = "";
 
@@ -135,7 +135,7 @@ namespace Bank_Project_3_4
         //http update client
         public static async Task<HttpStatusCode> UpdateClientAsync(Client pClientItem, String pPath)
         {
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath + $"{pClientItem.ClientId}", pClientItem);
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{pPath}{pClientItem.ClientId}", pClientItem);
             response.EnsureSuccessStatusCode();
 
             // Deserialize the updated product from the response body.
@@ -146,11 +146,18 @@ namespace Bank_Project_3_4
         //http update usertag
         public static async Task<HttpStatusCode> UpdateUserTagAsync(UserTag pUserItem, String pPath)
         {
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync(pPath + $"{pUserItem.UsertagId}", pUserItem);
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{pPath}{pUserItem.UsertagId}", pUserItem);
             response.EnsureSuccessStatusCode();
 
-            // Deserialize the updated product from the response body.
-            //pClient = await response.Content.ReadAsAsync<Client>();
+            return response.StatusCode;
+        }
+
+        //http update MessageQueue
+        public static async Task<HttpStatusCode> UpdateMessageQueueAsync(MessageQueue pMessage, String pPath)
+        {
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{pPath}{pMessage.MessageId}", pMessage);
+            response.EnsureSuccessStatusCode();
+
             return response.StatusCode;
         }
     }

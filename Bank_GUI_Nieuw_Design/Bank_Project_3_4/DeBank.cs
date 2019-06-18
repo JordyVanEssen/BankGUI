@@ -62,9 +62,9 @@ namespace Bank_Project_3_4
 
             try
             {
-                myPort.Open();
-                myPort.WriteLine("R");
-                myPort.WriteLine("R");
+                //myPort.Open();
+                //myPort.WriteLine("R");
+                //myPort.WriteLine("R");
             }
             catch (Exception ex)
             {
@@ -125,7 +125,9 @@ namespace Bank_Project_3_4
                     _validPass = true;
                 else if (response == 2)
                     Helper.showMessage("Uw pas is geblokkeerd", MessageBoxIcon.Error);
-            
+                else if (response == 4)
+                    Helper.showMessage("Connection time out", MessageBoxIcon.Error);
+
                 //if the password is correct
                 if (_validPass)
                 {

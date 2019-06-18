@@ -9,8 +9,8 @@ using System.Windows.Forms;
 using Bank_Project_3_4.Models;
 using BankDataLayer;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace Bank_Project_3_4
 {
@@ -20,7 +20,10 @@ namespace Bank_Project_3_4
         static WebSocket _slave = new WebSocket("ws://145.24.222.24:8080");
         //static WebSocket _master = new WebSocket("ws://localhost:6666");
         //static WebSocket _slave = new WebSocket("ws://localhost:6666");
-        static String _lastCommand = string.Empty;
+        static MessageQueue _mq;
+        static HttpRequest _http = new HttpRequest("MessageQueues");
+
+
 
         public CentralBankConnection()
         {
@@ -30,7 +33,10 @@ namespace Bank_Project_3_4
 
             _threadSlave.Start();
             _threadMaster.Start();
-            //handleOutgoingMessage.Start();
+
+            Thread.Sleep(500);
+
+            handleOutgoingMessage.Start();
         }
 
         public static void sendCommand(String pCommand)
@@ -46,25 +52,24 @@ namespace Bank_Project_3_4
             pSocket.OnMessage += (sender, e) => {
                 if (e.Data.ToLower().Contains("true") || e.Data.ToLower().Contains("false"))
                 {
-                    if (_lastCommand.Equals("checkPin") && e.Data.ToLower().Contains("true"))
+                    if (_mq != null)
                     {
-                        DeBank._validPass = true;
-                    }
-                    else if (_lastCommand.Equals("withdraw") && e.Data.ToLower().Contains("true"))
-                    {
-                        using (FormLogOut logOutForm = new FormLogOut())
+                        if (_mq.Function.Equals("pinCheck") || _mq.Function.Equals("withdraw"))
                         {
-                            if (logOutForm.ShowDialog() == DialogResult.OK)
+                            if (e.Data.ToLower().Contains("true"))
                             {
-                                DeBank bank = new DeBank();
-                                bank.logOut();
+                                updateMessage(true);
+                            }
+                            else
+                            {
+                                updateMessage(false);
                             }
                         }
                     }
                 }
                 else
                 {
-                    handleCommand(e.Data);
+                    handleCommand(pSocket, e.Data);
                 }
             };
 
@@ -81,7 +86,7 @@ namespace Bank_Project_3_4
 
             if (pSocket.ReadyState == WebSocketState.Open)
             {
-                pSocket.Send($"[\"register\", \"{pMode}\", \"pils\"]");
+                pSocket.Send($"[\"register\", \"{pMode}\", \"supils\"]");
             }
         }
 
@@ -105,69 +110,108 @@ namespace Bank_Project_3_4
             }
         }
 
-        static async void handleCommand(String pCommand)
+        static async void handleCommand(WebSocket pSocket, String pCommand)
         {
-            HttpRequest http;
+            pCommand = pCommand.Replace("[", "");
+            pCommand = pCommand.Replace("]", "");
+
+            var j = JsonConvert.SerializeObject(pCommand);
+
+            pCommand = pCommand.Replace("\'", "\"");
+            pCommand = pCommand.Replace("\"{", "{");
+            pCommand = pCommand.Replace("}\"", "}");
+
+            pCommand = pCommand.Replace("Amount", "");
+            pCommand = pCommand.Replace("null", "");
+            pCommand = pCommand.Replace(":", "");
 
             JsonPayload recieveCommand = JsonConvert.DeserializeObject<JsonPayload>(pCommand);
 
-            http = new HttpRequest("Authentication");
-            int valid = Convert.ToInt32(await HttpRequest.AuthenticationAsync(http.createUrl(), $"{recieveCommand.PIN}/{recieveCommand.IBAN.ToUpper()}"));
+
+            _http = new HttpRequest("Authentication");
+            int valid = Convert.ToInt32(await HttpRequest.AuthenticationAsync(_http.createUrl(), $"{recieveCommand.PIN}/{recieveCommand.IBAN}"));
 
             if (recieveCommand.Func.Equals("withdraw") && valid == 1)
             {
                 int amount = Convert.ToInt32(recieveCommand.Amount);
-                http = new HttpRequest("Withdraw", $"{recieveCommand.IBAN.ToUpper()}/ATM/{amount}");
-                await HttpRequest.withdrawAsync(http.createUrl());
-                _master.Send("[\"true\"]");
+                _http = new HttpRequest("Withdraw", $"{recieveCommand.IBAN}/ATM/{amount}");
+                await HttpRequest.withdrawAsync(_http.createUrl());
+                pSocket.Send("[\"true\"]");
             }
-            else if (recieveCommand.Func.Equals("checkPin") && valid == 1)
+            else if (recieveCommand.Func.Equals("pinCheck") && valid == 1)
             {
-                _master.Send("[\"true\"]");
+                pSocket.Send("[\"true\"]");
             }
             else
             {
-                _master.Send("[\"false\"]");
+                pSocket.Send("[\"false\"]");
             }
         }
 
         public async void getMessage()
         {
-            HttpRequest http = new HttpRequest("MessageQueues");
-            MessageQueue mq;
+            MessageQueue previousMq = new MessageQueue();
 
             while (true)
             {
-                mq = await HttpRequest.getMessageQueue(http.createUrl());
+                while (true)
+                {
+                    _http = new HttpRequest("MessageQueues");
+                    _mq = await HttpRequest.getMessageQueue(_http.createUrl());
 
-                if (mq != null)
-                    break;
+                    if (_mq != null && _mq.MessageId != previousMq.MessageId)
+                        break;
 
-                Thread.Sleep(2000);
+                    Thread.Sleep(2000);
+                }
+
+                previousMq = _mq;
+                JsonPayload jsonMessage = JsonConvert.DeserializeObject<JsonPayload>(_mq.DataObject);
+
+                if (_mq.Function.Equals("pinCheck"))
+                {
+                    jsonMessage.Amount = 0;
+                }
+
+                String sMsg = JsonConvert.SerializeObject(jsonMessage);
+                //fix java
+                sMsg = sMsg.Replace("\"", "\'");
+                sMsg = sMsg.Replace("{", "\"{");
+                sMsg = sMsg.Replace("}", "}\"");
+
+                if (_mq != null)
+                {
+                    String msgToSend = $"[\"{jsonMessage.IDRecBank}\", {sMsg}]";
+
+                    msgToSend = Regex.Replace(msgToSend, @"\t|\n|\r", "");
+
+                    //String jsonString = $"{jo.Property("IDSenBank").Value}";
+                    try
+                     {
+                        _master.Send(msgToSend);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                }
             }
+        }
 
-            //JsonPayload msg = JsonConvert.DeserializeObject<JsonPayload>(mq.DataObject);
-            //String sMsg = Convert.ToString(mq.DataObject);
-
-            JObject jo = JObject.Parse(mq.DataObject);
-            jo.Property("Amount").Remove();
-            String sMsg = jo.ToString();
-
-            if (mq != null)
+        public async static void updateMessage(Boolean pValid)
+        {
+            if (pValid)
             {
-                String msgToSend = $"[\"{jo.Property("revBank").Value}\", {Convert.ToString(sMsg)}]";
-                msgToSend = Regex.Replace(msgToSend, @"\t|\n|\r", "");
-                try
-                {
-                   _master.Send(msgToSend);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+                _mq.ValidPassword = true;
             }
+            else
+            {
+                _mq.ValidPassword = false;
+            }
+            _mq.StatusCode = 2;
 
-            //getMessage();
+            HttpRequest http = new HttpRequest("MessageQueues");
+            await HttpRequest.UpdateMessageQueueAsync(_mq, http.createUrl());
         }
 
         public void close()
