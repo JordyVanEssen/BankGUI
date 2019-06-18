@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Windows.Forms;
 using BankDataLayer;
 using Bank_Project_3_4.ViewModels;
 using System.Windows.Forms;
+using System.IO.Ports;
+using System.Threading;
 
 namespace Bank_Project_3_4
 {
     public class ExecuteTransaction
     {
+        SerialPort _sp;
         private String _currentClientNuid;
         private HttpRequest _httpRequest;
         private PrintReceipt _print;
@@ -21,10 +26,11 @@ namespace Bank_Project_3_4
         private int _status = -1;
 
         //the bills to choose from
-        private int[] _bill = { 10, 50, 100 };
+        private int[] _bill = { 10, 20, 50 };
 
-        public ExecuteTransaction(String pNuid)
+        public ExecuteTransaction(String pNuid, SerialPort pSp)
         {
+            _sp = pSp;
             _currentClientNuid = pNuid;
         }
 
@@ -32,16 +38,27 @@ namespace Bank_Project_3_4
         {
             if (!string.IsNullOrEmpty(pBill) && !string.IsNullOrEmpty(pAmount))
             {
-                int amount = Convert.ToInt32(pAmount.Replace("€", ""));
+                int amount = Convert.ToInt32(pAmount.Replace("R", ""));
 
                 if (!string.IsNullOrEmpty(pBill))
                 {
-                    _chosenBill = pBill.Replace("€", "");
+                    _chosenBill = pBill.Replace("R", "");
                     _billValue = Convert.ToInt32(_chosenBill);
 
                     //withdraw
                     if (((double)amount / (double)_billValue) % 1 == 0)
                     {
+                        if (_billValue == 10)
+                            _sp.Write("$1");
+
+                        else if (_billValue == 20)
+                            _sp.Write("%1");
+
+                        else if (_billValue == 50)
+                            _sp.Write("&1");
+
+                        Thread.Sleep(2500);
+
                         _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{amount}");
                         _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
                     }
@@ -58,6 +75,7 @@ namespace Bank_Project_3_4
 
         private async Task<int> alternativeBilloption(double pAmount)
         {
+            int[][] wantedBills = { };
             _billCombination = "";
             int x = 0;
             int rest = 0;
@@ -91,20 +109,18 @@ namespace Bank_Project_3_4
                         x = 1;
                     }
 
+                    if (_bill[a] == 10)
+                        _sp.Write("$1");
+
+                    else if (_bill[a] == 20)
+                        _sp.Write("%1");
+
+                    else if (_bill[a] == 50)
+                        _sp.Write("&1");
+
+
                     previousBill = _bill[a];
                     rest -= _bill[a];
-                    if (x <= 1)
-                    {
-                        _billCombination += $" {x} biljet van €" + Convert.ToString(_bill[a]);
-                    }
-                    else
-                    {
-                        if (_billCombination.Contains($" 1 biljet van €" + Convert.ToString(_bill[a])))
-                        {
-                            String replaceMent = $" {x} biljetten van: €" + Convert.ToString(_bill[a]);
-                            _billCombination = _billCombination.Replace($" 1 biljet van €" + Convert.ToString(_bill[a]), replaceMent);
-                        }
-                    }
                     a++;
                 }
 

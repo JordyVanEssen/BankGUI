@@ -97,7 +97,7 @@ namespace Bank_Project_3_4
                 if (!_master.IsAlive)
                 {
                     Console.WriteLine("Connection master closed");
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                     _master.Connect();
                 }
 
@@ -117,13 +117,13 @@ namespace Bank_Project_3_4
 
             var j = JsonConvert.SerializeObject(pCommand);
 
+            Console.WriteLine(pCommand);
+
             pCommand = pCommand.Replace("\'", "\"");
             pCommand = pCommand.Replace("\"{", "{");
             pCommand = pCommand.Replace("}\"", "}");
 
-            pCommand = pCommand.Replace("Amount", "");
-            pCommand = pCommand.Replace("null", "");
-            pCommand = pCommand.Replace(":", "");
+            pCommand = pCommand.Replace(",\"Amount\":null", "");
 
             JsonPayload recieveCommand = JsonConvert.DeserializeObject<JsonPayload>(pCommand);
 

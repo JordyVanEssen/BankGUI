@@ -13,6 +13,7 @@ using System.Net.Http;
 using BankDataLayer;
 using Bank_Project_3_4.ViewModels;
 using Syncfusion.WinForms.Controls;
+using System.Threading;
 
 /*
     - Author: Jordy van Essen | 0968981
@@ -34,14 +35,17 @@ namespace Bank_Project_3_4
         String _lblPincodeText = string.Empty;
 
         //user NUID
-        private String _currentClientNuid = String.Empty;
+        private String _currentClientIban = String.Empty;
 
         //booleans for validation of the password
         public static bool _validPass = false;
         bool _loggedOut = false;
         bool _enterPassword = false;
 
-        private int[] bill = { 10, 50, 100 };
+        private int[] bill = { 10, 20, 80 };
+
+        private int _Amount = 0;
+        private Boolean _wantReceipt = false;
 
         private static readonly HttpClient httpClient = new HttpClient();
 
@@ -57,7 +61,7 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM3";
+            myPort.PortName = "COM5";
             myPort.DataReceived += MyPort_DataReceived;
 
             try
@@ -72,9 +76,9 @@ namespace Bank_Project_3_4
             }
 
             //the default bills
-            cmbChooseBill.Items.Add("€10");
-            cmbChooseBill.Items.Add("€50");
-            cmbChooseBill.Items.Add("€100");
+            cmbChooseBill.Items.Add("R10");
+            cmbChooseBill.Items.Add("R20");
+            cmbChooseBill.Items.Add("R50");
         }
 
         
@@ -89,6 +93,7 @@ namespace Bank_Project_3_4
         {
             updateText("");
             myPort.WriteLine("P");
+
             _enterPassword = true;
             UpdateForm();
         }
@@ -117,16 +122,18 @@ namespace Bank_Project_3_4
             else if(pPassword == "#")
             {
                 //validates the password
-                int response = await checkPass.validatePassword(_enteredPassword, _currentClientNuid);
+                int response = await checkPass.validatePassword(_enteredPassword, _currentClientIban);
 
                 if (response == 0)
                     _validPass = false;
                 else if (response == 1)
                     _validPass = true;
                 else if (response == 2)
-                    Helper.showMessage("Uw pas is geblokkeerd", MessageBoxIcon.Error);
+                    updateMessage("Uw pas is geblokkeerd");
                 else if (response == 4)
-                    Helper.showMessage("Connection time out", MessageBoxIcon.Error);
+                    updateMessage("Uw bank is niet aangemeld bij de centrale bank");
+
+                Thread.Sleep(2000);
 
                 //if the password is correct
                 if (_validPass)
@@ -138,12 +145,13 @@ namespace Bank_Project_3_4
                 {
                     if (response == 0)
                     {
-                        Helper.showMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw.");
+                        updateMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw.");
                         myPort.Write("R");
                         _loggedOut = true;
                         _enterPassword = false;
-                        UpdateForm();
-                        updateText("");
+                        Thread.Sleep(2000);
+
+                        logOut();
                     }
                 }
                 _enteredPassword = string.Empty;
@@ -202,23 +210,35 @@ namespace Bank_Project_3_4
         {
             if (!string.IsNullOrEmpty(pAmount) || !string.IsNullOrEmpty(pBill))
             {
-                ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientNuid);
+                try
+                {
+                    if (!spMoneyDispenser.IsOpen)
+                    {
+                        spMoneyDispenser.BaudRate = 9600;
+                        spMoneyDispenser.PortName = "COM3";
+                        spMoneyDispenser.Open();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+                if (_wantReceipt)
+                {
+                    spMoneyDispenser.Write($"{pAmount}>{_currentClientIban.Remove(0, 11)}");
+                    Thread.Sleep(10000);
+                }
+
+                ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, spMoneyDispenser);
                 int status = await exeTransaction.executeTransaction(pBill, pAmount);
 
-                rtbReceipt.Visible = true;
-                rtbReceipt.Text = await exeTransaction.printReceipt();
+               
 
                 if (status == 0)
                 {
-                    this.Enabled = false;
-                    using (FormLogOut logOutForm = new FormLogOut())
-                    {
-                        if (logOutForm.ShowDialog() == DialogResult.OK)
-                        {
-                            logOut();
-                        }
-                    }
-                    this.Enabled = true;
+                    updateMessage("Tot de volgende keer!");
+                    Thread.Sleep(2000);
                 }
                 else
                 {
@@ -269,15 +289,11 @@ namespace Bank_Project_3_4
         //logs out
         public void logOut()
         {
-            //ucWelcomePage ucWelcome = new ucWelcomePage();
-            //ucWelcome.BringToFront();
-
             _enterPassword = false;
             _validPass = false;
             UpdateForm();
             _loggedOut = true;
             _enteredPassword = string.Empty;
-            rtbReceipt.Text = "";
 
             updateText("");
             
@@ -301,14 +317,14 @@ namespace Bank_Project_3_4
         {
             for (int i = 0; i < bill.Length; i++)
             {
-                cmbChooseBill.Items.Remove($"€{bill[i]}");
+                cmbChooseBill.Items.Remove($"R{bill[i]}");
             }
 
             for (int i = 0; i < bill.Length; i++)
             {
                 if (pAmount >= bill[i])
                 {
-                    cmbChooseBill.Items.Add($"€{bill[i]}");
+                    cmbChooseBill.Items.Add($"R{bill[i]}");
                 }
             }
         }
@@ -332,8 +348,20 @@ namespace Bank_Project_3_4
                 String nuidResult = stripString("nuid{", "}", serialInput);
                 nuidResult = nuidResult.Replace(" ","");
 
-                _currentClientNuid = nuidResult.Substring(0, nuidResult.Length - 4).Trim();
-                nuidValidation(nuidResult);
+                _currentClientIban = nuidResult.Trim();
+
+                if (_currentClientIban.Contains('\0') || _currentClientIban.Contains("?"))
+                {
+                    updateMessage("Uw pas is niet goed uitgelezen...");
+                    myPort.Write("R");
+                    logOut();
+                }
+                else
+                {
+                    nuidValidation(_currentClientIban);
+                    myPort.DiscardInBuffer();
+                    myPort.DiscardOutBuffer();
+                }
             }
             else if (serialInput.Contains("pw{"))
             {
@@ -371,11 +399,17 @@ namespace Bank_Project_3_4
         //makes panels visible or not
         private void showPanel(Panel pPanel)
         {
-            Panel[] pnlList = { pnlMenu, pnlOtherTransaction, pnlSaldo, pnlTransaction, pnlBack };
+            Panel[] pnlList = { pnlMenu, pnlOtherTransaction, pnlSaldo, pnlTransaction, pnlBack, pnlChooseBill, pnlReceipt };
 
             foreach (Panel panel in pnlList)
             {
                 panel.Visible = false;
+
+                if (pPanel != null)
+                {
+                    if (pPanel.Equals(pnlTransaction) || pPanel.Equals(pnlOtherTransaction))
+                        pnlChooseBill.Visible = true;
+                }
 
                 if (panel == pPanel)
                     pPanel.Visible = true;
@@ -410,7 +444,7 @@ namespace Bank_Project_3_4
         {
             showPanel(pnlSaldo);
 
-            _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClientNuid}");
+            _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClientIban}");
             tbUserSaldo.Text = $"€{await HttpRequest.getSaldoAsync(_httpRequest.createUrl())}";
         }
 
@@ -433,22 +467,24 @@ namespace Bank_Project_3_4
 
         private void BtnExeOtherTransaction_Click(object sender, EventArgs e)
         {
-            transaction(tbAmount.Text, cmbChooseBill.Text);
+            showPanel(pnlReceipt);
         }
 
         private void Btn10_Click(object sender, EventArgs e)
         {
-            transaction("10", cmbChooseBill.Text);
+            _Amount = 10;
         }
 
         private void Btn50_Click(object sender, EventArgs e)
         {
-            transaction("50", cmbChooseBill.Text);
+            _Amount = 20;
+
         }
 
         private void Btn100_Click(object sender, EventArgs e)
         {
-            transaction("100", cmbChooseBill.Text);
+            _Amount = 50;
+
         }
 
         private void BtnBack_Click(object sender, EventArgs e)
@@ -469,6 +505,26 @@ namespace Bank_Project_3_4
         {
             APICentraleBankConnection f = new APICentraleBankConnection();
             f.Show();
+        }
+
+        private async void BtnReceiptyes_Click(object sender, EventArgs e)
+        {
+            _wantReceipt = true;
+
+            if (tbAmount.Text == string.Empty)
+                transaction(_Amount.ToString(), cmbChooseBill.Text);
+            else
+                transaction(tbAmount.Text, cmbChooseBill.Text);
+        }
+
+        private void BtnReceiptNo_Click(object sender, EventArgs e)
+        {
+            _wantReceipt = false;
+
+            if (tbAmount.Text == string.Empty)
+                transaction(_Amount.ToString(), cmbChooseBill.Text);
+            else
+                transaction(tbAmount.Text, cmbChooseBill.Text);
         }
     }
 }

@@ -15,7 +15,6 @@ namespace Bank_Project_3_4
 {
     class PrintReceipt
     {
-        Transaction _transaction;
         String _currentClientIban;
         String _bill;
         int _amountOfBills;
@@ -31,10 +30,9 @@ namespace Bank_Project_3_4
             withdraw = true;
         }
 
-        public PrintReceipt(Transaction pTransaction, String pIban)
+        public PrintReceipt(String pIban)
         {
             _currentClientIban = pIban;
-            _transaction = pTransaction;
             withdraw = false;
         }
 
@@ -44,7 +42,7 @@ namespace Bank_Project_3_4
             HttpRequest _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClientIban}");
             int saldo = await HttpRequest.getSaldoAsync(_httpRequest.createUrl());
             String iban = _currentClientIban.Substring(10, 4);
-            int max = 42;
+            int max = 38;
             String receipt = "";
 
             //creates a new receipt
