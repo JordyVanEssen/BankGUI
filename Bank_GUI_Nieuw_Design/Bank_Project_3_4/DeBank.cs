@@ -42,7 +42,7 @@ namespace Bank_Project_3_4
         bool _loggedOut = false;
         bool _enterPassword = false;
 
-        private int[] bill = { 10, 20, 80 };
+        private int[] bill = { 10, 20, 50 };
 
         private int _Amount = 0;
         private Boolean _wantReceipt = false;
@@ -61,14 +61,14 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM5";
+            myPort.PortName = "COM6";
             myPort.DataReceived += MyPort_DataReceived;
 
             try
             {
-                //myPort.Open();
-                //myPort.WriteLine("R");
-                //myPort.WriteLine("R");
+                myPort.Open();
+                myPort.WriteLine("R");
+                myPort.WriteLine("R");
             }
             catch (Exception ex)
             {
@@ -89,12 +89,12 @@ namespace Bank_Project_3_4
         #region CustomFunctions
 
         //checks if the entered nuid exists
-        private async void nuidValidation(String pNuid)
+        private void nuidValidation(String pNuid)
         {
-            updateText("");
+            updateMessage("Voer uw PIN in op het keypad");
             myPort.WriteLine("P");
-
             _enterPassword = true;
+            _validPass = false;
             UpdateForm();
         }
 
@@ -108,6 +108,7 @@ namespace Bank_Project_3_4
                 _lblPincodeText += "X";
                 _enteredPassword += pPassword;
                 lastChar = pPassword;
+                _loggedOut = false;
                 updateText(_lblPincodeText);
                 _lblPincodeText = string.Empty;
             }
@@ -154,7 +155,7 @@ namespace Bank_Project_3_4
                         logOut();
                     }
                 }
-                _enteredPassword = string.Empty;
+                //_enteredPassword = string.Empty;
             }
         }
 
@@ -183,10 +184,12 @@ namespace Bank_Project_3_4
             if (_loggedOut)
             {
                 lblMessage.Text = $"Welkom, houd uw pas voor de reader.";
+                lblPinCode.Visible = false;
             }
             else
             {
-                lblMessage.Text = $"Graag uw pincode invoeren op het keypad ";
+                lblMessage.Text = $"Voer uw PIN in op het keypad";
+                lblPinCode.Visible = true;
 
                 if (pInput == "<>")
                 {
@@ -221,24 +224,34 @@ namespace Bank_Project_3_4
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    Helper.showMessage(ex.Message);
                 }
 
-                if (_wantReceipt)
+                DateTime now = DateTime.Today;
+
+                int status = 0;
+                if (spMoneyDispenser.IsOpen)
                 {
-                    spMoneyDispenser.Write($"{pAmount}>{_currentClientIban.Remove(0, 11)}");
-                    Thread.Sleep(10000);
+                    if (_wantReceipt)
+                    {
+                        spMoneyDispenser.Write($"{pAmount}>{_currentClientIban.Remove(0, 11)}>{DateTime.Today.ToString("d")}>{DateTime.Now.ToString("HH:mm:ss tt")}");
+                        Thread.Sleep(10000);
+                    }
+
+                    ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, spMoneyDispenser, _enteredPassword);
+                    status = await exeTransaction.executeTransaction(pBill, pAmount);
                 }
-
-                ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, spMoneyDispenser);
-                int status = await exeTransaction.executeTransaction(pBill, pAmount);
-
-               
-
+                else
+                {
+                    ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, _enteredPassword);
+                    status = await exeTransaction.executeTransaction(pBill, pAmount);
+                }
+                
                 if (status == 0)
                 {
                     updateMessage("Tot de volgende keer!");
                     Thread.Sleep(2000);
+                    logOut();
                 }
                 else
                 {
@@ -291,10 +304,10 @@ namespace Bank_Project_3_4
         {
             _enterPassword = false;
             _validPass = false;
-            UpdateForm();
             _loggedOut = true;
             _enteredPassword = string.Empty;
 
+            UpdateForm();
             updateText("");
             
             myPort.WriteLine("R");
@@ -313,7 +326,7 @@ namespace Bank_Project_3_4
         }
 
         //fills the dropdown with the bills which can be selected
-        private void addItemsToDropDown(int pAmount)
+        private async void addItemsToDropDown(int pAmount)
         {
             for (int i = 0; i < bill.Length; i++)
             {
@@ -322,11 +335,17 @@ namespace Bank_Project_3_4
 
             for (int i = 0; i < bill.Length; i++)
             {
-                if (pAmount >= bill[i])
+                _httpRequest = new HttpRequest("BillItems", $"{bill[i]}");
+                int amount = await HttpRequest.getBillAsync(_httpRequest.createUrl());
+
+                if (pAmount >= bill[i] && amount > 0)
                 {
                     cmbChooseBill.Items.Add($"R{bill[i]}");
                 }
             }
+
+            if (cmbChooseBill.Items.Count < 0)
+                cmbChooseBill.Items.Add("Geen biljet met gekozen bedrag beschikbaar.");
         }
 
         #endregion
@@ -350,11 +369,14 @@ namespace Bank_Project_3_4
 
                 _currentClientIban = nuidResult.Trim();
 
-                if (_currentClientIban.Contains('\0') || _currentClientIban.Contains("?"))
+                if (_currentClientIban.Contains("failed"))
                 {
                     updateMessage("Uw pas is niet goed uitgelezen...");
                     myPort.Write("R");
+                    Thread.Sleep(2500);
                     logOut();
+                    myPort.DiscardInBuffer();
+                    myPort.DiscardOutBuffer();
                 }
                 else
                 {
@@ -428,7 +450,9 @@ namespace Bank_Project_3_4
         //cancels the user attempt to log in
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            myPort.WriteLine("C");
+            myPort.WriteLine("R");
+            myPort.WriteLine("R");
+
             logOut();
         }
 
@@ -473,27 +497,25 @@ namespace Bank_Project_3_4
         private void Btn10_Click(object sender, EventArgs e)
         {
             _Amount = 10;
+            addItemsToDropDown(_Amount);
         }
 
         private void Btn50_Click(object sender, EventArgs e)
         {
             _Amount = 20;
-
+            addItemsToDropDown(_Amount);
         }
 
         private void Btn100_Click(object sender, EventArgs e)
         {
             _Amount = 50;
-
+            addItemsToDropDown(_Amount);
         }
 
         private void BtnBack_Click(object sender, EventArgs e)
         {
             showPanel(pnlMenu);
         }
-
-
-        #endregion
 
         private async void BtnOtherUserValidation_Click(object sender, EventArgs e)
         {
@@ -504,10 +526,9 @@ namespace Bank_Project_3_4
         private void Button1_Click(object sender, EventArgs e)
         {
             APICentraleBankConnection f = new APICentraleBankConnection();
-            f.Show();
         }
 
-        private async void BtnReceiptyes_Click(object sender, EventArgs e)
+        private void BtnReceiptyes_Click(object sender, EventArgs e)
         {
             _wantReceipt = true;
 
@@ -526,5 +547,13 @@ namespace Bank_Project_3_4
             else
                 transaction(tbAmount.Text, cmbChooseBill.Text);
         }
+
+        private void BtnFastTransaction_Click(object sender, EventArgs e)
+        {
+            transaction(50.ToString(), 50.ToString());
+            logOut();
+        }
+        #endregion
+
     }
 }

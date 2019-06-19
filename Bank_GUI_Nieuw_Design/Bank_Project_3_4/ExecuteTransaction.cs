@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Threading;
-using System.Windows.Forms;
-using BankDataLayer;
-using Bank_Project_3_4.ViewModels;
-using System.Windows.Forms;
 using System.IO.Ports;
 using System.Threading;
 
@@ -24,13 +17,26 @@ namespace Bank_Project_3_4
         private int _billValue = 0;
         private String _billCombination = "";
         private int _status = -1;
+        private String _password = string.Empty;
+
+        private String[] _wantedBills = new String[4] { "", "", "", "" };
+        private int _billCount = 0;
+        private int _index = 0;
+
 
         //the bills to choose from
         private int[] _bill = { 10, 20, 50 };
 
-        public ExecuteTransaction(String pNuid, SerialPort pSp)
+        public ExecuteTransaction(String pNuid, SerialPort pSp, String pPassword)
         {
+            _password = pPassword;
             _sp = pSp;
+            _currentClientNuid = pNuid;
+        }
+
+        public ExecuteTransaction(String pNuid, String pPassword)
+        {
+            _password = pPassword;
             _currentClientNuid = pNuid;
         }
 
@@ -48,18 +54,21 @@ namespace Bank_Project_3_4
                     //withdraw
                     if (((double)amount / (double)_billValue) % 1 == 0)
                     {
-                        if (_billValue == 10)
-                            _sp.Write("$1");
+                        if (_sp != null)
+                        {
+                            if (_billValue == 10)
+                                _sp.Write("$1");
 
-                        else if (_billValue == 20)
-                            _sp.Write("%1");
+                            else if (_billValue == 20)
+                                _sp.Write("%1");
 
-                        else if (_billValue == 50)
-                            _sp.Write("&1");
+                            else if (_billValue == 50)
+                                _sp.Write("&1");
+                        }
+                        _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{amount}/{_password}");
+                        _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
 
-                        Thread.Sleep(2500);
-
-                        _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{amount}");
+                        _httpRequest = new HttpRequest("BillItems", $"{_billValue}/1");
                         _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
                     }
                     else
@@ -75,73 +84,83 @@ namespace Bank_Project_3_4
 
         private async Task<int> alternativeBilloption(double pAmount)
         {
-            int[][] wantedBills = { };
-            _billCombination = "";
-            int x = 0;
-            int rest = 0;
-            int billCount = 0;
-            int a = _bill.Length;
-            int previousBill = 0;
+            _index = 0;
             int withdrawAmount = Convert.ToInt32(pAmount);
 
             while (pAmount >= _billValue)
             {
-                x++;
+                _billCount++;
                 pAmount -= _billValue;
             }
 
-            billCount = x;
-            x = 0;
-            rest = Convert.ToInt32(pAmount);
+            addBillToArray(_billValue, _billCount);
 
-            for (int i = 0; i < 100; i++)
+            while (pAmount >= _bill.Last())
             {
-                a--;
+                _billCount++;
+                pAmount -= _bill.Last();
 
-                if (rest >= _bill[a])
-                {
-                    if (previousBill == _bill[a])
-                    {
-                        x++;
-                    }
-                    else
-                    {
-                        x = 1;
-                    }
-
-                    if (_bill[a] == 10)
-                        _sp.Write("$1");
-
-                    else if (_bill[a] == 20)
-                        _sp.Write("%1");
-
-                    else if (_bill[a] == 50)
-                        _sp.Write("&1");
+            }
+            while (pAmount >= _bill[1])
+            {
+                _billCount++;
+                pAmount -= _bill[1];
+            }
+            addBillToArray(_bill[1], _billCount);
 
 
-                    previousBill = _bill[a];
-                    rest -= _bill[a];
-                    a++;
-                }
+            while (pAmount >= _bill[0])
+            {
+                _billCount++;
+                pAmount -= _bill[0];
+            }
+            addBillToArray(_bill[0], _billCount);
 
-                if (a == 0)
-                {
-                    if (rest <= 4)
-                        break;
-
-                    //i = 0;
-                    a = _bill.Length;
-                }
+            if (pAmount != 0)
+            {
+                withdrawAmount -= (int)pAmount;       
             }
 
-            if (rest != 0)
+            for (int i = 0; i < _wantedBills.Length; i++)
             {
-                withdrawAmount -= rest;       
+                _sp.Write(_wantedBills[i]);
+                Thread.Sleep(4000);
             }
-            _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{withdrawAmount}");
+
+            _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{withdrawAmount}/{_password}");
             return await HttpRequest.withdrawAsync(_httpRequest.createUrl());
         }
-    
+
+        public async void addBillToArray(int pBillVal, int pAmount)
+        {
+            _billCount = 0;
+            if (_index == 0)
+            {
+                for (int i = 0; i < _wantedBills.Length; i++)
+                {
+                    if (_wantedBills.Length > 0)
+                    {
+                        _wantedBills[i] = string.Empty;
+                    }
+                }
+            }
+
+            String bill = string.Empty;
+
+            if (pBillVal == 10)
+                bill = $"${pAmount}";
+            else if (pBillVal == 20)
+                bill = $"%{pAmount}";
+            else if (pBillVal == 50)
+                bill = $"&{pAmount}";
+
+            _httpRequest = new HttpRequest("BillItems", $"{pBillVal}/{pAmount}");
+            _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
+
+            _wantedBills[_index] = bill;
+            _index++;
+        }
+
         //prints the receipt on screen
         public async Task<String> printReceipt()
         {

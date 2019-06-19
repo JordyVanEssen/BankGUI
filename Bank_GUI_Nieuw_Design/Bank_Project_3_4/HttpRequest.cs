@@ -22,6 +22,8 @@ namespace Bank_Project_3_4
 
         // url + controller + parameters, 'https://debankproject34.azurewebsites.net/api/ClientItems/1'
         private String _url = "https://project34bank.azurewebsites.net/api/";
+        //private String _url = "https://localhost:5001/api/";
+
         private String _urlController = "";
         private object _urlPrameter = "";
 
@@ -67,6 +69,19 @@ namespace Bank_Project_3_4
                 user = await response.Content.ReadAsAsync<Client>();
             }
             return user;
+        }
+
+        //http get saldo
+        public static async Task<int> getBillAsync(String path)
+        {
+            int amount = 0;
+            HttpResponseMessage response = await httpClient.GetAsync(path);
+
+            if (response.IsSuccessStatusCode)
+            {
+                amount = await response.Content.ReadAsAsync<int>();
+            }
+            return Convert.ToInt32(amount);
         }
 
         //http get saldo

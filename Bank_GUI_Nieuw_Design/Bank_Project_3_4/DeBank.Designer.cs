@@ -66,6 +66,7 @@
             this.btnReceiptNo = new Syncfusion.WinForms.Controls.SfButton();
             this.btnReceiptyes = new Syncfusion.WinForms.Controls.SfButton();
             this.spMoneyDispenser = new System.IO.Ports.SerialPort(this.components);
+            this.btnFastTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.pnlOtherTransaction.SuspendLayout();
             this.pnlSaldo.SuspendLayout();
             this.pnlMenu.SuspendLayout();
@@ -279,6 +280,7 @@
             // pnlMenu
             // 
             this.pnlMenu.BackColor = System.Drawing.Color.MintCream;
+            this.pnlMenu.Controls.Add(this.btnFastTransaction);
             this.pnlMenu.Controls.Add(this.btnGetsaldo);
             this.pnlMenu.Controls.Add(this.btnLogout);
             this.pnlMenu.Controls.Add(this.btnTransaction);
@@ -478,12 +480,26 @@
             this.btnReceiptyes.UseVisualStyleBackColor = false;
             this.btnReceiptyes.Click += new System.EventHandler(this.BtnReceiptyes_Click);
             // 
+            // btnFastTransaction
+            // 
+            this.btnFastTransaction.AccessibleName = "Button";
+            this.btnFastTransaction.BackColor = System.Drawing.Color.LightGray;
+            this.btnFastTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnFastTransaction.Location = new System.Drawing.Point(12, 123);
+            this.btnFastTransaction.Name = "btnFastTransaction";
+            this.btnFastTransaction.Size = new System.Drawing.Size(139, 33);
+            this.btnFastTransaction.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnFastTransaction.TabIndex = 27;
+            this.btnFastTransaction.Text = "Snel pinnen: R50";
+            this.btnFastTransaction.UseVisualStyleBackColor = false;
+            this.btnFastTransaction.Click += new System.EventHandler(this.BtnFastTransaction_Click);
+            // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1169, 617);
+            this.ClientSize = new System.Drawing.Size(1173, 621);
             this.Controls.Add(this.pnlReceipt);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btnOtherUserValidation);
@@ -562,6 +578,7 @@
         private Syncfusion.WinForms.Controls.SfButton btnReceiptNo;
         private Syncfusion.WinForms.Controls.SfButton btnReceiptyes;
         private System.IO.Ports.SerialPort spMoneyDispenser;
+        private Syncfusion.WinForms.Controls.SfButton btnFastTransaction;
     }
 }
 
