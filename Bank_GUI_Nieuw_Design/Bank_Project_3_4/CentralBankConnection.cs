@@ -21,7 +21,7 @@ namespace Bank_Project_3_4
         //static WebSocket _master = new WebSocket("ws://localhost:6666");
         //static WebSocket _slave = new WebSocket("ws://localhost:6666");
         static MessageQueue _mq;
-        static HttpRequest _http = new HttpRequest("MessageQueues");
+        static HttpRequest _http = new HttpRequest();
 
 
 
@@ -97,7 +97,7 @@ namespace Bank_Project_3_4
                 if (!_master.IsAlive)
                 {
                     Console.WriteLine("Connection master closed");
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                     _master.Connect();
                 }
 
@@ -128,14 +128,13 @@ namespace Bank_Project_3_4
             JsonPayload recieveCommand = JsonConvert.DeserializeObject<JsonPayload>(pCommand);
 
 
-            _http = new HttpRequest("Authentication");
-            int valid = Convert.ToInt32(await HttpRequest.AuthenticationAsync(_http.createUrl(), $"{recieveCommand.PIN}/{recieveCommand.IBAN}"));
+
+            int valid = await _http.httpGetRequest($"Authentication/{recieveCommand.PIN}/{recieveCommand.IBAN}");
 
             if (recieveCommand.Func.Equals("withdraw") && valid == 1)
             {
                 int amount = Convert.ToInt32(recieveCommand.Amount);
-                _http = new HttpRequest("Withdraw", $"{recieveCommand.IBAN}/ATM/{amount}");
-                await HttpRequest.withdrawAsync(_http.createUrl());
+                await _http.httpGetRequest($"Withdraw/{recieveCommand.IBAN}/ATM/{amount}");
                 pSocket.Send("[\"true\"]");
             }
             else if (recieveCommand.Func.Equals("pinCheck") && valid == 1)
@@ -156,8 +155,7 @@ namespace Bank_Project_3_4
             {
                 while (true)
                 {
-                    _http = new HttpRequest("MessageQueues");
-                    _mq = await HttpRequest.getMessageQueue(_http.createUrl());
+                    _mq = await _http.getMessageQueue($"MessageQueues");
 
                     if (_mq != null && _mq.MessageId != previousMq.MessageId)
                         break;
@@ -192,7 +190,7 @@ namespace Bank_Project_3_4
                     }
                     catch (Exception ex)
                     {
-                        throw;
+                        Helper.showMessage(ex.Message);
                     }
                 }
             }
@@ -210,8 +208,7 @@ namespace Bank_Project_3_4
             }
             _mq.StatusCode = 2;
 
-            HttpRequest http = new HttpRequest("MessageQueues");
-            await HttpRequest.UpdateMessageQueueAsync(_mq, http.createUrl());
+            await _http.UpdateMessageQueueAsync(_mq, $"MessageQueues");
         }
 
         public void close()

@@ -43,7 +43,6 @@
             this.btnCancel = new Syncfusion.WinForms.Controls.SfButton();
             this.lblPinCode = new Syncfusion.Windows.Forms.Tools.AutoLabel();
             this.lblMessage = new System.Windows.Forms.Label();
-            this.rtbReceipt = new System.Windows.Forms.RichTextBox();
             this.pnlOtherTransaction = new System.Windows.Forms.Panel();
             this.lblOtherTransaction = new System.Windows.Forms.Label();
             this.btnExeOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
@@ -57,10 +56,6 @@
             this.btnBack = new Syncfusion.WinForms.Controls.SfButton();
             this.pnlBack = new System.Windows.Forms.Panel();
             this.pnlChooseBill = new System.Windows.Forms.Panel();
-            this.tbOtherIban = new System.Windows.Forms.TextBox();
-            this.tbOtherPassword = new System.Windows.Forms.TextBox();
-            this.btnOtherUserValidation = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.pnlReceipt = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.btnReceiptNo = new Syncfusion.WinForms.Controls.SfButton();
@@ -201,9 +196,9 @@
             this.lblPinCode.AutoSize = false;
             this.lblPinCode.BackColor = System.Drawing.Color.Azure;
             this.lblPinCode.Font = new System.Drawing.Font("Segoe UI Semibold", 16F);
-            this.lblPinCode.Location = new System.Drawing.Point(209, 77);
+            this.lblPinCode.Location = new System.Drawing.Point(209, 73);
             this.lblPinCode.Name = "lblPinCode";
-            this.lblPinCode.Size = new System.Drawing.Size(570, 30);
+            this.lblPinCode.Size = new System.Drawing.Size(570, 33);
             this.lblPinCode.TabIndex = 39;
             this.lblPinCode.Text = "PIN: ";
             this.lblPinCode.Visible = false;
@@ -212,23 +207,11 @@
             // 
             this.lblMessage.AutoSize = true;
             this.lblMessage.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
-            this.lblMessage.Location = new System.Drawing.Point(201, 32);
+            this.lblMessage.Location = new System.Drawing.Point(201, -9);
             this.lblMessage.Name = "lblMessage";
             this.lblMessage.Size = new System.Drawing.Size(570, 45);
             this.lblMessage.TabIndex = 38;
             this.lblMessage.Text = "Welkom, houd uw pas voor de reader.";
-            // 
-            // rtbReceipt
-            // 
-            this.rtbReceipt.BackColor = System.Drawing.Color.White;
-            this.rtbReceipt.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.rtbReceipt.Location = new System.Drawing.Point(764, 110);
-            this.rtbReceipt.Name = "rtbReceipt";
-            this.rtbReceipt.ReadOnly = true;
-            this.rtbReceipt.Size = new System.Drawing.Size(388, 319);
-            this.rtbReceipt.TabIndex = 37;
-            this.rtbReceipt.Text = "";
-            this.rtbReceipt.Visible = false;
             // 
             // pnlOtherTransaction
             // 
@@ -395,40 +378,6 @@
             this.pnlChooseBill.TabIndex = 47;
             this.pnlChooseBill.Visible = false;
             // 
-            // tbOtherIban
-            // 
-            this.tbOtherIban.Location = new System.Drawing.Point(6, 110);
-            this.tbOtherIban.Name = "tbOtherIban";
-            this.tbOtherIban.Size = new System.Drawing.Size(135, 20);
-            this.tbOtherIban.TabIndex = 48;
-            // 
-            // tbOtherPassword
-            // 
-            this.tbOtherPassword.Location = new System.Drawing.Point(6, 134);
-            this.tbOtherPassword.Name = "tbOtherPassword";
-            this.tbOtherPassword.Size = new System.Drawing.Size(135, 20);
-            this.tbOtherPassword.TabIndex = 49;
-            // 
-            // btnOtherUserValidation
-            // 
-            this.btnOtherUserValidation.Location = new System.Drawing.Point(6, 161);
-            this.btnOtherUserValidation.Name = "btnOtherUserValidation";
-            this.btnOtherUserValidation.Size = new System.Drawing.Size(75, 23);
-            this.btnOtherUserValidation.TabIndex = 50;
-            this.btnOtherUserValidation.Text = "button1";
-            this.btnOtherUserValidation.UseVisualStyleBackColor = true;
-            this.btnOtherUserValidation.Click += new System.EventHandler(this.BtnOtherUserValidation_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(6, 213);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 51;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click);
-            // 
             // pnlReceipt
             // 
             this.pnlReceipt.BackColor = System.Drawing.Color.MintCream;
@@ -501,10 +450,6 @@
             this.BackColor = System.Drawing.Color.Azure;
             this.ClientSize = new System.Drawing.Size(1173, 621);
             this.Controls.Add(this.pnlReceipt);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.btnOtherUserValidation);
-            this.Controls.Add(this.tbOtherPassword);
-            this.Controls.Add(this.tbOtherIban);
             this.Controls.Add(this.pnlChooseBill);
             this.Controls.Add(this.pnlOtherTransaction);
             this.Controls.Add(this.pnlBack);
@@ -514,7 +459,6 @@
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblPinCode);
             this.Controls.Add(this.lblMessage);
-            this.Controls.Add(this.rtbReceipt);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IconSize = new System.Drawing.Size(25, 25);
@@ -525,6 +469,7 @@
             this.Text = "Pinautomaat";
             this.TransparencyKey = System.Drawing.Color.Silver;
             this.Load += new System.EventHandler(this.DeBank_Load);
+            this.Shown += new System.EventHandler(this.DeBank_Shown);
             this.pnlOtherTransaction.ResumeLayout(false);
             this.pnlOtherTransaction.PerformLayout();
             this.pnlSaldo.ResumeLayout(false);
@@ -555,7 +500,6 @@
         private Syncfusion.WinForms.Controls.SfButton btnCancel;
         private Syncfusion.Windows.Forms.Tools.AutoLabel lblPinCode;
         private System.Windows.Forms.Label lblMessage;
-        private System.Windows.Forms.RichTextBox rtbReceipt;
         private System.Windows.Forms.Panel pnlOtherTransaction;
         private System.Windows.Forms.Label lblOtherTransaction;
         private System.Windows.Forms.Panel pnlSaldo;
@@ -569,10 +513,6 @@
         private Syncfusion.WinForms.Controls.SfButton btnBack;
         private System.Windows.Forms.Panel pnlBack;
         private System.Windows.Forms.Panel pnlChooseBill;
-        private System.Windows.Forms.TextBox tbOtherIban;
-        private System.Windows.Forms.TextBox tbOtherPassword;
-        private System.Windows.Forms.Button btnOtherUserValidation;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Panel pnlReceipt;
         private System.Windows.Forms.Label label1;
         private Syncfusion.WinForms.Controls.SfButton btnReceiptNo;

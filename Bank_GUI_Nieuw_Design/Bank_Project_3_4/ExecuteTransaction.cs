@@ -10,12 +10,10 @@ namespace Bank_Project_3_4
     {
         SerialPort _sp;
         private String _currentClientNuid;
-        private HttpRequest _httpRequest;
-        private PrintReceipt _print;
+        private HttpRequest _httpRequest = new HttpRequest();
 
         private String _chosenBill = String.Empty;
         private int _billValue = 0;
-        private String _billCombination = "";
         private int _status = -1;
         private String _password = string.Empty;
 
@@ -65,18 +63,16 @@ namespace Bank_Project_3_4
                             else if (_billValue == 50)
                                 _sp.Write("&1");
                         }
-                        _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{amount}/{_password}");
-                        _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
+                        _status = await _httpRequest.httpGetRequest($"Withdraw/{_currentClientNuid}/ATM/{amount}/{_password}");
 
-                        _httpRequest = new HttpRequest("BillItems", $"{_billValue}/1");
-                        _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
+                        await _httpRequest.httpGetRequest($"BillItems/{_billValue}/1");
                     }
                     else
                     {
                        _status = await alternativeBilloption(amount);
                     }
 
-                    _print = new PrintReceipt(_currentClientNuid, pBill, Convert.ToInt32(amount / _billValue), _billCombination);
+                    
                 }
             }
             return _status;
@@ -127,8 +123,7 @@ namespace Bank_Project_3_4
                 Thread.Sleep(4000);
             }
 
-            _httpRequest = new HttpRequest("Withdraw", $"{_currentClientNuid}/ATM/{withdrawAmount}/{_password}");
-            return await HttpRequest.withdrawAsync(_httpRequest.createUrl());
+            return await _httpRequest.httpGetRequest($"Withdraw/{_currentClientNuid}/ATM/{withdrawAmount}/{_password}");
         }
 
         public async void addBillToArray(int pBillVal, int pAmount)
@@ -154,23 +149,10 @@ namespace Bank_Project_3_4
             else if (pBillVal == 50)
                 bill = $"&{pAmount}";
 
-            _httpRequest = new HttpRequest("BillItems", $"{pBillVal}/{pAmount}");
-            _status = await HttpRequest.withdrawAsync(_httpRequest.createUrl());
+            _status = await _httpRequest.httpGetRequest($"BillItems/{pBillVal}/{pAmount}");
 
             _wantedBills[_index] = bill;
             _index++;
         }
-
-        //prints the receipt on screen
-        public async Task<String> printReceipt()
-        {
-            if (_status == 0)
-            {
-                String receipt = await _print.print();
-                return receipt;
-            }
-            return "";
-        }
-
     }
 }

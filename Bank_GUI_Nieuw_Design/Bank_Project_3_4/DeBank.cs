@@ -25,7 +25,7 @@ namespace Bank_Project_3_4
     {
         //instances 
         SerialPort myPort = new SerialPort();//create a serial port
-        HttpRequest _httpRequest;
+        HttpRequest _httpRequest = new HttpRequest();
         UserTagViewModel _userTagView = new UserTagViewModel();
 
         private string serialInput;//incoming data is stored in String rxString
@@ -61,7 +61,7 @@ namespace Bank_Project_3_4
             this.Style.Border = new Pen(Color.Silver, 2);
             //setup the serial port
             myPort.BaudRate = 9600;
-            myPort.PortName = "COM6";
+            myPort.PortName = "COM3";
             myPort.DataReceived += MyPort_DataReceived;
 
             try
@@ -123,7 +123,9 @@ namespace Bank_Project_3_4
             else if(pPassword == "#")
             {
                 //validates the password
-                int response = await checkPass.validatePassword(_enteredPassword, _currentClientIban);
+
+                //int response = await checkPass.validatePassword(_enteredPassword, _currentClientIban);
+                int response = await _httpRequest.httpGetRequest($"Authentication/{_enteredPassword}/{_currentClientIban}");
 
                 if (response == 0)
                     _validPass = false;
@@ -188,7 +190,7 @@ namespace Bank_Project_3_4
             }
             else
             {
-                lblMessage.Text = $"Voer uw PIN in op het keypad";
+                lblMessage.Text = $"Voer uw PIN in op het keypad. \n # = enter. * = backspace";
                 lblPinCode.Visible = true;
 
                 if (pInput == "<>")
@@ -217,9 +219,9 @@ namespace Bank_Project_3_4
                 {
                     if (!spMoneyDispenser.IsOpen)
                     {
-                        spMoneyDispenser.BaudRate = 9600;
-                        spMoneyDispenser.PortName = "COM3";
-                        spMoneyDispenser.Open();
+                        //spMoneyDispenser.BaudRate = 9600;
+                        //spMoneyDispenser.PortName = "COM3";
+                        //spMoneyDispenser.Open();
                     }
                 }
                 catch (Exception ex)
@@ -246,19 +248,32 @@ namespace Bank_Project_3_4
                     ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, _enteredPassword);
                     status = await exeTransaction.executeTransaction(pBill, pAmount);
                 }
-                
+
                 if (status == 0)
                 {
+                    updateMessage("Vergeet uw geld en uw pas niet!");
+                    Thread.Sleep(2500);
+
                     updateMessage("Tot de volgende keer!");
-                    Thread.Sleep(2000);
+                    Thread.Sleep(2500);
+
                     logOut();
                 }
                 else
                 {
-                    Helper.showMessage($"Controleer op de volgende dingen:" +
-                                        $"\n >> Alleen getallen ingevoerd?" +
-                                        $"\n >> Al de velden inveguld?" +
-                                        $"\n >> Heeft u genoeg saldo?");
+                    if (await _httpRequest.httpGetRequest($"ClientSaldo/{_currentClientIban}") < Convert.ToInt32(pAmount))
+                    {
+                        updateText("Te weinig saldo...");
+                    }
+                    else if (string.IsNullOrEmpty(pAmount) || string.IsNullOrEmpty(pBill))
+                    {
+                        updateText("Vul aub al de velden in");
+                    }
+                    else
+                    {
+                        updateText("Graag alleen getallen invoeren.");
+                    }
+                    Thread.Sleep(2000);
                 }
             }
         }
@@ -275,14 +290,13 @@ namespace Bank_Project_3_4
             if (_validPass)
             {
                 _enterPassword = false;
-                lblMessage.Visible = false;
+                updateMessage("");
                 myPort.WriteLine("P");
                 showPanel(pnlMenu);
             }
             else
             {
                 lblMessage.Visible = true;
-                rtbReceipt.Visible = false;
                 showPanel(null);
             }
 
@@ -332,11 +346,11 @@ namespace Bank_Project_3_4
             {
                 cmbChooseBill.Items.Remove($"R{bill[i]}");
             }
+            cmbChooseBill.Items.Remove("Geen biljet beschikbaar.");
 
             for (int i = 0; i < bill.Length; i++)
             {
-                _httpRequest = new HttpRequest("BillItems", $"{bill[i]}");
-                int amount = await HttpRequest.getBillAsync(_httpRequest.createUrl());
+                int amount = await _httpRequest.httpGetRequest($"BillItems/{bill[i]}");
 
                 if (pAmount >= bill[i] && amount > 0)
                 {
@@ -344,8 +358,8 @@ namespace Bank_Project_3_4
                 }
             }
 
-            if (cmbChooseBill.Items.Count < 0)
-                cmbChooseBill.Items.Add("Geen biljet met gekozen bedrag beschikbaar.");
+            if (cmbChooseBill.Items.Count < 1)
+                cmbChooseBill.Items.Add("Geen biljet beschikbaar.");
         }
 
         #endregion
@@ -373,7 +387,7 @@ namespace Bank_Project_3_4
                 {
                     updateMessage("Uw pas is niet goed uitgelezen...");
                     myPort.Write("R");
-                    Thread.Sleep(2500);
+                    Thread.Sleep(2000);
                     logOut();
                     myPort.DiscardInBuffer();
                     myPort.DiscardOutBuffer();
@@ -450,9 +464,6 @@ namespace Bank_Project_3_4
         //cancels the user attempt to log in
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            myPort.WriteLine("R");
-            myPort.WriteLine("R");
-
             logOut();
         }
 
@@ -468,8 +479,7 @@ namespace Bank_Project_3_4
         {
             showPanel(pnlSaldo);
 
-            _httpRequest = new HttpRequest("ClientSaldo", $"{_currentClientIban}");
-            tbUserSaldo.Text = $"€{await HttpRequest.getSaldoAsync(_httpRequest.createUrl())}";
+            tbUserSaldo.Text = $"€{await _httpRequest.httpGetRequest($"ClientSaldo/{_currentClientIban}")}";
         }
 
         private void tbAmount_TextChanged(object sender, EventArgs e)
@@ -517,15 +527,15 @@ namespace Bank_Project_3_4
             showPanel(pnlMenu);
         }
 
-        private async void BtnOtherUserValidation_Click(object sender, EventArgs e)
+        private void BtnOtherUserValidation_Click(object sender, EventArgs e)
         {
-            _httpRequest = new HttpRequest("Authentication");
-            int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{tbOtherPassword.Text}/{tbOtherIban.Text}");
+            //_httpRequest = new HttpRequest("Authentication");
+            //int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{tbOtherPassword.Text}/{tbOtherIban.Text}");
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            APICentraleBankConnection f = new APICentraleBankConnection();
+            //APICentraleBankConnection f = new APICentraleBankConnection();
         }
 
         private void BtnReceiptyes_Click(object sender, EventArgs e)
@@ -555,5 +565,9 @@ namespace Bank_Project_3_4
         }
         #endregion
 
+        private void DeBank_Shown(object sender, EventArgs e)
+        {
+            APICentraleBankConnection f = new APICentraleBankConnection();
+        }
     }
 }

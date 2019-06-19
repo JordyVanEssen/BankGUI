@@ -24,83 +24,30 @@ namespace Bank_Project_3_4
         private String _url = "https://project34bank.azurewebsites.net/api/";
         //private String _url = "https://localhost:5001/api/";
 
-        private String _urlController = "";
-        private object _urlPrameter = "";
-
-        public HttpRequest(String pController, String pParameter)
+        public HttpRequest()
         {
-            _urlController = pController + "/";
-            _urlPrameter = pParameter;
+
         }
 
-        public HttpRequest(String pController)
+        public async Task<int> httpGetRequest(String pUrl)
         {
-            _urlController = pController + "/";
+            HttpResponseMessage response = await httpClient.GetAsync($"{_url}{pUrl}");
+            return await response.Content.ReadAsAsync<int>();
         }
 
-        public String createUrl()
+        //http update MessageQueue
+        public async Task<HttpStatusCode> UpdateMessageQueueAsync(MessageQueue pMessage, String pPath)
         {
-            _url = _url += _urlController += _urlPrameter;
-            return _url;
-        }
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{_url}{pPath}/{pMessage.MessageId}", pMessage);
+            response.EnsureSuccessStatusCode();
 
-        //http get Usertag request
-        public static async Task<ReturnObject> GetUserTagAsync(String path)
-        {
-            ReturnObject user = null;
-            //String nuidAuthenticationString = "";
-            HttpResponseMessage response = await httpClient.GetAsync(path);
-
-            if (response.IsSuccessStatusCode)
-            {
-                user = await response.Content.ReadAsAsync<ReturnObject>();
-            }
-            return user;
-        }
-
-        //http get Client request
-        public static async Task<Client> GetClientAsync(String path)
-        {
-            Client user = null;
-            HttpResponseMessage response = await httpClient.GetAsync(path);
-
-            if (response.IsSuccessStatusCode)
-            {
-                user = await response.Content.ReadAsAsync<Client>();
-            }
-            return user;
-        }
-
-        //http get saldo
-        public static async Task<int> getBillAsync(String path)
-        {
-            int amount = 0;
-            HttpResponseMessage response = await httpClient.GetAsync(path);
-
-            if (response.IsSuccessStatusCode)
-            {
-                amount = await response.Content.ReadAsAsync<int>();
-            }
-            return Convert.ToInt32(amount);
-        }
-
-        //http get saldo
-        public static async Task<int> getSaldoAsync(String path)
-        {
-            int saldo = 0;
-            HttpResponseMessage response = await httpClient.GetAsync(path);
-
-            if (response.IsSuccessStatusCode)
-            {
-                saldo = await response.Content.ReadAsAsync<int>();
-            }
-            return saldo;
+            return response.StatusCode;
         }
 
         //http get the first message in the queueu
-        public static async Task<MessageQueue> getMessageQueue(String path)
+        public async Task<MessageQueue> getMessageQueue(String path)
         {
-            HttpResponseMessage response = await httpClient.GetAsync(path);
+            HttpResponseMessage response = await httpClient.GetAsync($"{_url}{path}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -109,71 +56,6 @@ namespace Bank_Project_3_4
             }
 
             return null;
-        }
-
-        //http withdraw
-        public static async Task<int> withdrawAsync(String pPath)
-        {
-            int status = -1;
-            HttpResponseMessage response = await httpClient.GetAsync(pPath);
-
-            if (response.IsSuccessStatusCode)
-            {
-                status = await response.Content.ReadAsAsync<int>();
-            }
-            return status;
-        }
-
-        //http authentication
-        public static async Task<int> AuthenticationAsync(String path, String pPassword)
-        {
-            int valid = 0;//1'true' or 0'false'
-            HttpResponseMessage response = await httpClient.GetAsync(path + pPassword);
-
-            if (response.IsSuccessStatusCode)
-            {
-                valid = await response.Content.ReadAsAsync<int>();
-            }
-            return valid;
-        }
-
-        //http create object
-        public static async Task<Object> CreateAsync(Object pObject, String pPath)
-        {
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync(pPath, pObject);
-            response.EnsureSuccessStatusCode();
-
-            // return URI of the created resource.
-            return response;
-        }
-
-        //http update client
-        public static async Task<HttpStatusCode> UpdateClientAsync(Client pClientItem, String pPath)
-        {
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{pPath}{pClientItem.ClientId}", pClientItem);
-            response.EnsureSuccessStatusCode();
-
-            // Deserialize the updated product from the response body.
-            //pClient = await response.Content.ReadAsAsync<Client>();
-            return response.StatusCode;
-        }
-
-        //http update usertag
-        public static async Task<HttpStatusCode> UpdateUserTagAsync(UserTag pUserItem, String pPath)
-        {
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{pPath}{pUserItem.UsertagId}", pUserItem);
-            response.EnsureSuccessStatusCode();
-
-            return response.StatusCode;
-        }
-
-        //http update MessageQueue
-        public static async Task<HttpStatusCode> UpdateMessageQueueAsync(MessageQueue pMessage, String pPath)
-        {
-            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{pPath}{pMessage.MessageId}", pMessage);
-            response.EnsureSuccessStatusCode();
-
-            return response.StatusCode;
         }
     }
 }

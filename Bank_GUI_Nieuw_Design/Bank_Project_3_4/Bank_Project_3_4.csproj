@@ -128,7 +128,6 @@
       <DependentUpon>FormLogOut.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\BankDataLayer.cs" />
-    <Compile Include="CheckUserSaldo.cs" />
     <Compile Include="CheckValidUserInput.cs" />
     <Compile Include="ClientPasswordCheck.cs" />
     <Compile Include="ClientViewModel.cs" />
@@ -138,19 +137,11 @@
     <Compile Include="DeBank.Designer.cs">
       <DependentUpon>DeBank.cs</DependentUpon>
     </Compile>
-    <Compile Include="Deposit.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="HttpRequest.cs" />
-    <Compile Include="PrintReceipt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\ReturnObject.cs" />
-    <Compile Include="SetClientDialogBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SetClientDialogBox.Designer.cs">
-      <DependentUpon>SetClientDialogBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="ExecuteTransaction.cs" />
     <Compile Include="UserControls\ucTest.cs">
       <SubType>UserControl</SubType>
@@ -181,9 +172,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="SetClientDialogBox.resx">
-      <DependentUpon>SetClientDialogBox.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="UserControls\ucTest.resx">
       <DependentUpon>ucTest.cs</DependentUpon>
     </EmbeddedResource>
