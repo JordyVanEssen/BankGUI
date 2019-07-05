@@ -39,7 +39,7 @@ namespace Bank_Project_3_4
             checkInput = pInput.ToCharArray();
             inputLength = checkInput.Length;
 
-         
+            // just checks if the input only contains numbers
             if (input)
             {
                 for (int i = 0; i < inputLength; i++)
@@ -48,6 +48,7 @@ namespace Bank_Project_3_4
 
                     if (!validChars)
                     {
+                        // if not -> break and return false
                         break;
                     }
                 }

@@ -129,7 +129,6 @@
     </Compile>
     <Compile Include="Models\BankDataLayer.cs" />
     <Compile Include="CheckValidUserInput.cs" />
-    <Compile Include="ClientPasswordCheck.cs" />
     <Compile Include="ClientViewModel.cs" />
     <Compile Include="DeBank.cs">
       <SubType>Form</SubType>
@@ -211,6 +210,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Log.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Log\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -8,6 +8,7 @@ using BankDataLayer;
 namespace Bank_Project_3_4
 {
     //returns the database values, for debug purposes
+    // not used when the user uses the GUI
     public class ClientViewModel
     {
         private ClientContext _db;

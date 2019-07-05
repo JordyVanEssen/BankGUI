@@ -11,15 +11,15 @@ using BankDataLayer;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.IO;
 
 namespace Bank_Project_3_4
 {
     class CentralBankConnection
     {
+        // the connections to the websocket server
         static WebSocket _master = new WebSocket("ws://145.24.222.24:8080");
         static WebSocket _slave = new WebSocket("ws://145.24.222.24:8080");
-        //static WebSocket _master = new WebSocket("ws://localhost:6666");
-        //static WebSocket _slave = new WebSocket("ws://localhost:6666");
         static MessageQueue _mq;
         static HttpRequest _http = new HttpRequest();
 
@@ -27,6 +27,7 @@ namespace Bank_Project_3_4
 
         public CentralBankConnection()
         {
+            // start the threads
             Thread _threadSlave = new Thread(new ThreadStart(() => connection(_slave, "slave")));
             Thread _threadMaster = new Thread(new ThreadStart(() => connection(_master, "master")));
             Thread handleOutgoingMessage = new Thread(new ThreadStart(getMessage));
@@ -47,9 +48,11 @@ namespace Bank_Project_3_4
         public static void connection(WebSocket pSocket, String pMode)
         {
             pSocket.OnOpen += (sender, e) =>
-            Console.WriteLine("Connection open");
+                Console.WriteLine("Connection open");
 
             pSocket.OnMessage += (sender, e) => {
+                // if there is a message received -> write it to file -> send to the handlecommand funciton
+                writeToFile($"Response: {e.Data}");
                 if (e.Data.ToLower().Contains("true") || e.Data.ToLower().Contains("false"))
                 {
                     if (_mq != null)
@@ -74,7 +77,7 @@ namespace Bank_Project_3_4
             };
 
             pSocket.OnError += (sender, e) => {
-                Console.WriteLine(e.Message);
+                writeToFile(e.Message);
             };
 
             pSocket.OnClose += WsOnOnClose;
@@ -92,6 +95,7 @@ namespace Bank_Project_3_4
 
         private static void WsOnOnClose(object sender, CloseEventArgs closeEventArgs)
         {
+            // if the connection closes
             if (!closeEventArgs.WasClean)
             {
                 if (!_master.IsAlive)
@@ -112,37 +116,43 @@ namespace Bank_Project_3_4
 
         static async void handleCommand(WebSocket pSocket, String pCommand)
         {
+            // handles the incoming commands           
+            writeToFile($"Message received: {pCommand}");
+
+            // because the central bank is retarted i have to replace all characters....
             pCommand = pCommand.Replace("[", "");
             pCommand = pCommand.Replace("]", "");
-
-            var j = JsonConvert.SerializeObject(pCommand);
-
-            Console.WriteLine(pCommand);
 
             pCommand = pCommand.Replace("\'", "\"");
             pCommand = pCommand.Replace("\"{", "{");
             pCommand = pCommand.Replace("}\"", "}");
 
             pCommand = pCommand.Replace(",\"Amount\":null", "");
+            pCommand = pCommand.Replace("\\", "");
 
+            // converts the incoming json to usefull info
             JsonPayload recieveCommand = JsonConvert.DeserializeObject<JsonPayload>(pCommand);
 
-
-
+            // checks if the credentials are valid
             int valid = await _http.httpGetRequest($"Authentication/{recieveCommand.PIN}/{recieveCommand.IBAN}");
 
+            // the client wants to withdraw
             if (recieveCommand.Func.Equals("withdraw") && valid == 1)
             {
                 int amount = Convert.ToInt32(recieveCommand.Amount);
-                await _http.httpGetRequest($"Withdraw/{recieveCommand.IBAN}/ATM/{amount}");
+                await _http.httpGetRequest($"Withdraw/{recieveCommand.IBAN}/ATM/{amount}/{recieveCommand.PIN}");
+                writeToFile("Sent: [\"true\"]");
                 pSocket.Send("[\"true\"]");
             }
             else if (recieveCommand.Func.Equals("pinCheck") && valid == 1)
             {
+                // just login
+                writeToFile("Sent: [\"true\"]");
                 pSocket.Send("[\"true\"]");
             }
             else
             {
+                writeToFile("Sent: [\"false\"]");
                 pSocket.Send("[\"false\"]");
             }
         }
@@ -155,6 +165,7 @@ namespace Bank_Project_3_4
             {
                 while (true)
                 {
+                    // gets a waitting messagequeue
                     _mq = await _http.getMessageQueue($"MessageQueues");
 
                     if (_mq != null && _mq.MessageId != previousMq.MessageId)
@@ -172,7 +183,9 @@ namespace Bank_Project_3_4
                 }
 
                 String sMsg = JsonConvert.SerializeObject(jsonMessage);
-                //fix java
+                
+                // replace all the characters because the central bank is too **** to handle 
+                // normal Json -.-
                 sMsg = sMsg.Replace("\"", "\'");
                 sMsg = sMsg.Replace("{", "\"{");
                 sMsg = sMsg.Replace("}", "}\"");
@@ -183,13 +196,15 @@ namespace Bank_Project_3_4
 
                     msgToSend = Regex.Replace(msgToSend, @"\t|\n|\r", "");
 
-                    //String jsonString = $"{jo.Property("IDSenBank").Value}";
                     try
-                     {
+                    {
+                        writeToFile($"Message sent: {msgToSend}");
+                        // sends the message to the central bank
                         _master.Send(msgToSend);
                     }
                     catch (Exception ex)
                     {
+                        // onerror
                         Helper.showMessage(ex.Message);
                     }
                 }
@@ -198,6 +213,7 @@ namespace Bank_Project_3_4
 
         public async static void updateMessage(Boolean pValid)
         {
+            // updates the messagequeue in the database so the api can valid 
             if (pValid)
             {
                 _mq.ValidPassword = true;
@@ -213,8 +229,27 @@ namespace Bank_Project_3_4
 
         public void close()
         {
+            // closes the connection
             _master.Close();
             _slave.Close();
+        }
+
+        public static void writeToFile(String pText)
+        {
+            // all the incoming and ougoing messages are saved in a log file
+            ReaderWriterLock locker = new ReaderWriterLock();
+            try
+            {
+                lock (@"..\..\Log.txt")
+                {
+                    File.AppendAllText(@"..\..\Log.txt", $"{DateTime.Now} - {pText}\r\n");
+                }
+               
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

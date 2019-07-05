@@ -48,6 +48,7 @@
             this.btnExeOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.pnlSaldo = new System.Windows.Forms.Panel();
             this.pnlMenu = new System.Windows.Forms.Panel();
+            this.btnFastTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.pnlTransaction = new System.Windows.Forms.Panel();
             this.btnOtherTransaction = new Syncfusion.WinForms.Controls.SfButton();
             this.btn100 = new Syncfusion.WinForms.Controls.SfButton();
@@ -61,7 +62,7 @@
             this.btnReceiptNo = new Syncfusion.WinForms.Controls.SfButton();
             this.btnReceiptyes = new Syncfusion.WinForms.Controls.SfButton();
             this.spMoneyDispenser = new System.IO.Ports.SerialPort(this.components);
-            this.btnFastTransaction = new Syncfusion.WinForms.Controls.SfButton();
+            this.button1 = new System.Windows.Forms.Button();
             this.pnlOtherTransaction.SuspendLayout();
             this.pnlSaldo.SuspendLayout();
             this.pnlMenu.SuspendLayout();
@@ -129,9 +130,9 @@
             this.lblBill.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblBill.Location = new System.Drawing.Point(3, 17);
             this.lblBill.Name = "lblBill";
-            this.lblBill.Size = new System.Drawing.Size(88, 19);
+            this.lblBill.Size = new System.Drawing.Size(252, 19);
             this.lblBill.TabIndex = 3;
-            this.lblBill.Text = "Kies uw biljet";
+            this.lblBill.Text = "Kies het biljet waarvan u de meeste wilt:\r\n";
             // 
             // tbAmount
             // 
@@ -181,9 +182,9 @@
             this.btnCancel.AccessibleName = "Button";
             this.btnCancel.BackColor = System.Drawing.Color.LightGray;
             this.btnCancel.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnCancel.Location = new System.Drawing.Point(603, 500);
+            this.btnCancel.Location = new System.Drawing.Point(254, 465);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(139, 33);
+            this.btnCancel.Size = new System.Drawing.Size(86, 33);
             this.btnCancel.Style.BackColor = System.Drawing.Color.LightGray;
             this.btnCancel.TabIndex = 40;
             this.btnCancel.Text = "Annuleren";
@@ -196,9 +197,9 @@
             this.lblPinCode.AutoSize = false;
             this.lblPinCode.BackColor = System.Drawing.Color.Azure;
             this.lblPinCode.Font = new System.Drawing.Font("Segoe UI Semibold", 16F);
-            this.lblPinCode.Location = new System.Drawing.Point(209, 73);
+            this.lblPinCode.Location = new System.Drawing.Point(5, 153);
             this.lblPinCode.Name = "lblPinCode";
-            this.lblPinCode.Size = new System.Drawing.Size(570, 33);
+            this.lblPinCode.Size = new System.Drawing.Size(232, 33);
             this.lblPinCode.TabIndex = 39;
             this.lblPinCode.Text = "PIN: ";
             this.lblPinCode.Visible = false;
@@ -207,7 +208,7 @@
             // 
             this.lblMessage.AutoSize = true;
             this.lblMessage.Font = new System.Drawing.Font("Segoe UI Semibold", 24F, System.Drawing.FontStyle.Bold);
-            this.lblMessage.Location = new System.Drawing.Point(201, -9);
+            this.lblMessage.Location = new System.Drawing.Point(-3, 2);
             this.lblMessage.Name = "lblMessage";
             this.lblMessage.Size = new System.Drawing.Size(570, 45);
             this.lblMessage.TabIndex = 38;
@@ -219,7 +220,7 @@
             this.pnlOtherTransaction.Controls.Add(this.lblOtherTransaction);
             this.pnlOtherTransaction.Controls.Add(this.lblAmount);
             this.pnlOtherTransaction.Controls.Add(this.tbAmount);
-            this.pnlOtherTransaction.Location = new System.Drawing.Point(352, 110);
+            this.pnlOtherTransaction.Location = new System.Drawing.Point(177, 190);
             this.pnlOtherTransaction.Name = "pnlOtherTransaction";
             this.pnlOtherTransaction.Size = new System.Drawing.Size(267, 127);
             this.pnlOtherTransaction.TabIndex = 42;
@@ -254,7 +255,7 @@
             this.pnlSaldo.BackColor = System.Drawing.Color.MintCream;
             this.pnlSaldo.Controls.Add(this.tbUserSaldo);
             this.pnlSaldo.Controls.Add(this.label2);
-            this.pnlSaldo.Location = new System.Drawing.Point(352, 110);
+            this.pnlSaldo.Location = new System.Drawing.Point(177, 190);
             this.pnlSaldo.Name = "pnlSaldo";
             this.pnlSaldo.Size = new System.Drawing.Size(267, 64);
             this.pnlSaldo.TabIndex = 43;
@@ -267,11 +268,25 @@
             this.pnlMenu.Controls.Add(this.btnGetsaldo);
             this.pnlMenu.Controls.Add(this.btnLogout);
             this.pnlMenu.Controls.Add(this.btnTransaction);
-            this.pnlMenu.Location = new System.Drawing.Point(175, 110);
+            this.pnlMenu.Location = new System.Drawing.Point(0, 190);
             this.pnlMenu.Name = "pnlMenu";
             this.pnlMenu.Size = new System.Drawing.Size(171, 319);
             this.pnlMenu.TabIndex = 44;
             this.pnlMenu.Visible = false;
+            // 
+            // btnFastTransaction
+            // 
+            this.btnFastTransaction.AccessibleName = "Button";
+            this.btnFastTransaction.BackColor = System.Drawing.Color.LightGray;
+            this.btnFastTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
+            this.btnFastTransaction.Location = new System.Drawing.Point(12, 123);
+            this.btnFastTransaction.Name = "btnFastTransaction";
+            this.btnFastTransaction.Size = new System.Drawing.Size(139, 33);
+            this.btnFastTransaction.Style.BackColor = System.Drawing.Color.LightGray;
+            this.btnFastTransaction.TabIndex = 27;
+            this.btnFastTransaction.Text = "Snel pinnen: R50";
+            this.btnFastTransaction.UseVisualStyleBackColor = false;
+            this.btnFastTransaction.Click += new System.EventHandler(this.BtnFastTransaction_Click);
             // 
             // pnlTransaction
             // 
@@ -280,7 +295,7 @@
             this.pnlTransaction.Controls.Add(this.btn100);
             this.pnlTransaction.Controls.Add(this.btn50);
             this.pnlTransaction.Controls.Add(this.btn10);
-            this.pnlTransaction.Location = new System.Drawing.Point(352, 110);
+            this.pnlTransaction.Location = new System.Drawing.Point(177, 190);
             this.pnlTransaction.Name = "pnlTransaction";
             this.pnlTransaction.Size = new System.Drawing.Size(197, 183);
             this.pnlTransaction.TabIndex = 45;
@@ -360,7 +375,7 @@
             // 
             this.pnlBack.BackColor = System.Drawing.Color.MintCream;
             this.pnlBack.Controls.Add(this.btnBack);
-            this.pnlBack.Location = new System.Drawing.Point(532, 387);
+            this.pnlBack.Location = new System.Drawing.Point(357, 462);
             this.pnlBack.Name = "pnlBack";
             this.pnlBack.Size = new System.Drawing.Size(87, 42);
             this.pnlBack.TabIndex = 46;
@@ -372,7 +387,7 @@
             this.pnlChooseBill.Controls.Add(this.btnExeOtherTransaction);
             this.pnlChooseBill.Controls.Add(this.cmbChooseBill);
             this.pnlChooseBill.Controls.Add(this.lblBill);
-            this.pnlChooseBill.Location = new System.Drawing.Point(352, 243);
+            this.pnlChooseBill.Location = new System.Drawing.Point(177, 323);
             this.pnlChooseBill.Name = "pnlChooseBill";
             this.pnlChooseBill.Size = new System.Drawing.Size(267, 115);
             this.pnlChooseBill.TabIndex = 47;
@@ -384,7 +399,7 @@
             this.pnlReceipt.Controls.Add(this.label1);
             this.pnlReceipt.Controls.Add(this.btnReceiptNo);
             this.pnlReceipt.Controls.Add(this.btnReceiptyes);
-            this.pnlReceipt.Location = new System.Drawing.Point(349, 109);
+            this.pnlReceipt.Location = new System.Drawing.Point(174, 189);
             this.pnlReceipt.Name = "pnlReceipt";
             this.pnlReceipt.Size = new System.Drawing.Size(200, 148);
             this.pnlReceipt.TabIndex = 52;
@@ -429,26 +444,23 @@
             this.btnReceiptyes.UseVisualStyleBackColor = false;
             this.btnReceiptyes.Click += new System.EventHandler(this.BtnReceiptyes_Click);
             // 
-            // btnFastTransaction
+            // button1
             // 
-            this.btnFastTransaction.AccessibleName = "Button";
-            this.btnFastTransaction.BackColor = System.Drawing.Color.LightGray;
-            this.btnFastTransaction.Font = new System.Drawing.Font("Segoe UI Semibold", 10F);
-            this.btnFastTransaction.Location = new System.Drawing.Point(12, 123);
-            this.btnFastTransaction.Name = "btnFastTransaction";
-            this.btnFastTransaction.Size = new System.Drawing.Size(139, 33);
-            this.btnFastTransaction.Style.BackColor = System.Drawing.Color.LightGray;
-            this.btnFastTransaction.TabIndex = 27;
-            this.btnFastTransaction.Text = "Snel pinnen: R50";
-            this.btnFastTransaction.UseVisualStyleBackColor = false;
-            this.btnFastTransaction.Click += new System.EventHandler(this.BtnFastTransaction_Click);
+            this.button1.Location = new System.Drawing.Point(525, 605);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(35, 23);
+            this.button1.TabIndex = 53;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1_Click_1);
             // 
             // DeBank
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Azure;
-            this.ClientSize = new System.Drawing.Size(1173, 621);
+            this.ClientSize = new System.Drawing.Size(565, 633);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.pnlReceipt);
             this.Controls.Add(this.pnlChooseBill);
             this.Controls.Add(this.pnlOtherTransaction);
@@ -468,6 +480,7 @@
             this.Style.BackColor = System.Drawing.Color.Azure;
             this.Text = "Pinautomaat";
             this.TransparencyKey = System.Drawing.Color.Silver;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DeBank_FormClosing);
             this.Load += new System.EventHandler(this.DeBank_Load);
             this.Shown += new System.EventHandler(this.DeBank_Shown);
             this.pnlOtherTransaction.ResumeLayout(false);
@@ -519,6 +532,7 @@
         private Syncfusion.WinForms.Controls.SfButton btnReceiptyes;
         private System.IO.Ports.SerialPort spMoneyDispenser;
         private Syncfusion.WinForms.Controls.SfButton btnFastTransaction;
+        private System.Windows.Forms.Button button1;
     }
 }
 

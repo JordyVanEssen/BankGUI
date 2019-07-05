@@ -91,8 +91,7 @@ namespace Bank_Project_3_4
         //checks if the entered nuid exists
         private void nuidValidation(String pNuid)
         {
-            updateMessage("Voer uw PIN in op het keypad");
-            myPort.WriteLine("P");
+            updateMessage("Voer uw PIN in op het keypad.\r\n# = enter,\r\n* = backspace");
             _enterPassword = true;
             _validPass = false;
             UpdateForm();
@@ -101,19 +100,18 @@ namespace Bank_Project_3_4
         //checks if the user entered a valid password
         private async void checkPasswordValidation(String pPassword)
         {
-            String lastChar = "";
-            ClientPasswordCheck checkPass = new ClientPasswordCheck();
             if (pPassword != "#" && pPassword != "*" && !string.IsNullOrEmpty(pPassword))
             {
+                // the 'X' is added to the label
                 _lblPincodeText += "X";
                 _enteredPassword += pPassword;
-                lastChar = pPassword;
                 _loggedOut = false;
                 updateText(_lblPincodeText);
                 _lblPincodeText = string.Empty;
             }
             else if (pPassword == "*")
             {
+                // the last 'X' is removed
                 if (_enteredPassword.Length >= 1)
                 {
                     _enteredPassword = _enteredPassword.Remove(_enteredPassword.Length - 1);
@@ -123,12 +121,14 @@ namespace Bank_Project_3_4
             else if(pPassword == "#")
             {
                 //validates the password
-
-                //int response = await checkPass.validatePassword(_enteredPassword, _currentClientIban);
+                // awaits the response from the server -> based on valid credentials
                 int response = await _httpRequest.httpGetRequest($"Authentication/{_enteredPassword}/{_currentClientIban}");
 
                 if (response == 0)
+                {
                     _validPass = false;
+                    updateMessage("Uw wachtwoord is incorrect,\nprobeer het alstublieft opnieuw.");
+                }
                 else if (response == 1)
                     _validPass = true;
                 else if (response == 2)
@@ -146,9 +146,9 @@ namespace Bank_Project_3_4
                 }
                 else
                 {
-                    if (response == 0)
+                    // logs out if the server returns something other then 1
+                    if (response != 1)
                     {
-                        updateMessage("Uw wachtwoord is incorrect, probeer het alstublieft opnieuw.");
                         myPort.Write("R");
                         _loggedOut = true;
                         _enterPassword = false;
@@ -157,19 +157,19 @@ namespace Bank_Project_3_4
                         logOut();
                     }
                 }
-                //_enteredPassword = string.Empty;
             }
         }
 
         public void updateMessage(String pInput)
         {
-            //update the label text
+            //update the label message text to inform the user
             if (InvokeRequired)
             {
                 this.Invoke(new Action<String>(updateMessage), new object[] { pInput });
                 return;
             }
 
+            lblMessage.Text = string.Empty;
             lblMessage.Text = pInput;
         }
 
@@ -185,22 +185,23 @@ namespace Bank_Project_3_4
 
             if (_loggedOut)
             {
-                lblMessage.Text = $"Welkom, houd uw pas voor de reader.";
+                updateMessage($"Welkom, houd uw pas voor de reader.");
                 lblPinCode.Visible = false;
             }
             else
             {
-                lblMessage.Text = $"Voer uw PIN in op het keypad. \n # = enter. * = backspace";
+                updateMessage($"Voer uw PIN in op het keypad.\r\n# = enter,\r\n* = backspace");
                 lblPinCode.Visible = true;
 
                 if (pInput == "<>")
                 {
+                    // removes the last X
                     _lblPincodeText = lblPinCode.Text.Substring(4);
                     if (_lblPincodeText.Length >= 1)
                     {
                         _lblPincodeText = _lblPincodeText.Remove(_lblPincodeText.Length - 1);
                     }
-                    lblPinCode.Text = $"PIN:{_lblPincodeText}";
+                    lblPinCode.Text = $"PIN: {_lblPincodeText}";
                     _lblPincodeText = string.Empty;
                 }
                 else
@@ -213,15 +214,17 @@ namespace Bank_Project_3_4
         //transaction
         public async void transaction(String pAmount, String pBill)
         {
-            if (!string.IsNullOrEmpty(pAmount) || !string.IsNullOrEmpty(pBill))
+            if (!string.IsNullOrEmpty(pAmount) && !string.IsNullOrEmpty(pBill))
             {
+
                 try
                 {
                     if (!spMoneyDispenser.IsOpen)
                     {
-                        //spMoneyDispenser.BaudRate = 9600;
-                        //spMoneyDispenser.PortName = "COM3";
-                        //spMoneyDispenser.Open();
+                        // opens the port to the moneydispenser
+                        spMoneyDispenser.BaudRate = 9600;
+                        spMoneyDispenser.PortName = "COM5";
+                        spMoneyDispenser.Open();
                     }
                 }
                 catch (Exception ex)
@@ -231,51 +234,56 @@ namespace Bank_Project_3_4
 
                 DateTime now = DateTime.Today;
 
-                int status = 0;
+                int status = 1;
+                updateMessage("Aan het verwerken...");
+
+                // if the port is open
                 if (spMoneyDispenser.IsOpen)
                 {
-                    if (_wantReceipt)
-                    {
-                        spMoneyDispenser.Write($"{pAmount}>{_currentClientIban.Remove(0, 11)}>{DateTime.Today.ToString("d")}>{DateTime.Now.ToString("HH:mm:ss tt")}");
-                        Thread.Sleep(10000);
-                    }
-
                     ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, spMoneyDispenser, _enteredPassword);
                     status = await exeTransaction.executeTransaction(pBill, pAmount);
                 }
                 else
                 {
+                    // if not
                     ExecuteTransaction exeTransaction = new ExecuteTransaction(_currentClientIban, _enteredPassword);
                     status = await exeTransaction.executeTransaction(pBill, pAmount);
                 }
 
                 if (status == 0)
                 {
-                    updateMessage("Vergeet uw geld en uw pas niet!");
-                    Thread.Sleep(2500);
+                    if (_wantReceipt)
+                    {
+                        // prints the receipt if the user wants it
+                        updateMessage("Bon aan het printen...");
 
-                    updateMessage("Tot de volgende keer!");
-                    Thread.Sleep(2500);
-
-                    logOut();
+                        spMoneyDispenser.Write($"{pAmount}>{_currentClientIban.Remove(0, 11)}>{DateTime.Today.ToString("d")}>{DateTime.Now.ToString("HH:mm:ss tt")}");
+                        Thread.Sleep(2000);
+                        logOut();
+                    }
                 }
                 else
                 {
                     if (await _httpRequest.httpGetRequest($"ClientSaldo/{_currentClientIban}") < Convert.ToInt32(pAmount))
                     {
-                        updateText("Te weinig saldo...");
+                        updateMessage("Te weinig saldo...");
                     }
                     else if (string.IsNullOrEmpty(pAmount) || string.IsNullOrEmpty(pBill))
                     {
-                        updateText("Vul aub al de velden in");
+                        updateMessage("Vul aub al de velden in");
+                    }
+                    else if(status == 2)
+                    {
+                        updateMessage("Getallen invoeren die deelbaar zijn door 10");
                     }
                     else
                     {
-                        updateText("Graag alleen getallen invoeren.");
+                        updateMessage("Graag alleen getallen invoeren.");
                     }
                     Thread.Sleep(2000);
                 }
             }
+            _Amount = 0;
         }
 
         //updates the text and visibility of the form
@@ -291,12 +299,10 @@ namespace Bank_Project_3_4
             {
                 _enterPassword = false;
                 updateMessage("");
-                myPort.WriteLine("P");
                 showPanel(pnlMenu);
             }
             else
             {
-                lblMessage.Visible = true;
                 showPanel(null);
             }
 
@@ -309,22 +315,23 @@ namespace Bank_Project_3_4
             else
             {
                 lblPinCode.Visible = false;
-                btnCancel.Visible = false;
             }
         }
 
         //logs out
         public void logOut()
         {
+            updateMessage("Tot ziens!");
+            Thread.Sleep(2000);
+
             _enterPassword = false;
             _validPass = false;
             _loggedOut = true;
             _enteredPassword = string.Empty;
-
-            UpdateForm();
-            updateText("");
             
             myPort.WriteLine("R");
+            UpdateForm();
+            updateText("");
         }
 
         //gets the usefull data out of the input string
@@ -342,22 +349,21 @@ namespace Bank_Project_3_4
         //fills the dropdown with the bills which can be selected
         private async void addItemsToDropDown(int pAmount)
         {
-            for (int i = 0; i < bill.Length; i++)
-            {
-                cmbChooseBill.Items.Remove($"R{bill[i]}");
-            }
-            cmbChooseBill.Items.Remove("Geen biljet beschikbaar.");
+            cmbChooseBill.Items.Clear();
 
             for (int i = 0; i < bill.Length; i++)
             {
+                // gets the amount of the chosen bill 
                 int amount = await _httpRequest.httpGetRequest($"BillItems/{bill[i]}");
 
+                // if there is enough
                 if (pAmount >= bill[i] && amount > 0)
                 {
                     cmbChooseBill.Items.Add($"R{bill[i]}");
                 }
             }
 
+            // if there is no bill option
             if (cmbChooseBill.Items.Count < 1)
                 cmbChooseBill.Items.Add("Geen biljet beschikbaar.");
         }
@@ -376,6 +382,7 @@ namespace Bank_Project_3_4
             //reads the incoming serial data
             serialInput = myPort.ReadLine();
 
+            // if a pass is entered
             if (serialInput.Contains("nuid{"))
             {
                 String nuidResult = stripString("nuid{", "}", serialInput);
@@ -383,7 +390,8 @@ namespace Bank_Project_3_4
 
                 _currentClientIban = nuidResult.Trim();
 
-                if (_currentClientIban.Contains("failed"))
+                // some times it fails to read the pass correct
+                if (_currentClientIban.Contains("failed") || _currentClientIban.Contains("?"))
                 {
                     updateMessage("Uw pas is niet goed uitgelezen...");
                     myPort.Write("R");
@@ -401,16 +409,18 @@ namespace Bank_Project_3_4
             }
             else if (serialInput.Contains("pw{"))
             {
+                // if the user typed the password
+
                 String pwResult = stripString("pw{", "}", serialInput);
 
+                // checks if the password is vald
                 if (!string.IsNullOrEmpty(pwResult) && !_validPass)
                 {
                     checkPasswordValidation(pwResult);
                 }
                 else
                 {
-                    if (pnlOtherTransaction.Visible)
-                        addNumToTb(pwResult);
+                    addNumToTb(pwResult);
                 }
             }
         }
@@ -435,8 +445,10 @@ namespace Bank_Project_3_4
         //makes panels visible or not
         private void showPanel(Panel pPanel)
         {
+            // the panels are used as frames to be shown to the user
             Panel[] pnlList = { pnlMenu, pnlOtherTransaction, pnlSaldo, pnlTransaction, pnlBack, pnlChooseBill, pnlReceipt };
 
+            // finds the panel which has to shown
             foreach (Panel panel in pnlList)
             {
                 panel.Visible = false;
@@ -470,7 +482,6 @@ namespace Bank_Project_3_4
         //execute a transaction
         private void btnTransaction_Click(object sender, EventArgs e)
         {
-            //transaction();
             showPanel(pnlTransaction);
         }
 
@@ -478,18 +489,27 @@ namespace Bank_Project_3_4
         private async void btnGetSaldo_Click(object sender, EventArgs e)
         {
             showPanel(pnlSaldo);
-
-            tbUserSaldo.Text = $"€{await _httpRequest.httpGetRequest($"ClientSaldo/{_currentClientIban}")}";
+            // gets the clients saldo
+            tbUserSaldo.Text = $"R{await _httpRequest.httpGetRequest($"ClientSaldo/{_currentClientIban}")}";
         }
 
         private void tbAmount_TextChanged(object sender, EventArgs e)
         {
+            // checks if the user only entered numbers
             CheckValidUserInput check = new CheckValidUserInput();
             if (!string.IsNullOrEmpty(tbAmount.Text))
             {
                 if(check.validInput(tbAmount.Text, true))
                 {
-                    addItemsToDropDown(Convert.ToInt32(tbAmount.Text));
+                    try
+                    {
+                        addItemsToDropDown(Convert.ToInt32(tbAmount.Text));
+                    }
+                    catch (OverflowException ex)
+                    {
+                        updateMessage("Te groot getal... niet doen aub :)");
+                        Thread.Sleep(2000);
+                    }
                 }
             }
         }
@@ -501,9 +521,33 @@ namespace Bank_Project_3_4
 
         private void BtnExeOtherTransaction_Click(object sender, EventArgs e)
         {
-            showPanel(pnlReceipt);
+            // checks if all the inputs are valid
+            if (!string.IsNullOrWhiteSpace(cmbChooseBill.Text))
+            {
+                if (_Amount == 0 || string.IsNullOrWhiteSpace(cmbChooseBill.Text))
+                {
+                    if (_Amount == 0 && string.IsNullOrWhiteSpace(tbAmount.Text))
+                    {
+                        updateMessage("Graag al de velden invullen");
+                    }
+                    else
+                    {
+                        showPanel(pnlReceipt);
+                    }
+                }
+                else
+                {
+                    showPanel(pnlReceipt);
+                }
+            }
+            else
+            {
+                updateMessage("Kies ook een biljet");
+            }
+
         }
 
+        // btn 10, 50, 100 -> fast transaction buttons
         private void Btn10_Click(object sender, EventArgs e)
         {
             _Amount = 10;
@@ -525,12 +569,12 @@ namespace Bank_Project_3_4
         private void BtnBack_Click(object sender, EventArgs e)
         {
             showPanel(pnlMenu);
+            updateMessage("");
         }
 
         private void BtnOtherUserValidation_Click(object sender, EventArgs e)
         {
-            //_httpRequest = new HttpRequest("Authentication");
-            //int response = await HttpRequest.AuthenticationAsync(_httpRequest.createUrl(), $"{tbOtherPassword.Text}/{tbOtherIban.Text}");
+          // used for debugging  
         }
 
         private void Button1_Click(object sender, EventArgs e)
@@ -540,34 +584,61 @@ namespace Bank_Project_3_4
 
         private void BtnReceiptyes_Click(object sender, EventArgs e)
         {
+            // prints the receipt & executes the transaction
             _wantReceipt = true;
 
             if (tbAmount.Text == string.Empty)
                 transaction(_Amount.ToString(), cmbChooseBill.Text);
             else
                 transaction(tbAmount.Text, cmbChooseBill.Text);
+            tbAmount.Text = string.Empty;
+            logOut();
         }
 
         private void BtnReceiptNo_Click(object sender, EventArgs e)
         {
+            // doesnt print and executes the transaction
             _wantReceipt = false;
 
             if (tbAmount.Text == string.Empty)
                 transaction(_Amount.ToString(), cmbChooseBill.Text);
             else
                 transaction(tbAmount.Text, cmbChooseBill.Text);
+            tbAmount.Text = string.Empty;
+            logOut();
         }
 
         private void BtnFastTransaction_Click(object sender, EventArgs e)
         {
             transaction(50.ToString(), 50.ToString());
+            Thread.Sleep(2000);
             logOut();
         }
         #endregion
 
         private void DeBank_Shown(object sender, EventArgs e)
         {
+        }
+
+        private void Button1_Click_1(object sender, EventArgs e)
+        {
             APICentraleBankConnection f = new APICentraleBankConnection();
+            f.Show();
+            button1.Visible = false;
+        }
+
+        private void DeBank_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // closes all the open ports    
+            if (myPort.IsOpen)
+            {
+                myPort.Close();
+            }
+
+            if (spMoneyDispenser.IsOpen)
+            {
+                myPort.Close();
+            }
         }
     }
 }

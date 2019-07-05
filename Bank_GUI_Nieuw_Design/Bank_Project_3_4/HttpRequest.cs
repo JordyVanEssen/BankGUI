@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.IO.Ports;
-using System.Data.Entity;
 using System.Net.Http;
 using BankDataLayer;
-using Bank_Project_3_4.Models;
 using System.Net;
 
 namespace Bank_Project_3_4
@@ -24,10 +14,7 @@ namespace Bank_Project_3_4
         private String _url = "https://project34bank.azurewebsites.net/api/";
         //private String _url = "https://localhost:5001/api/";
 
-        public HttpRequest()
-        {
-
-        }
+        public HttpRequest() { }
 
         public async Task<int> httpGetRequest(String pUrl)
         {

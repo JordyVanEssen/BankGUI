@@ -1,0 +1,41 @@
+21-6-2019 18:50:25 - true
+21-6-2019 18:50:25 - true
+21-6-2019 18:50:39 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU90NOOD123456','PIN':'1234','Amount':0.0}"]
+21-6-2019 18:50:39 - ["True"]
+21-6-2019 18:51:03 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'withdraw','IBAN':'SU90NOOD123456','PIN':'1234','Amount':50.0}"]
+21-6-2019 18:51:03 - ["True"]
+21-6-2019 18:51:26 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU90NOOD123456','PIN':'12344','Amount':0.0}"]
+21-6-2019 18:54:26 - true
+21-6-2019 18:54:26 - true
+21-6-2019 18:54:26 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU90NOOD123456','PIN':'1234','Amount':0.0}"]
+21-6-2019 18:54:26 - false
+21-6-2019 18:55:33 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU90NOOD123456','PIN':'1234','Amount':0.0}"]
+21-6-2019 18:55:33 - false
+21-6-2019 18:56:18 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU90NOOD123456','PIN':'1234','Amount':0.0}"]
+21-6-2019 18:56:18 - false
+21-6-2019 18:59:33 - Response: true
+21-6-2019 18:59:33 - Response: true
+21-6-2019 18:59:45 - Message sent: ["sunood", "{'IDRecBank':'sunood','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU90NOOD123456','PIN':'1234','Amount':0.0}"]
+21-6-2019 18:59:45 - Response: false
+28-6-2019 09:15:49 - Response: true
+28-6-2019 09:15:49 - Response: true
+28-6-2019 09:16:14 - Response: true
+28-6-2019 09:16:14 - Response: true
+28-6-2019 11:16:22 - Response: true
+28-6-2019 11:16:22 - Response: true
+28-6-2019 11:22:03 - Response: true
+28-6-2019 11:22:03 - Response: true
+28-6-2019 11:56:32 - Message sent: ["sucoba", "{'IDRecBank':'sucoba','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU52COBA316103','PIN':'1234','Amount':0.0}"]
+28-6-2019 11:57:42 - Response: true
+28-6-2019 11:57:42 - Response: true
+28-6-2019 11:58:46 - Message sent: ["suuvvu", "{'IDRecBank':'suuvvu','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU15UVVU239355','PIN':'8230','Amount':0.0}"]
+28-6-2019 11:58:47 - Response: ["True"]
+28-6-2019 11:59:39 - Message sent: ["suuvvu", "{'IDRecBank':'suuvvu','IDSenBank':'supils','Func':'pinCheck','IBAN':'SU15UVVU239355','PIN':'8230','Amount':0.0}"]
+28-6-2019 11:59:39 - Response: ["True"]
+28-6-2019 11:59:58 - Message sent: ["suuvvu", "{'IDRecBank':'suuvvu','IDSenBank':'supils','Func':'withdraw','IBAN':'SU15UVVU239355','PIN':'8230','Amount':50.0}"]
+28-6-2019 12:10:16 - Response: true
+28-6-2019 12:10:16 - Response: true
+3-7-2019 14:57:55 - Response: true
+3-7-2019 14:57:55 - Response: true
+5-7-2019 14:00:38 - Response: true
+5-7-2019 14:00:38 - Response: true

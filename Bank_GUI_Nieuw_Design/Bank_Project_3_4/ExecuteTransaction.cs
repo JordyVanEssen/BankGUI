@@ -8,6 +8,7 @@ namespace Bank_Project_3_4
 {
     public class ExecuteTransaction
     {
+        // all the needed variables with easy to understand names
         SerialPort _sp;
         private String _currentClientNuid;
         private HttpRequest _httpRequest = new HttpRequest();
@@ -40,8 +41,10 @@ namespace Bank_Project_3_4
 
         public async Task<int> executeTransaction(String pBill, String pAmount)
         {
+            // checks if the values are valid
             if (!string.IsNullOrEmpty(pBill) && !string.IsNullOrEmpty(pAmount))
             {
+                // the amount the user wants to withdraw
                 int amount = Convert.ToInt32(pAmount.Replace("R", ""));
 
                 if (!string.IsNullOrEmpty(pBill))
@@ -52,27 +55,32 @@ namespace Bank_Project_3_4
                     //withdraw
                     if (((double)amount / (double)_billValue) % 1 == 0)
                     {
-                        if (_sp != null)
-                        {
-                            if (_billValue == 10)
-                                _sp.Write("$1");
-
-                            else if (_billValue == 20)
-                                _sp.Write("%1");
-
-                            else if (_billValue == 50)
-                                _sp.Write("&1");
-                        }
                         _status = await _httpRequest.httpGetRequest($"Withdraw/{_currentClientNuid}/ATM/{amount}/{_password}");
 
-                        await _httpRequest.httpGetRequest($"BillItems/{_billValue}/1");
+                        if (_status == 0)
+                        {
+                            if (_sp != null)
+                            {
+                                // sens the amount of bills to the moneydispenser
+                                if (_billValue == 10)
+                                    _sp.Write($"${amount / _billValue}");
+
+                                else if (_billValue == 20)
+                                    _sp.Write($"%{amount / _billValue}");
+
+                                else if (_billValue == 50)
+                                    _sp.Write($"&{amount / _billValue}");
+                            }
+
+                            // removes the bills from the database
+                            await _httpRequest.httpGetRequest($"BillItems/{_billValue}/{amount / _billValue}");
+                        }
                     }
                     else
                     {
+                        // calculates the other options
                        _status = await alternativeBilloption(amount);
                     }
-
-                    
                 }
             }
             return _status;
@@ -80,50 +88,63 @@ namespace Bank_Project_3_4
 
         private async Task<int> alternativeBilloption(double pAmount)
         {
-            _index = 0;
             int withdrawAmount = Convert.ToInt32(pAmount);
 
-            while (pAmount >= _billValue)
+            if ((withdrawAmount / 10) % 1 != 0)
+                return 2;
+
+            _status = await _httpRequest.httpGetRequest($"Withdraw/{_currentClientNuid}/ATM/{withdrawAmount}/{_password}");
+            _index = 0;
+
+            if (_status == 0)
             {
-                _billCount++;
-                pAmount -= _billValue;
+                while (pAmount >= _billValue)
+                {
+                    _billCount++;
+                    pAmount -= _billValue;
+                }
+
+                addBillToArray(_billValue, _billCount);
+
+                while (pAmount >= _bill.Last())
+                {
+                    _billCount++;
+                    pAmount -= _bill.Last();
+
+                }
+                addBillToArray(_bill.Last(), _billCount);
+
+                while (pAmount >= _bill[1])
+                {
+                    _billCount++;
+                    pAmount -= _bill[1];
+                }
+                addBillToArray(_bill[1], _billCount);
+
+                while (pAmount >= _bill[0])
+                {
+                    _billCount++;
+                    pAmount -= _bill[0];
+                }
+                addBillToArray(_bill[0], _billCount);
+
+                if (pAmount != 0)
+                {
+                    withdrawAmount -= (int)pAmount;
+                }
+
+                if (_sp != null && _wantedBills[0] != "")
+                {
+                    for (int i = 0; i < _wantedBills.Length; i++)
+                    {
+                        // writes to the arduino
+                        _sp.Write(_wantedBills[i]);
+                        Thread.Sleep(4000);
+                    }
+                }
             }
 
-            addBillToArray(_billValue, _billCount);
-
-            while (pAmount >= _bill.Last())
-            {
-                _billCount++;
-                pAmount -= _bill.Last();
-
-            }
-            while (pAmount >= _bill[1])
-            {
-                _billCount++;
-                pAmount -= _bill[1];
-            }
-            addBillToArray(_bill[1], _billCount);
-
-
-            while (pAmount >= _bill[0])
-            {
-                _billCount++;
-                pAmount -= _bill[0];
-            }
-            addBillToArray(_bill[0], _billCount);
-
-            if (pAmount != 0)
-            {
-                withdrawAmount -= (int)pAmount;       
-            }
-
-            for (int i = 0; i < _wantedBills.Length; i++)
-            {
-                _sp.Write(_wantedBills[i]);
-                Thread.Sleep(4000);
-            }
-
-            return await _httpRequest.httpGetRequest($"Withdraw/{_currentClientNuid}/ATM/{withdrawAmount}/{_password}");
+            return _status;
         }
 
         public async void addBillToArray(int pBillVal, int pAmount)
@@ -149,10 +170,10 @@ namespace Bank_Project_3_4
             else if (pBillVal == 50)
                 bill = $"&{pAmount}";
 
-            _status = await _httpRequest.httpGetRequest($"BillItems/{pBillVal}/{pAmount}");
-
             _wantedBills[_index] = bill;
             _index++;
+
+            await _httpRequest.httpGetRequest($"BillItems/{pBillVal}/{pAmount}");
         }
     }
 }
